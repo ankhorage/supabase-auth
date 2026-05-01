@@ -1,0 +1,35 @@
+{
+  "packageName": "@ankhorage/supabase-auth",
+  "packageId": "@ankhorage/supabase-auth",
+  "description": "Supabase auth adapter implementing shared TypeScript auth contracts.",
+  "usage": null,
+  "config": null,
+  "exports": [
+    {
+      "name": "createSupabaseAuthAdapter",
+      "description": null,
+      "kind": "function"
+    },
+    {
+      "name": "SupabaseAuthConfig",
+      "description": null,
+      "kind": "type"
+    },
+    {
+      "name": "SupabaseAuthErrorCode",
+      "description": null,
+      "kind": "unknown"
+    },
+    {
+      "name": "SupabaseAuthStorage",
+      "description": null,
+      "kind": "type"
+    },
+    {
+      "name": "SupabaseProviderErrorCause",
+      "description": null,
+      "kind": "type"
+    }
+  ],
+  "components": []
+}

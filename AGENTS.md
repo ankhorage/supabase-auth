@@ -188,3 +188,4 @@ High-level goals:
 - Checkpoint with git before risky execution steps.
 - Add or update the relevant `.changeset/*.md` file before committing package changes.
 - Commit completed, verified work unless the user explicitly asks you not to.
+```

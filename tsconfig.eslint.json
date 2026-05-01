@@ -18,11 +18,6 @@
       "@ankhorage/supabase-auth": ["src/index.ts"]
     }
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "eslint.config.mjs",
-    ".prettierrc.js"
-  ],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "eslint.config.mjs", ".prettierrc.js"],
   "exclude": ["dist", "node_modules"]
 }

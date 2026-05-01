@@ -5,8 +5,7 @@ export default defineParadoxConfig({
 
   docs: {
     title: '@ankhorage/supabase-auth',
-    description:
-      'Supabase auth adapter implementing shared TypeScript auth contracts.',
+    description: 'Supabase auth adapter implementing shared TypeScript auth contracts.',
   },
 
   package: {

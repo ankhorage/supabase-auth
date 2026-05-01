@@ -1,5 +1,11 @@
 # @ankhorage/supabase-auth
 
+## 0.2.1
+
+### Patch Changes
+
+- ea7cc93: trigger release
+
 ## 0.2.0
 
 ### Minor Changes

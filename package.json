@@ -19,7 +19,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ankhorage/supabase-auth"
+    "url": "git+https://github.com/ankhorage/supabase-auth.git"
   },
   "keywords": [
     "auth",

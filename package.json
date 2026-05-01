@@ -1,0 +1,58 @@
+{
+  "name": "@ankhorage/supabase-auth",
+  "type": "module",
+  "version": "0.1.0",
+  "description": "",
+  "homepage": "https://github.com/ankhorage/supabase-auth#readme",
+  "bugs": {
+    "url": "https://github.com/ankhorage/supabase-auth/issues"
+  },
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "sideEffects": false,
+  "types": "./dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ankhorage/supabase-auth.git"
+  },
+  "keywords": [
+    "auth",
+    "authentication",
+    "supabase"
+  ],
+  "files": [
+    "dist",
+    "src",
+    "package.json",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "",
+    "changeset": "changeset",
+    "changeset:status": "changeset status --since=origin/main",
+    "paradox": "bunx @ankhorage/paradox",
+    "knip": "knip",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix --max-warnings=0",
+    "format": "prettier --write .",
+    "prepack": "bun run build",
+    "test": "bun test src",
+    "typecheck": "bun x tsc --noEmit -p tsconfig.json",
+    "version-packages": "changeset version"
+  },
+  "devDependencies": {
+    "@ankhorage/devtools": "^1.0.1",
+    "@ankhorage/paradox": "^0.0.2",
+    "@changesets/cli": "^2.31.0",
+    "@types/bun": "^1.3.13",
+    "@types/node": "^25.6.0",
+    "knip": "^5.88.1",
+    "typescript": "^5.9.3"
+  },
+  "packageManager": "bun@1.3.13"
+}

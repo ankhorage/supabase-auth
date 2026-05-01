@@ -1,0 +1,9 @@
+{
+  "packageName": "@ankhorage/supabase-auth",
+  "packageId": "@ankhorage/supabase-auth",
+  "description": "Description to follow.",
+  "usage": null,
+  "config": null,
+  "exports": [],
+  "components": []
+}

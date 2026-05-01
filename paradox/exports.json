@@ -1,1 +1,27 @@
-[]
+[
+  {
+    "name": "createSupabaseAuthAdapter",
+    "description": null,
+    "kind": "function"
+  },
+  {
+    "name": "SupabaseAuthConfig",
+    "description": null,
+    "kind": "type"
+  },
+  {
+    "name": "SupabaseAuthErrorCode",
+    "description": null,
+    "kind": "unknown"
+  },
+  {
+    "name": "SupabaseAuthStorage",
+    "description": null,
+    "kind": "type"
+  },
+  {
+    "name": "SupabaseProviderErrorCause",
+    "description": null,
+    "kind": "type"
+  }
+]

@@ -4,6 +4,9 @@
   "workspaces": {
     "": {
       "name": "@ankhorage/supabase-auth",
+      "dependencies": {
+        "@ankhorage/contracts": "^0.1.2",
+      },
       "devDependencies": {
         "@ankhorage/devtools": "^1.0.1",
         "@ankhorage/paradox": "^0.0.3",
@@ -16,6 +19,8 @@
     },
   },
   "packages": {
+    "@ankhorage/contracts": ["@ankhorage/contracts@0.1.2", "", {}, "sha512-6Sp2EYtk1clxJ4opDDk/4hl1QyqKrBwxv+83nASYYZP7HwaR7pbwO+Lg/DEPzCmzpmUI9hdVw2hDIwyJm8t6qA=="],
+
     "@ankhorage/devtools": ["@ankhorage/devtools@1.0.1", "", { "dependencies": { "@eslint/js": "^10.0.1", "eslint": "^10.2.0", "eslint-config-prettier": "^10.1.8", "eslint-plugin-import": "^2.32.0", "eslint-plugin-prettier": "^5.5.5", "eslint-plugin-simple-import-sort": "^12.1.1", "eslint-plugin-unused-imports": "^4.4.1", "prettier": "^3.8.1", "typescript-eslint": "^8.24.0" } }, "sha512-Qpr+TL7biJnUwIYvZtuvG/oXq43+UyBoM+Q61pVDCmTA13Uu/a/A669U9fqJprFAicJfBDWBi/NJ7WvVH+ud/Q=="],
 
     "@ankhorage/paradox": ["@ankhorage/paradox@0.0.3", "", { "dependencies": { "ts-morph": "^24.0.0" }, "bin": { "paradox": "dist/cli.js" } }, "sha512-B0NqBvruu/nBE6qfX3kRYBQsot7ObY77RjhGpDh8em0IdmPqGLv98EA3CFX3+sCxLu4H4wqSRtW+5LrxvyYYfA=="],

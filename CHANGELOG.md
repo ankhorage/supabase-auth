@@ -1,5 +1,11 @@
 # @ankhorage/supabase-auth
 
+## 0.2.3
+
+### Patch Changes
+
+- Bind the default fetch implementation safely for browser and Expo web runtimes.
+
 ## 0.2.2
 
 ### Patch Changes

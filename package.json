@@ -1,7 +1,7 @@
 {
   "name": "@ankhorage/supabase-auth",
   "type": "module",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Supabase auth adapter implementing shared TypeScript auth contracts.",
   "homepage": "https://github.com/ankhorage/supabase-auth#readme",
   "bugs": {

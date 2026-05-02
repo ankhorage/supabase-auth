@@ -1,3 +1,5 @@
+export type SupabaseAuthFetch = (input: string, init?: RequestInit) => Promise<Response>;
+
 export interface SupabaseAuthStorage {
   getItem(key: string): string | Promise<string | null> | null;
   setItem(key: string, value: string): void | Promise<void>;
@@ -7,7 +9,7 @@ export interface SupabaseAuthStorage {
 export interface SupabaseAuthConfig {
   url: string;
   anonKey: string;
-  fetch?: typeof fetch;
+  fetch?: SupabaseAuthFetch;
   storage?: SupabaseAuthStorage;
   storageKey?: string;
 }

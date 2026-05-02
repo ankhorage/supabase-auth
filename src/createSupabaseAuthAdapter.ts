@@ -12,7 +12,7 @@ import type {
 
 import { createAuthError, mapNetworkError, mapSupabaseError, readResponseBody } from './errors.js';
 import { normalizeSupabaseSession, normalizeSupabaseUser, parseStoredSession } from './session.js';
-import type { SupabaseAuthConfig } from './types.js';
+import type { SupabaseAuthConfig, SupabaseAuthFetch } from './types.js';
 
 const DEFAULT_STORAGE_KEY = 'ankhorage.supabase-auth.session';
 
@@ -34,7 +34,7 @@ export function createSupabaseAuthAdapter(config: SupabaseAuthConfig): AuthAdapt
       url.searchParams.set('redirect_to', options.redirectTo);
     }
 
-    return normalizedConfig.fetch(url, {
+    return normalizedConfig.fetch(url.toString(), {
       method: 'POST',
       headers: createHeaders(normalizedConfig.anonKey, options.accessToken),
       body: options.body === undefined ? undefined : JSON.stringify(options.body),
@@ -188,28 +188,27 @@ export function createSupabaseAuthAdapter(config: SupabaseAuthConfig): AuthAdapt
 
     async signOut(input?: SignOutInput): Promise<AuthResult> {
       const session = await readStoredSession();
+
+      if (session?.accessToken !== undefined) {
+        try {
+          const response = await request('logout', {
+            accessToken: session.accessToken,
+            body: input?.allDevices === true ? { scope: 'global' } : undefined,
+          });
+
+          if (!response.ok) {
+            const body = await readResponseBody(response);
+
+            return { ok: false, error: mapSupabaseError(response, body) };
+          }
+        } catch (error) {
+          return { ok: false, error: mapNetworkError(error) };
+        }
+      }
+
       await persistSession(null);
 
-      if (session?.accessToken === undefined) {
-        return { ok: true };
-      }
-
-      try {
-        const response = await request('logout', {
-          accessToken: session.accessToken,
-          body: input?.allDevices === true ? { scope: 'global' } : undefined,
-        });
-
-        if (!response.ok) {
-          const body = await readResponseBody(response);
-
-          return { ok: false, error: mapSupabaseError(response, body) };
-        }
-
-        return { ok: true };
-      } catch (error) {
-        return { ok: false, error: mapNetworkError(error) };
-      }
+      return { ok: true };
     },
 
     async getSession(): Promise<AuthResult<AuthSession | null>> {
@@ -250,7 +249,9 @@ export function createSupabaseAuthAdapter(config: SupabaseAuthConfig): AuthAdapt
         };
       }
 
-      if (input.identifier.value.length === 0) {
+      const value = input.identifier.value.trim();
+
+      if (value.length === 0) {
         return {
           ok: false,
           error: createAuthError('missing_identifier', 'An auth identifier is required.'),
@@ -260,7 +261,7 @@ export function createSupabaseAuthAdapter(config: SupabaseAuthConfig): AuthAdapt
       try {
         const response = await request('recover', {
           body: {
-            email: input.identifier.value,
+            email: value,
           },
           redirectTo: input.redirectTo,
         });
@@ -278,7 +279,9 @@ export function createSupabaseAuthAdapter(config: SupabaseAuthConfig): AuthAdapt
     },
 
     async verifyOtp(input: VerifyOtpInput): Promise<AuthResult<AuthSession>> {
-      if (input.token.length === 0) {
+      const token = input.token.trim();
+
+      if (token.length === 0) {
         return {
           ok: false,
           error: createAuthError('validation_error', 'An OTP token is required.'),
@@ -295,9 +298,8 @@ export function createSupabaseAuthAdapter(config: SupabaseAuthConfig): AuthAdapt
         const response = await request('verify', {
           body: {
             ...identifier.data,
-            token: input.token,
+            token,
             type: input.identifier.kind === 'phone' ? 'sms' : 'email',
-            ...metadataBody(undefined, input.metadata),
           },
           redirectTo: input.redirectTo,
         });
@@ -410,7 +412,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 interface RequiredConfig {
   url: string;
   anonKey: string;
-  fetch: typeof fetch;
+  fetch: SupabaseAuthFetch;
   storage?: SupabaseAuthConfig['storage'];
   storageKey: string;
 }

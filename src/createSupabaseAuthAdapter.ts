@@ -330,7 +330,8 @@ function validateConfig(config: SupabaseAuthConfig): RequiredConfig {
     throw new TypeError('Supabase anon key is required.');
   }
 
-  const fetchImplementation = config.fetch ?? globalThis.fetch;
+  const fetchImplementation: SupabaseAuthFetch =
+    config.fetch ?? ((input, init) => globalThis.fetch(input, init));
 
   if (typeof fetchImplementation !== 'function') {
     throw new TypeError('A fetch implementation is required to use Supabase Auth.');

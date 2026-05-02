@@ -1,5 +1,11 @@
 # @ankhorage/supabase-auth
 
+## 0.2.2
+
+### Patch Changes
+
+- a7640ed: Pass Supabase Auth request URLs to fetch as strings and improve React Native fetch compatibility.
+
 ## 0.2.1
 
 ### Patch Changes

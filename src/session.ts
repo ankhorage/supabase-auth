@@ -98,10 +98,23 @@ export function parseStoredSession(value: string | null): AuthSession | null {
   try {
     const parsed: unknown = JSON.parse(value);
 
-    return isAuthSession(parsed) ? parsed : null;
+    if (!isAuthSession(parsed)) {
+      return null;
+    }
+
+    return {
+      ...parsed,
+      ...(parsed.expiresAt !== undefined
+        ? { expiresAt: normalizeStoredExpiresAt(parsed.expiresAt) }
+        : {}),
+    };
   } catch {
     return null;
   }
+}
+
+function normalizeStoredExpiresAt(value: number): number {
+  return value < 10_000_000_000 ? value * 1000 : value;
 }
 
 function normalizeExpiresAt(
@@ -112,7 +125,7 @@ function normalizeExpiresAt(
   const directExpiresAt = numberValue(expiresAt);
 
   if (directExpiresAt !== undefined) {
-    return directExpiresAt;
+    return directExpiresAt < 10_000_000_000 ? directExpiresAt * 1000 : directExpiresAt;
   }
 
   const ttl = numberValue(expiresIn);
@@ -121,7 +134,7 @@ function normalizeExpiresAt(
     return undefined;
   }
 
-  return Math.floor(now / 1000) + ttl;
+  return now + ttl * 1000;
 }
 
 function mergeMetadata(...values: unknown[]): Record<string, unknown> | undefined {

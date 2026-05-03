@@ -131,6 +131,7 @@ describe('createSupabaseAuthAdapter', () => {
   });
 
   it('normalizes a sign-up response with a session', async () => {
+    const supabaseExpiresAtSeconds = 1_800_000_000;
     const calls: FetchCall[] = [];
     const adapter = createSupabaseAuthAdapter({
       url: 'https://example.supabase.co',
@@ -140,7 +141,7 @@ describe('createSupabaseAuthAdapter', () => {
           jsonResponse({
             access_token: 'new-access-token',
             refresh_token: 'new-refresh-token',
-            expires_at: 1_800_000_000,
+            expires_at: supabaseExpiresAtSeconds,
             user: {
               id: 'user-2',
               email: 'new@example.com',
@@ -164,7 +165,7 @@ describe('createSupabaseAuthAdapter', () => {
       data: {
         accessToken: 'new-access-token',
         refreshToken: 'new-refresh-token',
-        expiresAt: 1_800_000_000,
+        expiresAt: supabaseExpiresAtSeconds * 1000,
         user: {
           id: 'user-2',
           email: 'new@example.com',

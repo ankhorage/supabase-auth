@@ -1,5 +1,12 @@
 # @ankhorage/supabase-auth
 
+## 0.2.4
+
+### Patch Changes
+
+- c57fc06: fix test: normalize supabase session expiry
+- 4ec9cc6: Normalize Supabase session expiration timestamps to JavaScript milliseconds.
+
 ## 0.2.3
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @ankhorage/supabase-auth
 
+## 0.2.5
+
+### Patch Changes
+
+- 17d1a6f: update @ankhorage/contracts
+
 ## 0.2.4
 
 ### Patch Changes

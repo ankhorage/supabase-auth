@@ -1,5 +1,11 @@
 # @ankhorage/supabase-auth
 
+## 0.2.6
+
+### Patch Changes
+
+- 76bb461: Add the standard package tooling baseline script and workflow files.
+
 ## 0.2.5
 
 ### Patch Changes

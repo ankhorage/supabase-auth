@@ -5,7 +5,7 @@
     "": {
       "name": "@ankhorage/supabase-auth",
       "dependencies": {
-        "@ankhorage/contracts": "^0.3.1",
+        "@ankhorage/contracts": "^1.1.0",
       },
       "devDependencies": {
         "@ankhorage/devtools": "^1.0.1",
@@ -19,7 +19,9 @@
     },
   },
   "packages": {
-    "@ankhorage/contracts": ["@ankhorage/contracts@0.3.1", "", {}, "sha512-l0X+PJ+WQDDp5zAMx+bMlEE6nUrNEAVPehwj9I/ywynveyxorWlXzhOYL4JZNL6vzX4QVJeVOBuMFuXljzsqLQ=="],
+    "@ankhorage/color-theory": ["@ankhorage/color-theory@0.0.2", "", { "dependencies": { "culori": "^4.0.2" } }, "sha512-LH9svgC2gUr4O7qvNTmsMQtSnQQ0lAhuUAWMR3vfpNJIQ28nI09Q/TI5Un7sa6g7743dRaUTa0kHgqLa/JPUEg=="],
+
+    "@ankhorage/contracts": ["@ankhorage/contracts@1.1.0", "", { "dependencies": { "@ankhorage/color-theory": "^0.0.2" } }, "sha512-UJ6Yuw62qqtaU768tQarGdWVnY5vKfdyLKkCvkdKB7zIPGO7mwPZBhIch6BXHSLKLPA+4QBwwxpkZl4a+XTMyQ=="],
 
     "@ankhorage/devtools": ["@ankhorage/devtools@1.0.1", "", { "dependencies": { "@eslint/js": "^10.0.1", "eslint": "^10.2.0", "eslint-config-prettier": "^10.1.8", "eslint-plugin-import": "^2.32.0", "eslint-plugin-prettier": "^5.5.5", "eslint-plugin-simple-import-sort": "^12.1.1", "eslint-plugin-unused-imports": "^4.4.1", "prettier": "^3.8.1", "typescript-eslint": "^8.24.0" } }, "sha512-Qpr+TL7biJnUwIYvZtuvG/oXq43+UyBoM+Q61pVDCmTA13Uu/a/A669U9fqJprFAicJfBDWBi/NJ7WvVH+ud/Q=="],
 
@@ -240,6 +242,8 @@
     "concat-map": ["concat-map@0.0.1", "", {}, "sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg=="],
 
     "cross-spawn": ["cross-spawn@7.0.6", "", { "dependencies": { "path-key": "^3.1.0", "shebang-command": "^2.0.0", "which": "^2.0.1" } }, "sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA=="],
+
+    "culori": ["culori@4.0.2", "", {}, "sha512-1+BhOB8ahCn4O0cep0Sh2l9KCOfOdY+BXJnKMHFFzDEouSr/el18QwXEMRlOj9UY5nCeA8UN3a/82rUWRBeyBw=="],
 
     "data-view-buffer": ["data-view-buffer@1.0.2", "", { "dependencies": { "call-bound": "^1.0.3", "es-errors": "^1.3.0", "is-data-view": "^1.0.2" } }, "sha512-EmKO5V3OLXh1rtK2wgXRansaK1/mtVdTUEiEI0W8RkvgT05kfxaH29PliLnpLP73yYO6142Q72QNa8Wx/A5CqQ=="],
 

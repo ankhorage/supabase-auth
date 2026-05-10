@@ -22,9 +22,12 @@
     "url": "git+https://github.com/ankhorage/supabase-auth.git"
   },
   "keywords": [
+    "typescript",
+    "supabase",
     "auth",
     "authentication",
-    "supabase"
+    "adapter",
+    "session"
   ],
   "files": [
     "dist",

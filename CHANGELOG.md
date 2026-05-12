@@ -1,5 +1,11 @@
 # @ankhorage/supabase-auth
 
+## 0.2.8
+
+### Patch Changes
+
+- 2e0a908: Update packages
+
 ## 0.2.7
 
 ### Patch Changes

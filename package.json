@@ -72,6 +72,8 @@
       "eslint.config.mjs",
       "paradox.config.ts"
     ],
-    "project": ["src/**/*.ts"]
+    "project": [
+      "src/**/*.ts"
+    ]
   }
 }

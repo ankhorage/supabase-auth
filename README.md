@@ -37,6 +37,7 @@ interface SupabaseAuthConfig {
   fetch?: typeof fetch;
   storage?: SupabaseAuthStorage;
   storageKey?: string;
+  oauthProviders?: AuthOAuthProviderId[];
 }
 ```
 
@@ -44,6 +45,9 @@ The adapter uses Supabase Auth REST endpoints directly. It uses the global
 `fetch` implementation by default, or a provided `fetch` override. It never
 uses browser-only storage APIs directly. Pass a `storage` implementation when
 you want sessions persisted outside the adapter instance.
+
+`oauthProviders` is an allow-list for OAuth2 identity providers that the adapter
+may start. Leave it empty or omit it when OAuth2 sign-in should not be exposed.
 
 ## Sign In
 
@@ -59,6 +63,31 @@ if (result.ok) {
   console.error(result.error.code);
 }
 ```
+
+## OAuth2 Sign In
+
+```ts
+const authAdapter: AuthAdapter = createSupabaseAuthAdapter({
+  url: process.env.SUPABASE_URL ?? '',
+  anonKey: process.env.SUPABASE_ANON_KEY ?? '',
+  oauthProviders: ['google', 'github'],
+});
+
+const result = await authAdapter.signInWithOAuth?.({
+  provider: 'google',
+  redirectTo: 'ankhorage://auth/callback',
+  scopes: ['openid', 'email', 'profile'],
+});
+
+if (result?.ok && result.data !== undefined) {
+  // Open result.data.url through the app/browser layer.
+  console.log(result.data.url);
+}
+```
+
+OAuth2 sign-in returns a redirect URL. The adapter does not open browsers,
+handle Expo linking, or render UI; generated apps and runtimes decide how to
+launch the URL and handle callbacks.
 
 ## Sign Up
 

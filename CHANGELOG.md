@@ -1,5 +1,11 @@
 # @ankhorage/supabase-auth
 
+## 0.3.0
+
+### Minor Changes
+
+- 33b1599: Add OAuth2 provider allow-list configuration and redirect sign-in support.
+
 ## 0.2.8
 
 ### Patch Changes

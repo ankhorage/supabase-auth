@@ -43,10 +43,10 @@
     "changeset:status": "changeset status --since=origin/main",
     "docs": "paradox",
     "knip": "knip",
-    "lint": "eslint . --max-warnings=0",
-    "lint:fix": "eslint . --fix --max-warnings=0",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
+    "lint": "ankhorage-eslint . --max-warnings=0",
+    "lint:fix": "ankhorage-eslint . --fix --max-warnings=0",
+    "format": "ankhorage-prettier --write .",
+    "format:check": "ankhorage-prettier --check .",
     "prepack": "bun run build",
     "test": "bun test src",
     "typecheck": "bun x tsc --noEmit -p tsconfig.json",
@@ -64,5 +64,16 @@
   "dependencies": {
     "@ankhorage/contracts": "^1.13.0"
   },
-  "packageManager": "bun@1.3.13"
+  "packageManager": "bun@1.3.13",
+  "knip": {
+    "entry": [
+      "src/index.ts",
+      ".prettierrc.js",
+      "eslint.config.mjs",
+      "paradox.config.ts"
+    ],
+    "project": [
+      "src/**/*.ts"
+    ]
+  }
 }

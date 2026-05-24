@@ -1,24 +1,5 @@
 import type { AuthSession, AuthUser } from '@ankhorage/contracts/auth';
 
-export interface SupabaseAuthUser {
-  id?: unknown;
-  email?: unknown;
-  phone?: unknown;
-  user_metadata?: unknown;
-  app_metadata?: unknown;
-  raw_user_meta_data?: unknown;
-  raw_app_meta_data?: unknown;
-}
-
-export interface SupabaseAuthSessionResponse {
-  access_token?: unknown;
-  refresh_token?: unknown;
-  expires_at?: unknown;
-  expires_in?: unknown;
-  token_type?: unknown;
-  user?: unknown;
-}
-
 export function normalizeSupabaseSession(body: unknown, now = Date.now()): AuthSession | null {
   if (!isRecord(body)) {
     return null;

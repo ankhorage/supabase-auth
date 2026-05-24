@@ -377,9 +377,9 @@ function validateConfig(config: SupabaseAuthConfig): RequiredConfig {
     throw new TypeError('A fetch implementation is required to use Supabase Auth.');
   }
 
-  const oauthProviders = [...new Set((config.oauthProviders ?? []).map((provider) => provider.trim()))].filter(
-    (provider) => provider.length > 0,
-  );
+  const oauthProviders = [
+    ...new Set((config.oauthProviders ?? []).map((provider) => provider.trim())),
+  ].filter((provider) => provider.length > 0);
 
   return {
     url: url.replace(/\/+$/, ''),

@@ -1,3 +1,5 @@
+import type { AuthOAuthProviderId } from '@ankhorage/contracts/auth';
+
 export type SupabaseAuthFetch = (input: string, init?: RequestInit) => Promise<Response>;
 
 export interface SupabaseAuthStorage {
@@ -12,6 +14,7 @@ export interface SupabaseAuthConfig {
   fetch?: SupabaseAuthFetch;
   storage?: SupabaseAuthStorage;
   storageKey?: string;
+  oauthProviders?: AuthOAuthProviderId[];
 }
 
 export type SupabaseAuthErrorCode =
@@ -23,6 +26,7 @@ export type SupabaseAuthErrorCode =
   | 'provider_error'
   | 'session_expired'
   | 'unsupported_identifier'
+  | 'unsupported_oauth_provider'
   | 'validation_error';
 
 export interface SupabaseProviderErrorCause {

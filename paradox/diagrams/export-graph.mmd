@@ -1,0 +1,18 @@
+graph LR
+  module_src_createSupabaseAuthAdapter_ts["src/createSupabaseAuthAdapter.ts"]
+  module_src_errors_ts["src/errors.ts"]
+  module_src_index_ts["src/index.ts"]
+  module_src_session_ts["src/session.ts"]
+  module_src_types_ts["src/types.ts"]
+  export_createSupabaseAuthAdapter["createSupabaseAuthAdapter"]
+  module_src_createSupabaseAuthAdapter_ts --> export_createSupabaseAuthAdapter
+  export_createSupabaseAuthAdapter -.-> export_SupabaseAuthConfig
+  export_SupabaseAuthConfig["SupabaseAuthConfig"]
+  module_src_types_ts --> export_SupabaseAuthConfig
+  export_SupabaseAuthConfig -.-> export_SupabaseAuthStorage
+  export_SupabaseAuthErrorCode["SupabaseAuthErrorCode"]
+  module_src_types_ts --> export_SupabaseAuthErrorCode
+  export_SupabaseAuthStorage["SupabaseAuthStorage"]
+  module_src_types_ts --> export_SupabaseAuthStorage
+  export_SupabaseProviderErrorCause["SupabaseProviderErrorCause"]
+  module_src_types_ts --> export_SupabaseProviderErrorCause

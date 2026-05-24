@@ -1,6 +1,7 @@
 import type {
   AuthAdapter,
   AuthOAuthProviderId,
+  AuthOAuthRedirect,
   AuthResult,
   AuthSession,
   AuthUser,
@@ -314,39 +315,39 @@ export function createSupabaseAuthAdapter(config: SupabaseAuthConfig): AuthAdapt
       }
     },
 
-    async signInWithOAuth(input: SignInWithOAuthInput) {
+    signInWithOAuth(input: SignInWithOAuthInput): Promise<AuthResult<AuthOAuthRedirect>> {
       const provider = input.provider.trim();
 
       if (provider.length === 0) {
-        return {
+        return Promise.resolve({
           ok: false,
           error: createAuthError('unsupported_oauth_provider', 'An OAuth provider is required.'),
-        };
+        });
       }
 
       if (
         normalizedConfig.oauthProviderSet !== undefined &&
         !normalizedConfig.oauthProviderSet.has(provider)
       ) {
-        return {
+        return Promise.resolve({
           ok: false,
           error: createAuthError(
             'unsupported_oauth_provider',
             `OAuth provider "${provider}" is not configured for this adapter.`,
           ),
-        };
+        });
       }
 
       try {
-        return {
+        return Promise.resolve({
           ok: true,
           data: {
             provider,
             url: createOAuthRedirectUrl(normalizedConfig.url, input),
           },
-        };
+        });
       } catch (error) {
-        return { ok: false, error: mapNetworkError(error) };
+        return Promise.resolve({ ok: false, error: mapNetworkError(error) });
       }
     },
   };

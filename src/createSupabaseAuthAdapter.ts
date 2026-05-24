@@ -1,10 +1,12 @@
 import type {
   AuthAdapter,
+  AuthOAuthProviderId,
   AuthResult,
   AuthSession,
   AuthUser,
   PasswordResetInput,
   SignInInput,
+  SignInWithOAuthInput,
   SignOutInput,
   SignUpInput,
   VerifyOtpInput,
@@ -103,6 +105,8 @@ export function createSupabaseAuthAdapter(config: SupabaseAuthConfig): AuthAdapt
       supportsPasswordReset: true,
       supportsOtp: true,
       supportsSessionRefresh: true,
+      supportsOAuth: normalizedConfig.oauthProviders.length > 0,
+      oauthProviders: normalizedConfig.oauthProviders,
     },
 
     async signIn(input: SignInInput): Promise<AuthResult<AuthSession>> {
@@ -309,6 +313,42 @@ export function createSupabaseAuthAdapter(config: SupabaseAuthConfig): AuthAdapt
         return { ok: false, error: mapNetworkError(error) };
       }
     },
+
+    async signInWithOAuth(input: SignInWithOAuthInput) {
+      const provider = input.provider.trim();
+
+      if (provider.length === 0) {
+        return {
+          ok: false,
+          error: createAuthError('unsupported_oauth_provider', 'An OAuth provider is required.'),
+        };
+      }
+
+      if (
+        normalizedConfig.oauthProviderSet !== undefined &&
+        !normalizedConfig.oauthProviderSet.has(provider)
+      ) {
+        return {
+          ok: false,
+          error: createAuthError(
+            'unsupported_oauth_provider',
+            `OAuth provider "${provider}" is not configured for this adapter.`,
+          ),
+        };
+      }
+
+      try {
+        return {
+          ok: true,
+          data: {
+            provider,
+            url: createOAuthRedirectUrl(normalizedConfig.url, input),
+          },
+        };
+      } catch (error) {
+        return { ok: false, error: mapNetworkError(error) };
+      }
+    },
   };
 }
 
@@ -337,12 +377,18 @@ function validateConfig(config: SupabaseAuthConfig): RequiredConfig {
     throw new TypeError('A fetch implementation is required to use Supabase Auth.');
   }
 
+  const oauthProviders = [...new Set((config.oauthProviders ?? []).map((provider) => provider.trim()))].filter(
+    (provider) => provider.length > 0,
+  );
+
   return {
     url: url.replace(/\/+$/, ''),
     anonKey,
     fetch: fetchImplementation,
     storage: config.storage,
     storageKey: config.storageKey ?? DEFAULT_STORAGE_KEY,
+    oauthProviders,
+    oauthProviderSet: oauthProviders.length > 0 ? new Set(oauthProviders) : undefined,
   };
 }
 
@@ -406,6 +452,30 @@ function createHeaders(anonKey: string, accessToken?: string): Record<string, st
   return headers;
 }
 
+function createOAuthRedirectUrl(baseUrl: string, input: SignInWithOAuthInput): string {
+  const url = new URL(`${baseUrl}/auth/v1/authorize`);
+
+  url.searchParams.set('provider', input.provider.trim());
+
+  if (input.redirectTo !== undefined) {
+    url.searchParams.set('redirect_to', input.redirectTo);
+  }
+
+  if (input.scopes !== undefined && input.scopes.length > 0) {
+    url.searchParams.set('scopes', input.scopes.join(' '));
+  }
+
+  if (input.queryParams !== undefined) {
+    for (const [key, value] of Object.entries(input.queryParams)) {
+      if (key !== 'provider' && key !== 'redirect_to' && key !== 'scopes') {
+        url.searchParams.set(key, value);
+      }
+    }
+  }
+
+  return url.toString();
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
@@ -416,6 +486,8 @@ interface RequiredConfig {
   fetch: SupabaseAuthFetch;
   storage?: SupabaseAuthConfig['storage'];
   storageKey: string;
+  oauthProviders: AuthOAuthProviderId[];
+  oauthProviderSet?: ReadonlySet<string>;
 }
 
 type IdentifierResult =

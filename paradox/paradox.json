@@ -1,35 +1,1062 @@
 {
-  "packageName": "@ankhorage/supabase-auth",
+  "packageName": "SUPABASE AUTH",
   "packageId": "@ankhorage/supabase-auth",
   "description": "Supabase auth adapter implementing shared TypeScript auth contracts.",
+  "badges": [
+    {
+      "id": "license",
+      "label": "license",
+      "value": "MIT",
+      "color": "2563eb"
+    },
+    {
+      "id": "npm",
+      "label": "npm",
+      "value": "v0.2.8",
+      "color": "cb3837"
+    },
+    {
+      "id": "runtime",
+      "label": "runtime",
+      "value": "bun",
+      "color": "f59e0b"
+    },
+    {
+      "id": "typescript",
+      "label": "typescript",
+      "value": "strict",
+      "color": "2563eb"
+    },
+    {
+      "id": "eslint",
+      "label": "eslint",
+      "value": "checked",
+      "color": "0a7f3f"
+    },
+    {
+      "id": "prettier",
+      "label": "prettier",
+      "value": "checked",
+      "color": "0a7f3f"
+    },
+    {
+      "id": "build",
+      "label": "build",
+      "value": "checked",
+      "color": "0a7f3f"
+    },
+    {
+      "id": "tests",
+      "label": "tests",
+      "value": "checked",
+      "color": "0a7f3f"
+    },
+    {
+      "id": "docs",
+      "label": "docs",
+      "value": "paradox",
+      "color": "0f766e"
+    }
+  ],
   "usage": null,
+  "readmeUsage": [],
   "config": null,
+  "entrypoints": ["src/index.ts"],
+  "modules": [
+    {
+      "path": "src/createSupabaseAuthAdapter.ts",
+      "isEntrypoint": false,
+      "dependencies": ["src/errors.ts", "src/session.ts", "src/types.ts"],
+      "exports": ["createSupabaseAuthAdapter"]
+    },
+    {
+      "path": "src/errors.ts",
+      "isEntrypoint": false,
+      "dependencies": ["src/types.ts"],
+      "exports": ["createAuthError", "mapNetworkError", "mapSupabaseError", "readResponseBody"]
+    },
+    {
+      "path": "src/index.ts",
+      "isEntrypoint": true,
+      "dependencies": [],
+      "exports": [
+        "createSupabaseAuthAdapter",
+        "SupabaseAuthConfig",
+        "SupabaseAuthErrorCode",
+        "SupabaseAuthStorage",
+        "SupabaseProviderErrorCause"
+      ]
+    },
+    {
+      "path": "src/session.ts",
+      "isEntrypoint": false,
+      "dependencies": [],
+      "exports": [
+        "normalizeSupabaseSession",
+        "normalizeSupabaseUser",
+        "parseStoredSession",
+        "SupabaseAuthSessionResponse",
+        "SupabaseAuthUser"
+      ]
+    },
+    {
+      "path": "src/types.ts",
+      "isEntrypoint": false,
+      "dependencies": [],
+      "exports": [
+        "SupabaseAuthConfig",
+        "SupabaseAuthErrorCode",
+        "SupabaseAuthFetch",
+        "SupabaseAuthStorage",
+        "SupabaseProviderErrorCause"
+      ]
+    }
+  ],
   "exports": [
     {
       "name": "createSupabaseAuthAdapter",
       "description": null,
-      "kind": "function"
+      "isReadme": false,
+      "examples": [],
+      "kind": "function",
+      "modulePath": "src/createSupabaseAuthAdapter.ts",
+      "sourceLocation": {
+        "filePath": "src/createSupabaseAuthAdapter.ts",
+        "line": 21,
+        "column": 1
+      },
+      "exportPaths": ["src/index.ts"],
+      "relatedSymbols": ["SupabaseAuthConfig"],
+      "signatures": [
+        {
+          "label": "(config: SupabaseAuthConfig) => AuthAdapter",
+          "parameters": [
+            {
+              "name": "config",
+              "type": "SupabaseAuthConfig",
+              "required": true,
+              "description": null
+            }
+          ],
+          "returnType": "AuthAdapter",
+          "returnDescription": null
+        }
+      ],
+      "members": [],
+      "structuredRows": []
     },
     {
       "name": "SupabaseAuthConfig",
       "description": null,
-      "kind": "type"
+      "isReadme": false,
+      "examples": [],
+      "kind": "type",
+      "modulePath": "src/types.ts",
+      "sourceLocation": {
+        "filePath": "src/types.ts",
+        "line": 11,
+        "column": 1
+      },
+      "exportPaths": ["src/index.ts"],
+      "relatedSymbols": ["SupabaseAuthStorage"],
+      "signatures": [],
+      "members": [
+        {
+          "name": "anonKey",
+          "kind": "property",
+          "type": "string",
+          "required": true,
+          "description": null
+        },
+        {
+          "name": "fetch",
+          "kind": "property",
+          "type": "SupabaseAuthFetch | undefined",
+          "required": false,
+          "description": null
+        },
+        {
+          "name": "oauthProviders",
+          "kind": "property",
+          "type": "AuthOAuthProviderId[] | undefined",
+          "required": false,
+          "description": null
+        },
+        {
+          "name": "storage",
+          "kind": "property",
+          "type": "SupabaseAuthStorage | undefined",
+          "required": false,
+          "description": null
+        },
+        {
+          "name": "storageKey",
+          "kind": "property",
+          "type": "string | undefined",
+          "required": false,
+          "description": null
+        },
+        {
+          "name": "url",
+          "kind": "property",
+          "type": "string",
+          "required": true,
+          "description": null
+        }
+      ],
+      "structuredRows": []
     },
     {
       "name": "SupabaseAuthErrorCode",
       "description": null,
-      "kind": "unknown"
+      "isReadme": false,
+      "examples": [],
+      "kind": "unknown",
+      "modulePath": "src/types.ts",
+      "sourceLocation": {
+        "filePath": "src/types.ts",
+        "line": 20,
+        "column": 1
+      },
+      "exportPaths": ["src/index.ts"],
+      "relatedSymbols": [],
+      "signatures": [],
+      "members": [],
+      "structuredRows": []
     },
     {
       "name": "SupabaseAuthStorage",
       "description": null,
-      "kind": "type"
+      "isReadme": false,
+      "examples": [],
+      "kind": "type",
+      "modulePath": "src/types.ts",
+      "sourceLocation": {
+        "filePath": "src/types.ts",
+        "line": 5,
+        "column": 1
+      },
+      "exportPaths": ["src/index.ts"],
+      "relatedSymbols": [],
+      "signatures": [],
+      "members": [
+        {
+          "name": "getItem",
+          "kind": "method",
+          "type": "(key: string) => string | Promise<string | null> | null",
+          "required": true,
+          "description": null
+        },
+        {
+          "name": "removeItem",
+          "kind": "method",
+          "type": "(key: string) => void | Promise<void>",
+          "required": true,
+          "description": null
+        },
+        {
+          "name": "setItem",
+          "kind": "method",
+          "type": "(key: string, value: string) => void | Promise<void>",
+          "required": true,
+          "description": null
+        }
+      ],
+      "structuredRows": []
     },
     {
       "name": "SupabaseProviderErrorCause",
       "description": null,
-      "kind": "type"
+      "isReadme": false,
+      "examples": [],
+      "kind": "type",
+      "modulePath": "src/types.ts",
+      "sourceLocation": {
+        "filePath": "src/types.ts",
+        "line": 32,
+        "column": 1
+      },
+      "exportPaths": ["src/index.ts"],
+      "relatedSymbols": [],
+      "signatures": [],
+      "members": [
+        {
+          "name": "body",
+          "kind": "property",
+          "type": "unknown",
+          "required": false,
+          "description": null
+        },
+        {
+          "name": "status",
+          "kind": "property",
+          "type": "number | undefined",
+          "required": false,
+          "description": null
+        }
+      ],
+      "structuredRows": []
     }
   ],
-  "components": []
+  "components": [],
+  "sourceFunctions": [
+    {
+      "name": "createSupabaseAuthAdapter",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/createSupabaseAuthAdapter.ts",
+        "line": 21,
+        "column": 1
+      }
+    },
+    {
+      "name": "request",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/createSupabaseAuthAdapter.ts",
+        "line": 25,
+        "column": 9
+      }
+    },
+    {
+      "name": "persistSession",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/createSupabaseAuthAdapter.ts",
+        "line": 46,
+        "column": 9
+      }
+    },
+    {
+      "name": "readStoredSession",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/createSupabaseAuthAdapter.ts",
+        "line": 61,
+        "column": 9
+      }
+    },
+    {
+      "name": "handleSessionResponse",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/createSupabaseAuthAdapter.ts",
+        "line": 76,
+        "column": 9
+      }
+    },
+    {
+      "name": "validateConfig",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/createSupabaseAuthAdapter.ts",
+        "line": 355,
+        "column": 1
+      }
+    },
+    {
+      "name": "validatePassword",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/createSupabaseAuthAdapter.ts",
+        "line": 395,
+        "column": 1
+      }
+    },
+    {
+      "name": "identifierBody",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/createSupabaseAuthAdapter.ts",
+        "line": 403,
+        "column": 1
+      }
+    },
+    {
+      "name": "metadataBody",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/createSupabaseAuthAdapter.ts",
+        "line": 430,
+        "column": 1
+      }
+    },
+    {
+      "name": "createHeaders",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/createSupabaseAuthAdapter.ts",
+        "line": 442,
+        "column": 1
+      }
+    },
+    {
+      "name": "createOAuthRedirectUrl",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/createSupabaseAuthAdapter.ts",
+        "line": 455,
+        "column": 1
+      }
+    },
+    {
+      "name": "isRecord",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/createSupabaseAuthAdapter.ts",
+        "line": 479,
+        "column": 1
+      }
+    },
+    {
+      "name": "createAuthError",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/errors.ts",
+        "line": 5,
+        "column": 1
+      }
+    },
+    {
+      "name": "mapNetworkError",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/errors.ts",
+        "line": 13,
+        "column": 1
+      }
+    },
+    {
+      "name": "mapSupabaseError",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/errors.ts",
+        "line": 17,
+        "column": 1
+      }
+    },
+    {
+      "name": "readResponseBody",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/errors.ts",
+        "line": 64,
+        "column": 1
+      }
+    },
+    {
+      "name": "extractErrorMessage",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/errors.ts",
+        "line": 88,
+        "column": 1
+      }
+    },
+    {
+      "name": "isRecord",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/errors.ts",
+        "line": 115,
+        "column": 1
+      }
+    },
+    {
+      "name": "normalizeSupabaseSession",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/session.ts",
+        "line": 22,
+        "column": 1
+      }
+    },
+    {
+      "name": "normalizeSupabaseUser",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/session.ts",
+        "line": 57,
+        "column": 1
+      }
+    },
+    {
+      "name": "parseStoredSession",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/session.ts",
+        "line": 93,
+        "column": 1
+      }
+    },
+    {
+      "name": "normalizeStoredExpiresAt",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/session.ts",
+        "line": 116,
+        "column": 1
+      }
+    },
+    {
+      "name": "normalizeExpiresAt",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/session.ts",
+        "line": 120,
+        "column": 1
+      }
+    },
+    {
+      "name": "mergeMetadata",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/session.ts",
+        "line": 140,
+        "column": 1
+      }
+    },
+    {
+      "name": "isAuthSession",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/session.ts",
+        "line": 152,
+        "column": 1
+      }
+    },
+    {
+      "name": "stringValue",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/session.ts",
+        "line": 164,
+        "column": 1
+      }
+    },
+    {
+      "name": "numberValue",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/session.ts",
+        "line": 168,
+        "column": 1
+      }
+    },
+    {
+      "name": "isRecord",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/session.ts",
+        "line": 182,
+        "column": 1
+      }
+    }
+  ],
+  "sequenceScenarios": [
+    {
+      "kind": "export",
+      "name": "createSupabaseAuthAdapter",
+      "sourcePath": "src/createSupabaseAuthAdapter.ts",
+      "symbolName": "createSupabaseAuthAdapter",
+      "description": null,
+      "isReadme": false
+    }
+  ],
+  "graphs": {
+    "imports": [
+      {
+        "fromPath": "src/createSupabaseAuthAdapter.ts",
+        "toPath": "src/errors.ts",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromPath": "src/createSupabaseAuthAdapter.ts",
+        "toPath": "src/session.ts",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromPath": "src/createSupabaseAuthAdapter.ts",
+        "toPath": "src/types.ts",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromPath": "src/errors.ts",
+        "toPath": "src/types.ts",
+        "sourcePath": "src/errors.ts"
+      },
+      {
+        "fromPath": "src/index.ts",
+        "toPath": "src/createSupabaseAuthAdapter.ts",
+        "sourcePath": "src/index.ts"
+      },
+      {
+        "fromPath": "src/index.ts",
+        "toPath": "src/types.ts",
+        "sourcePath": "src/index.ts"
+      }
+    ],
+    "calls": [
+      {
+        "fromSymbol": "createSupabaseAuthAdapter",
+        "toSymbol": "validateConfig",
+        "callExpression": "validateConfig",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "request",
+        "toSymbol": "fetch",
+        "callExpression": "normalizedConfig.fetch",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "request",
+        "toSymbol": "createHeaders",
+        "callExpression": "createHeaders",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "persistSession",
+        "toSymbol": "removeItem",
+        "callExpression": "normalizedConfig.storage.removeItem",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "persistSession",
+        "toSymbol": "setItem",
+        "callExpression": "normalizedConfig.storage.setItem",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "readStoredSession",
+        "toSymbol": "getItem",
+        "callExpression": "normalizedConfig.storage.getItem",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "readStoredSession",
+        "toSymbol": "parseStoredSession",
+        "callExpression": "parseStoredSession",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "handleSessionResponse",
+        "toSymbol": "readResponseBody",
+        "callExpression": "readResponseBody",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "handleSessionResponse",
+        "toSymbol": "mapSupabaseError",
+        "callExpression": "mapSupabaseError",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "handleSessionResponse",
+        "toSymbol": "normalizeSupabaseSession",
+        "callExpression": "normalizeSupabaseSession",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "handleSessionResponse",
+        "toSymbol": "createAuthError",
+        "callExpression": "createAuthError",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "handleSessionResponse",
+        "toSymbol": "persistSession",
+        "callExpression": "persistSession",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "signIn",
+        "toSymbol": "validatePassword",
+        "callExpression": "validatePassword",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "signIn",
+        "toSymbol": "identifierBody",
+        "callExpression": "identifierBody",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "signIn",
+        "toSymbol": "request",
+        "callExpression": "request",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "signIn",
+        "toSymbol": "handleSessionResponse",
+        "callExpression": "handleSessionResponse",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "signIn",
+        "toSymbol": "mapNetworkError",
+        "callExpression": "mapNetworkError",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "signUp",
+        "toSymbol": "validatePassword",
+        "callExpression": "validatePassword",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "signUp",
+        "toSymbol": "identifierBody",
+        "callExpression": "identifierBody",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "signUp",
+        "toSymbol": "request",
+        "callExpression": "request",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "signUp",
+        "toSymbol": "metadataBody",
+        "callExpression": "metadataBody",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "signUp",
+        "toSymbol": "readResponseBody",
+        "callExpression": "readResponseBody",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "signUp",
+        "toSymbol": "mapSupabaseError",
+        "callExpression": "mapSupabaseError",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "signUp",
+        "toSymbol": "normalizeSupabaseSession",
+        "callExpression": "normalizeSupabaseSession",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "signUp",
+        "toSymbol": "persistSession",
+        "callExpression": "persistSession",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "signUp",
+        "toSymbol": "normalizeSupabaseUser",
+        "callExpression": "normalizeSupabaseUser",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "signUp",
+        "toSymbol": "isRecord",
+        "callExpression": "isRecord",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "signUp",
+        "toSymbol": "createAuthError",
+        "callExpression": "createAuthError",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "signUp",
+        "toSymbol": "mapNetworkError",
+        "callExpression": "mapNetworkError",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "signOut",
+        "toSymbol": "readStoredSession",
+        "callExpression": "readStoredSession",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "signOut",
+        "toSymbol": "request",
+        "callExpression": "request",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "signOut",
+        "toSymbol": "readResponseBody",
+        "callExpression": "readResponseBody",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "signOut",
+        "toSymbol": "mapSupabaseError",
+        "callExpression": "mapSupabaseError",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "signOut",
+        "toSymbol": "mapNetworkError",
+        "callExpression": "mapNetworkError",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "signOut",
+        "toSymbol": "persistSession",
+        "callExpression": "persistSession",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "getSession",
+        "toSymbol": "readStoredSession",
+        "callExpression": "readStoredSession",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "refreshSession",
+        "toSymbol": "readStoredSession",
+        "callExpression": "readStoredSession",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "refreshSession",
+        "toSymbol": "createAuthError",
+        "callExpression": "createAuthError",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "refreshSession",
+        "toSymbol": "request",
+        "callExpression": "request",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "refreshSession",
+        "toSymbol": "handleSessionResponse",
+        "callExpression": "handleSessionResponse",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "refreshSession",
+        "toSymbol": "mapNetworkError",
+        "callExpression": "mapNetworkError",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "requestPasswordReset",
+        "toSymbol": "createAuthError",
+        "callExpression": "createAuthError",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "requestPasswordReset",
+        "toSymbol": "request",
+        "callExpression": "request",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "requestPasswordReset",
+        "toSymbol": "readResponseBody",
+        "callExpression": "readResponseBody",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "requestPasswordReset",
+        "toSymbol": "mapSupabaseError",
+        "callExpression": "mapSupabaseError",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "requestPasswordReset",
+        "toSymbol": "mapNetworkError",
+        "callExpression": "mapNetworkError",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "verifyOtp",
+        "toSymbol": "createAuthError",
+        "callExpression": "createAuthError",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "verifyOtp",
+        "toSymbol": "identifierBody",
+        "callExpression": "identifierBody",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "verifyOtp",
+        "toSymbol": "request",
+        "callExpression": "request",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "verifyOtp",
+        "toSymbol": "handleSessionResponse",
+        "callExpression": "handleSessionResponse",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "verifyOtp",
+        "toSymbol": "mapNetworkError",
+        "callExpression": "mapNetworkError",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "signInWithOAuth",
+        "toSymbol": "createAuthError",
+        "callExpression": "createAuthError",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "signInWithOAuth",
+        "toSymbol": "createOAuthRedirectUrl",
+        "callExpression": "createOAuthRedirectUrl",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "signInWithOAuth",
+        "toSymbol": "mapNetworkError",
+        "callExpression": "mapNetworkError",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "validatePassword",
+        "toSymbol": "createAuthError",
+        "callExpression": "createAuthError",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "identifierBody",
+        "toSymbol": "createAuthError",
+        "callExpression": "createAuthError",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "mapNetworkError",
+        "toSymbol": "createAuthError",
+        "callExpression": "createAuthError",
+        "sourcePath": "src/errors.ts"
+      },
+      {
+        "fromSymbol": "mapSupabaseError",
+        "toSymbol": "extractErrorMessage",
+        "callExpression": "extractErrorMessage",
+        "sourcePath": "src/errors.ts"
+      },
+      {
+        "fromSymbol": "mapSupabaseError",
+        "toSymbol": "createAuthError",
+        "callExpression": "createAuthError",
+        "sourcePath": "src/errors.ts"
+      },
+      {
+        "fromSymbol": "extractErrorMessage",
+        "toSymbol": "isRecord",
+        "callExpression": "isRecord",
+        "sourcePath": "src/errors.ts"
+      },
+      {
+        "fromSymbol": "normalizeSupabaseSession",
+        "toSymbol": "isRecord",
+        "callExpression": "isRecord",
+        "sourcePath": "src/session.ts"
+      },
+      {
+        "fromSymbol": "normalizeSupabaseSession",
+        "toSymbol": "stringValue",
+        "callExpression": "stringValue",
+        "sourcePath": "src/session.ts"
+      },
+      {
+        "fromSymbol": "normalizeSupabaseSession",
+        "toSymbol": "normalizeSupabaseUser",
+        "callExpression": "normalizeSupabaseUser",
+        "sourcePath": "src/session.ts"
+      },
+      {
+        "fromSymbol": "normalizeSupabaseSession",
+        "toSymbol": "normalizeExpiresAt",
+        "callExpression": "normalizeExpiresAt",
+        "sourcePath": "src/session.ts"
+      },
+      {
+        "fromSymbol": "normalizeSupabaseUser",
+        "toSymbol": "isRecord",
+        "callExpression": "isRecord",
+        "sourcePath": "src/session.ts"
+      },
+      {
+        "fromSymbol": "normalizeSupabaseUser",
+        "toSymbol": "stringValue",
+        "callExpression": "stringValue",
+        "sourcePath": "src/session.ts"
+      },
+      {
+        "fromSymbol": "normalizeSupabaseUser",
+        "toSymbol": "mergeMetadata",
+        "callExpression": "mergeMetadata",
+        "sourcePath": "src/session.ts"
+      },
+      {
+        "fromSymbol": "parseStoredSession",
+        "toSymbol": "isAuthSession",
+        "callExpression": "isAuthSession",
+        "sourcePath": "src/session.ts"
+      },
+      {
+        "fromSymbol": "parseStoredSession",
+        "toSymbol": "normalizeStoredExpiresAt",
+        "callExpression": "normalizeStoredExpiresAt",
+        "sourcePath": "src/session.ts"
+      },
+      {
+        "fromSymbol": "normalizeExpiresAt",
+        "toSymbol": "numberValue",
+        "callExpression": "numberValue",
+        "sourcePath": "src/session.ts"
+      },
+      {
+        "fromSymbol": "mergeMetadata",
+        "toSymbol": "isRecord",
+        "callExpression": "isRecord",
+        "sourcePath": "src/session.ts"
+      },
+      {
+        "fromSymbol": "isAuthSession",
+        "toSymbol": "isRecord",
+        "callExpression": "isRecord",
+        "sourcePath": "src/session.ts"
+      }
+    ],
+    "typeReferences": [
+      {
+        "fromSymbol": "createSupabaseAuthAdapter",
+        "toType": "AuthAdapter",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "createSupabaseAuthAdapter",
+        "toType": "SupabaseAuthConfig",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "SupabaseAuthConfig",
+        "toType": "AuthOAuthProviderId",
+        "sourcePath": "src/types.ts"
+      },
+      {
+        "fromSymbol": "SupabaseAuthConfig",
+        "toType": "SupabaseAuthFetch",
+        "sourcePath": "src/types.ts"
+      },
+      {
+        "fromSymbol": "SupabaseAuthConfig",
+        "toType": "SupabaseAuthStorage",
+        "sourcePath": "src/types.ts"
+      }
+    ],
+    "componentComposition": []
+  }
 }

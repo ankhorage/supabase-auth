@@ -2,26 +2,185 @@
   {
     "name": "createSupabaseAuthAdapter",
     "description": null,
-    "kind": "function"
+    "isReadme": false,
+    "examples": [],
+    "kind": "function",
+    "modulePath": "src/createSupabaseAuthAdapter.ts",
+    "sourceLocation": {
+      "filePath": "src/createSupabaseAuthAdapter.ts",
+      "line": 21,
+      "column": 1
+    },
+    "exportPaths": ["src/index.ts"],
+    "relatedSymbols": ["SupabaseAuthConfig"],
+    "signatures": [
+      {
+        "label": "(config: SupabaseAuthConfig) => AuthAdapter",
+        "parameters": [
+          {
+            "name": "config",
+            "type": "SupabaseAuthConfig",
+            "required": true,
+            "description": null
+          }
+        ],
+        "returnType": "AuthAdapter",
+        "returnDescription": null
+      }
+    ],
+    "members": [],
+    "structuredRows": []
   },
   {
     "name": "SupabaseAuthConfig",
     "description": null,
-    "kind": "type"
+    "isReadme": false,
+    "examples": [],
+    "kind": "type",
+    "modulePath": "src/types.ts",
+    "sourceLocation": {
+      "filePath": "src/types.ts",
+      "line": 11,
+      "column": 1
+    },
+    "exportPaths": ["src/index.ts"],
+    "relatedSymbols": ["SupabaseAuthStorage"],
+    "signatures": [],
+    "members": [
+      {
+        "name": "anonKey",
+        "kind": "property",
+        "type": "string",
+        "required": true,
+        "description": null
+      },
+      {
+        "name": "fetch",
+        "kind": "property",
+        "type": "SupabaseAuthFetch | undefined",
+        "required": false,
+        "description": null
+      },
+      {
+        "name": "oauthProviders",
+        "kind": "property",
+        "type": "AuthOAuthProviderId[] | undefined",
+        "required": false,
+        "description": null
+      },
+      {
+        "name": "storage",
+        "kind": "property",
+        "type": "SupabaseAuthStorage | undefined",
+        "required": false,
+        "description": null
+      },
+      {
+        "name": "storageKey",
+        "kind": "property",
+        "type": "string | undefined",
+        "required": false,
+        "description": null
+      },
+      {
+        "name": "url",
+        "kind": "property",
+        "type": "string",
+        "required": true,
+        "description": null
+      }
+    ],
+    "structuredRows": []
   },
   {
     "name": "SupabaseAuthErrorCode",
     "description": null,
-    "kind": "unknown"
+    "isReadme": false,
+    "examples": [],
+    "kind": "unknown",
+    "modulePath": "src/types.ts",
+    "sourceLocation": {
+      "filePath": "src/types.ts",
+      "line": 20,
+      "column": 1
+    },
+    "exportPaths": ["src/index.ts"],
+    "relatedSymbols": [],
+    "signatures": [],
+    "members": [],
+    "structuredRows": []
   },
   {
     "name": "SupabaseAuthStorage",
     "description": null,
-    "kind": "type"
+    "isReadme": false,
+    "examples": [],
+    "kind": "type",
+    "modulePath": "src/types.ts",
+    "sourceLocation": {
+      "filePath": "src/types.ts",
+      "line": 5,
+      "column": 1
+    },
+    "exportPaths": ["src/index.ts"],
+    "relatedSymbols": [],
+    "signatures": [],
+    "members": [
+      {
+        "name": "getItem",
+        "kind": "method",
+        "type": "(key: string) => string | Promise<string | null> | null",
+        "required": true,
+        "description": null
+      },
+      {
+        "name": "removeItem",
+        "kind": "method",
+        "type": "(key: string) => void | Promise<void>",
+        "required": true,
+        "description": null
+      },
+      {
+        "name": "setItem",
+        "kind": "method",
+        "type": "(key: string, value: string) => void | Promise<void>",
+        "required": true,
+        "description": null
+      }
+    ],
+    "structuredRows": []
   },
   {
     "name": "SupabaseProviderErrorCause",
     "description": null,
-    "kind": "type"
+    "isReadme": false,
+    "examples": [],
+    "kind": "type",
+    "modulePath": "src/types.ts",
+    "sourceLocation": {
+      "filePath": "src/types.ts",
+      "line": 32,
+      "column": 1
+    },
+    "exportPaths": ["src/index.ts"],
+    "relatedSymbols": [],
+    "signatures": [],
+    "members": [
+      {
+        "name": "body",
+        "kind": "property",
+        "type": "unknown",
+        "required": false,
+        "description": null
+      },
+      {
+        "name": "status",
+        "kind": "property",
+        "type": "number | undefined",
+        "required": false,
+        "description": null
+      }
+    ],
+    "structuredRows": []
   }
 ]

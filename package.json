@@ -41,7 +41,7 @@
     "build": "rm -rf dist tsconfig.tsbuildinfo && bun x tsc -p tsconfig.json",
     "changeset": "changeset",
     "changeset:status": "changeset status --since=origin/main",
-    "paradox": "bunx @ankhorage/paradox",
+    "docs": "paradox",
     "knip": "knip",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix --max-warnings=0",

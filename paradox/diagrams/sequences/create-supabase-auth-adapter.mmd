@@ -1,0 +1,5 @@
+sequenceDiagram
+  participant participant_createSupabaseAuthAdapter as createSupabaseAuthAdapter
+  participant participant_validateConfig as validateConfig
+  participant_createSupabaseAuthAdapter->>participant_validateConfig: validateConfig()
+  participant_validateConfig-->>participant_createSupabaseAuthAdapter: return

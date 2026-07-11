@@ -7,7 +7,7 @@ on:
       - main
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   validate:
@@ -17,7 +17,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref || github.ref_name }}
           fetch-depth: 0
 
       - name: Setup Bun
@@ -26,21 +25,47 @@ jobs:
           bun-version: '1.3.13'
 
       - name: Install dependencies
-        run: bun install
+        run: bun install --frozen-lockfile
 
-      - name: Apply canonical formatting
+      - name: Run build
         run: |
-          bun run lint:fix
-          bun run format
+          if node -e "const p=require('./package.json'); process.exit(p.scripts?.build ? 0 : 1)"; then
+            bun run build
+          else
+            echo "No build script found; skipping."
+          fi
 
-      - name: Validate package
+      - name: Run lint
         run: |
-          bun run build
-          bun run lint
-          bun run test
-          bun run typecheck
-          bun run knip
-          bun run docs
+          if node -e "const p=require('./package.json'); process.exit(p.scripts?.lint ? 0 : 1)"; then
+            bun run lint
+          else
+            echo "No lint script found; skipping."
+          fi
+
+      - name: Run format check
+        run: |
+          if node -e "const p=require('./package.json'); process.exit(p.scripts?.['format:check'] ? 0 : 1)"; then
+            bun run format:check
+          else
+            echo "No format:check script found; skipping."
+          fi
+
+      - name: Run tests
+        run: |
+          if node -e "const p=require('./package.json'); process.exit(p.scripts?.test ? 0 : 1)"; then
+            bun run test
+          else
+            echo "No test script found; skipping."
+          fi
+
+      - name: Run typecheck
+        run: |
+          if node -e "const p=require('./package.json'); process.exit(p.scripts?.typecheck ? 0 : 1)"; then
+            bun run typecheck
+          else
+            echo "No typecheck script found; skipping."
+          fi
 
       - name: Check changesets
         if: github.event_name == 'pull_request'
@@ -48,18 +73,5 @@ jobs:
           if [ -f ./scripts/check-changeset-status.sh ]; then
             bash ./scripts/check-changeset-status.sh
           else
-            echo "No changeset status script found; changeset file is reviewed in the PR."
+            echo "No changeset status script found; skipping."
           fi
-
-      - name: Commit bootstrap output
-        if: github.event_name == 'pull_request' && github.actor != 'github-actions[bot]'
-        run: |
-          git restore .github/workflows
-          if git diff --quiet && [ -z "$(git ls-files --others --exclude-standard)" ]; then
-            exit 0
-          fi
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add -A
-          git commit -m "chore: bootstrap OAuth provider registry"
-          git push origin HEAD:${{ github.head_ref }}

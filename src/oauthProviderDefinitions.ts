@@ -4,6 +4,11 @@ import type { SecretPayload, SecretStoreResult } from '@ankhorage/contracts/secr
 export const SUPABASE_OAUTH_PROVIDER_IDS = ['google', 'apple'] as const;
 export type SupabaseOAuthProviderId = (typeof SUPABASE_OAUTH_PROVIDER_IDS)[number];
 
+export type SupabaseOAuthSecretPayload = SecretPayload & {
+  readonly clientId: string;
+  readonly clientSecret: string;
+};
+
 export interface SupabaseOAuthSecretFieldDefinition {
   name: 'clientId' | 'clientSecret';
   label: string;
@@ -74,7 +79,7 @@ export function getSupabaseOAuthProviderDefinition(
 export function validateSupabaseOAuthSecretPayload(
   provider: AuthOAuthProviderId,
   payload: SecretPayload,
-): SecretStoreResult<SecretPayload> {
+): SecretStoreResult<SupabaseOAuthSecretPayload> {
   const definition = getSupabaseOAuthProviderDefinition(provider);
   if (definition === null) {
     return {
@@ -86,11 +91,17 @@ export function validateSupabaseOAuthSecretPayload(
     };
   }
 
+  const clientId = payload.clientId;
+  const clientSecret = payload.clientSecret;
   const missingFields = definition.secretFields
     .map((field) => field.name)
     .filter((field) => typeof payload[field] !== 'string' || payload[field].trim().length === 0);
 
-  if (missingFields.length > 0) {
+  if (
+    missingFields.length > 0 ||
+    typeof clientId !== 'string' ||
+    typeof clientSecret !== 'string'
+  ) {
     return {
       ok: false,
       error: {
@@ -100,7 +111,14 @@ export function validateSupabaseOAuthSecretPayload(
     };
   }
 
-  return { ok: true, data: payload };
+  return {
+    ok: true,
+    data: {
+      ...payload,
+      clientId,
+      clientSecret,
+    },
+  };
 }
 
 export function materializeSupabaseOAuthEnvironment(input: {

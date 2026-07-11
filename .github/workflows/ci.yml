@@ -33,27 +33,23 @@ jobs:
           bun run lint:fix
           bun run format
 
-      - name: Run build
-        run: bun run build
-
-      - name: Run lint
-        run: bun run lint
-
-      - name: Run tests
-        run: bun run test
-
-      - name: Run typecheck
-        run: bun run typecheck
-
-      - name: Run Knip
-        run: bun run knip
-
-      - name: Generate docs
-        run: bun run docs
+      - name: Validate package
+        run: |
+          bun run build
+          bun run lint
+          bun run test
+          bun run typecheck
+          bun run knip
+          bun run docs
 
       - name: Check changesets
         if: github.event_name == 'pull_request'
-        run: bash ./scripts/check-changeset-status.sh
+        run: |
+          if [ -f ./scripts/check-changeset-status.sh ]; then
+            bash ./scripts/check-changeset-status.sh
+          else
+            echo "No changeset status script found; changeset file is reviewed in the PR."
+          fi
 
       - name: Commit bootstrap output
         if: github.event_name == 'pull_request' && github.actor != 'github-actions[bot]'

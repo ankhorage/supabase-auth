@@ -1,5 +1,11 @@
 # @ankhorage/supabase-auth
 
+## 0.4.0
+
+### Minor Changes
+
+- 2df2791: Add one canonical Google/Apple provider-definition registry with required secret fields, validation, and official GoTrue runtime environment materialization for Studio and Infra consumers.
+
 ## 0.3.0
 
 ### Minor Changes

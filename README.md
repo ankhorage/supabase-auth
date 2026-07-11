@@ -3,7 +3,7 @@
 
 # SUPABASE AUTH
 
-![license: MIT](./paradox/badges/license.svg) ![npm: v0.2.8](./paradox/badges/npm.svg) ![runtime: bun](./paradox/badges/runtime.svg) ![typescript: strict](./paradox/badges/typescript.svg) ![eslint: checked](./paradox/badges/eslint.svg) ![prettier: checked](./paradox/badges/prettier.svg) ![build: checked](./paradox/badges/build.svg) ![tests: checked](./paradox/badges/tests.svg) ![docs: paradox](./paradox/badges/docs.svg)
+![license: MIT](./paradox/badges/license.svg) ![npm: v0.3.0](./paradox/badges/npm.svg) ![runtime: bun](./paradox/badges/runtime.svg) ![typescript: strict](./paradox/badges/typescript.svg) ![eslint: checked](./paradox/badges/eslint.svg) ![prettier: checked](./paradox/badges/prettier.svg) ![build: checked](./paradox/badges/build.svg) ![tests: checked](./paradox/badges/tests.svg) ![docs: paradox](./paradox/badges/docs.svg)
 
 Supabase auth adapter implementing shared TypeScript auth contracts.
 
@@ -16,3 +16,6 @@ Supabase auth adapter implementing shared TypeScript auth contracts.
 - [Module relationships](./paradox/diagrams/module-relationships.mmd)
 - [Export graph](./paradox/diagrams/export-graph.mmd)
 - [createSupabaseAuthAdapter sequence](./paradox/diagrams/sequences/create-supabase-auth-adapter.mmd)
+- [getSupabaseOAuthProviderDefinition sequence](./paradox/diagrams/sequences/get-supabase-oauth-provider-definition.mmd)
+- [materializeSupabaseOAuthEnvironment sequence](./paradox/diagrams/sequences/materialize-supabase-oauth-environment.mmd)
+- [validateSupabaseOAuthSecretPayload sequence](./paradox/diagrams/sequences/validate-supabase-oauth-secret-payload.mmd)

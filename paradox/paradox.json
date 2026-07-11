@@ -12,7 +12,7 @@
     {
       "id": "npm",
       "label": "npm",
-      "value": "v0.2.8",
+      "value": "v0.3.0",
       "color": "cb3837"
     },
     {
@@ -81,23 +81,46 @@
       "dependencies": [],
       "exports": [
         "createSupabaseAuthAdapter",
+        "getSupabaseOAuthProviderDefinition",
+        "isSupabaseOAuthProviderId",
+        "materializeSupabaseOAuthEnvironment",
+        "SUPABASE_OAUTH_PROVIDER_DEFINITIONS",
+        "SUPABASE_OAUTH_PROVIDER_IDS",
         "SupabaseAuthConfig",
         "SupabaseAuthErrorCode",
         "SupabaseAuthStorage",
-        "SupabaseProviderErrorCause"
+        "SupabaseOAuthProviderDefinition",
+        "SupabaseOAuthProviderId",
+        "SupabaseOAuthRuntimeEnvironmentDefinition",
+        "SupabaseOAuthSecretFieldDefinition",
+        "SupabaseOAuthSecretPayload",
+        "SupabaseProviderErrorCause",
+        "validateSupabaseOAuthSecretPayload"
+      ]
+    },
+    {
+      "path": "src/oauthProviderDefinitions.ts",
+      "isEntrypoint": false,
+      "dependencies": [],
+      "exports": [
+        "getSupabaseOAuthProviderDefinition",
+        "isSupabaseOAuthProviderId",
+        "materializeSupabaseOAuthEnvironment",
+        "SUPABASE_OAUTH_PROVIDER_DEFINITIONS",
+        "SUPABASE_OAUTH_PROVIDER_IDS",
+        "SupabaseOAuthProviderDefinition",
+        "SupabaseOAuthProviderId",
+        "SupabaseOAuthRuntimeEnvironmentDefinition",
+        "SupabaseOAuthSecretFieldDefinition",
+        "SupabaseOAuthSecretPayload",
+        "validateSupabaseOAuthSecretPayload"
       ]
     },
     {
       "path": "src/session.ts",
       "isEntrypoint": false,
       "dependencies": [],
-      "exports": [
-        "normalizeSupabaseSession",
-        "normalizeSupabaseUser",
-        "parseStoredSession",
-        "SupabaseAuthSessionResponse",
-        "SupabaseAuthUser"
-      ]
+      "exports": ["normalizeSupabaseSession", "normalizeSupabaseUser", "parseStoredSession"]
     },
     {
       "path": "src/types.ts",
@@ -122,7 +145,7 @@
       "modulePath": "src/createSupabaseAuthAdapter.ts",
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 21,
+        "line": 22,
         "column": 1
       },
       "exportPaths": ["src/index.ts"],
@@ -142,6 +165,138 @@
           "returnDescription": null
         }
       ],
+      "members": [],
+      "structuredRows": []
+    },
+    {
+      "name": "getSupabaseOAuthProviderDefinition",
+      "description": null,
+      "isReadme": false,
+      "examples": [],
+      "kind": "function",
+      "modulePath": "src/oauthProviderDefinitions.ts",
+      "sourceLocation": {
+        "filePath": "src/oauthProviderDefinitions.ts",
+        "line": 71,
+        "column": 1
+      },
+      "exportPaths": ["src/index.ts"],
+      "relatedSymbols": ["SupabaseOAuthProviderDefinition"],
+      "signatures": [
+        {
+          "label": "(provider: AuthOAuthProviderId) => SupabaseOAuthProviderDefinition | null",
+          "parameters": [
+            {
+              "name": "provider",
+              "type": "AuthOAuthProviderId",
+              "required": true,
+              "description": null
+            }
+          ],
+          "returnType": "SupabaseOAuthProviderDefinition | null",
+          "returnDescription": null
+        }
+      ],
+      "members": [],
+      "structuredRows": []
+    },
+    {
+      "name": "isSupabaseOAuthProviderId",
+      "description": null,
+      "isReadme": false,
+      "examples": [],
+      "kind": "function",
+      "modulePath": "src/oauthProviderDefinitions.ts",
+      "sourceLocation": {
+        "filePath": "src/oauthProviderDefinitions.ts",
+        "line": 65,
+        "column": 1
+      },
+      "exportPaths": ["src/index.ts"],
+      "relatedSymbols": [],
+      "signatures": [
+        {
+          "label": "(provider: AuthOAuthProviderId) => boolean",
+          "parameters": [
+            {
+              "name": "provider",
+              "type": "AuthOAuthProviderId",
+              "required": true,
+              "description": null
+            }
+          ],
+          "returnType": "boolean",
+          "returnDescription": null
+        }
+      ],
+      "members": [],
+      "structuredRows": []
+    },
+    {
+      "name": "materializeSupabaseOAuthEnvironment",
+      "description": null,
+      "isReadme": false,
+      "examples": [],
+      "kind": "function",
+      "modulePath": "src/oauthProviderDefinitions.ts",
+      "sourceLocation": {
+        "filePath": "src/oauthProviderDefinitions.ts",
+        "line": 122,
+        "column": 1
+      },
+      "exportPaths": ["src/index.ts"],
+      "relatedSymbols": [],
+      "signatures": [
+        {
+          "label": "(input: { provider: AuthOAuthProviderId; payload: SecretPayload; redirectUri: string; }) => SecretStoreResult<Readonly<Record<string, string>>>",
+          "parameters": [
+            {
+              "name": "input",
+              "type": "{ provider: AuthOAuthProviderId; payload: SecretPayload; redirectUri: string; }",
+              "required": true,
+              "description": null
+            }
+          ],
+          "returnType": "SecretStoreResult<Readonly<Record<string, string>>>",
+          "returnDescription": null
+        }
+      ],
+      "members": [],
+      "structuredRows": []
+    },
+    {
+      "name": "SUPABASE_OAUTH_PROVIDER_DEFINITIONS",
+      "description": null,
+      "isReadme": false,
+      "examples": [],
+      "kind": "value",
+      "modulePath": "src/oauthProviderDefinitions.ts",
+      "sourceLocation": {
+        "filePath": "src/oauthProviderDefinitions.ts",
+        "line": 38,
+        "column": 14
+      },
+      "exportPaths": ["src/index.ts"],
+      "relatedSymbols": [],
+      "signatures": [],
+      "members": [],
+      "structuredRows": []
+    },
+    {
+      "name": "SUPABASE_OAUTH_PROVIDER_IDS",
+      "description": null,
+      "isReadme": false,
+      "examples": [],
+      "kind": "value",
+      "modulePath": "src/oauthProviderDefinitions.ts",
+      "sourceLocation": {
+        "filePath": "src/oauthProviderDefinitions.ts",
+        "line": 4,
+        "column": 14
+      },
+      "exportPaths": ["src/index.ts"],
+      "relatedSymbols": [],
+      "signatures": [],
       "members": [],
       "structuredRows": []
     },
@@ -265,6 +420,186 @@
       "structuredRows": []
     },
     {
+      "name": "SupabaseOAuthProviderDefinition",
+      "description": null,
+      "isReadme": false,
+      "examples": [],
+      "kind": "type",
+      "modulePath": "src/oauthProviderDefinitions.ts",
+      "sourceLocation": {
+        "filePath": "src/oauthProviderDefinitions.ts",
+        "line": 25,
+        "column": 1
+      },
+      "exportPaths": ["src/index.ts"],
+      "relatedSymbols": [
+        "SupabaseOAuthRuntimeEnvironmentDefinition",
+        "SupabaseOAuthSecretFieldDefinition"
+      ],
+      "signatures": [],
+      "members": [
+        {
+          "name": "defaultScopes",
+          "kind": "property",
+          "type": "readonly string[]",
+          "required": true,
+          "description": null
+        },
+        {
+          "name": "id",
+          "kind": "property",
+          "type": "\"google\" | \"apple\"",
+          "required": true,
+          "description": null
+        },
+        {
+          "name": "label",
+          "kind": "property",
+          "type": "string",
+          "required": true,
+          "description": null
+        },
+        {
+          "name": "runtimeEnvironment",
+          "kind": "property",
+          "type": "SupabaseOAuthRuntimeEnvironmentDefinition",
+          "required": true,
+          "description": null
+        },
+        {
+          "name": "secretFields",
+          "kind": "property",
+          "type": "readonly SupabaseOAuthSecretFieldDefinition[]",
+          "required": true,
+          "description": null
+        }
+      ],
+      "structuredRows": []
+    },
+    {
+      "name": "SupabaseOAuthProviderId",
+      "description": null,
+      "isReadme": false,
+      "examples": [],
+      "kind": "unknown",
+      "modulePath": "src/oauthProviderDefinitions.ts",
+      "sourceLocation": {
+        "filePath": "src/oauthProviderDefinitions.ts",
+        "line": 5,
+        "column": 1
+      },
+      "exportPaths": ["src/index.ts"],
+      "relatedSymbols": [],
+      "signatures": [],
+      "members": [],
+      "structuredRows": []
+    },
+    {
+      "name": "SupabaseOAuthRuntimeEnvironmentDefinition",
+      "description": null,
+      "isReadme": false,
+      "examples": [],
+      "kind": "type",
+      "modulePath": "src/oauthProviderDefinitions.ts",
+      "sourceLocation": {
+        "filePath": "src/oauthProviderDefinitions.ts",
+        "line": 18,
+        "column": 1
+      },
+      "exportPaths": ["src/index.ts"],
+      "relatedSymbols": [],
+      "signatures": [],
+      "members": [
+        {
+          "name": "clientId",
+          "kind": "property",
+          "type": "string",
+          "required": true,
+          "description": null
+        },
+        {
+          "name": "clientSecret",
+          "kind": "property",
+          "type": "string",
+          "required": true,
+          "description": null
+        },
+        {
+          "name": "enabled",
+          "kind": "property",
+          "type": "string",
+          "required": true,
+          "description": null
+        },
+        {
+          "name": "redirectUri",
+          "kind": "property",
+          "type": "string",
+          "required": true,
+          "description": null
+        }
+      ],
+      "structuredRows": []
+    },
+    {
+      "name": "SupabaseOAuthSecretFieldDefinition",
+      "description": null,
+      "isReadme": false,
+      "examples": [],
+      "kind": "type",
+      "modulePath": "src/oauthProviderDefinitions.ts",
+      "sourceLocation": {
+        "filePath": "src/oauthProviderDefinitions.ts",
+        "line": 12,
+        "column": 1
+      },
+      "exportPaths": ["src/index.ts"],
+      "relatedSymbols": [],
+      "signatures": [],
+      "members": [
+        {
+          "name": "label",
+          "kind": "property",
+          "type": "string",
+          "required": true,
+          "description": null
+        },
+        {
+          "name": "name",
+          "kind": "property",
+          "type": "\"clientId\" | \"clientSecret\"",
+          "required": true,
+          "description": null
+        },
+        {
+          "name": "secret",
+          "kind": "property",
+          "type": "boolean",
+          "required": true,
+          "description": null
+        }
+      ],
+      "structuredRows": []
+    },
+    {
+      "name": "SupabaseOAuthSecretPayload",
+      "description": null,
+      "isReadme": false,
+      "examples": [],
+      "kind": "unknown",
+      "modulePath": "src/oauthProviderDefinitions.ts",
+      "sourceLocation": {
+        "filePath": "src/oauthProviderDefinitions.ts",
+        "line": 7,
+        "column": 1
+      },
+      "exportPaths": ["src/index.ts"],
+      "relatedSymbols": [],
+      "signatures": [],
+      "members": [],
+      "structuredRows": []
+    },
+    {
       "name": "SupabaseProviderErrorCause",
       "description": null,
       "isReadme": false,
@@ -296,6 +631,44 @@
         }
       ],
       "structuredRows": []
+    },
+    {
+      "name": "validateSupabaseOAuthSecretPayload",
+      "description": null,
+      "isReadme": false,
+      "examples": [],
+      "kind": "function",
+      "modulePath": "src/oauthProviderDefinitions.ts",
+      "sourceLocation": {
+        "filePath": "src/oauthProviderDefinitions.ts",
+        "line": 77,
+        "column": 1
+      },
+      "exportPaths": ["src/index.ts"],
+      "relatedSymbols": ["SupabaseOAuthSecretPayload"],
+      "signatures": [
+        {
+          "label": "(provider: AuthOAuthProviderId, payload: Readonly<Record<string, string>>) => SecretStoreResult<SupabaseOAuthSecretPayload>",
+          "parameters": [
+            {
+              "name": "payload",
+              "type": "Readonly<Record<string, string>>",
+              "required": true,
+              "description": null
+            },
+            {
+              "name": "provider",
+              "type": "AuthOAuthProviderId",
+              "required": true,
+              "description": null
+            }
+          ],
+          "returnType": "SecretStoreResult<SupabaseOAuthSecretPayload>",
+          "returnDescription": null
+        }
+      ],
+      "members": [],
+      "structuredRows": []
     }
   ],
   "components": [],
@@ -305,7 +678,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 21,
+        "line": 22,
         "column": 1
       }
     },
@@ -314,7 +687,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 25,
+        "line": 26,
         "column": 9
       }
     },
@@ -323,7 +696,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 46,
+        "line": 47,
         "column": 9
       }
     },
@@ -332,7 +705,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 61,
+        "line": 62,
         "column": 9
       }
     },
@@ -341,7 +714,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 76,
+        "line": 77,
         "column": 9
       }
     },
@@ -350,7 +723,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 355,
+        "line": 356,
         "column": 1
       }
     },
@@ -359,7 +732,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 395,
+        "line": 396,
         "column": 1
       }
     },
@@ -368,7 +741,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 403,
+        "line": 404,
         "column": 1
       }
     },
@@ -377,7 +750,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 430,
+        "line": 431,
         "column": 1
       }
     },
@@ -386,7 +759,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 442,
+        "line": 443,
         "column": 1
       }
     },
@@ -395,7 +768,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 455,
+        "line": 456,
         "column": 1
       }
     },
@@ -404,7 +777,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 479,
+        "line": 480,
         "column": 1
       }
     },
@@ -463,11 +836,47 @@
       }
     },
     {
+      "name": "isSupabaseOAuthProviderId",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/oauthProviderDefinitions.ts",
+        "line": 65,
+        "column": 1
+      }
+    },
+    {
+      "name": "getSupabaseOAuthProviderDefinition",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/oauthProviderDefinitions.ts",
+        "line": 71,
+        "column": 1
+      }
+    },
+    {
+      "name": "validateSupabaseOAuthSecretPayload",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/oauthProviderDefinitions.ts",
+        "line": 77,
+        "column": 1
+      }
+    },
+    {
+      "name": "materializeSupabaseOAuthEnvironment",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/oauthProviderDefinitions.ts",
+        "line": 122,
+        "column": 1
+      }
+    },
+    {
       "name": "normalizeSupabaseSession",
       "description": null,
       "sourceLocation": {
         "filePath": "src/session.ts",
-        "line": 22,
+        "line": 3,
         "column": 1
       }
     },
@@ -476,7 +885,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/session.ts",
-        "line": 57,
+        "line": 38,
         "column": 1
       }
     },
@@ -485,7 +894,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/session.ts",
-        "line": 93,
+        "line": 74,
         "column": 1
       }
     },
@@ -494,7 +903,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/session.ts",
-        "line": 116,
+        "line": 97,
         "column": 1
       }
     },
@@ -503,7 +912,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/session.ts",
-        "line": 120,
+        "line": 101,
         "column": 1
       }
     },
@@ -512,7 +921,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/session.ts",
-        "line": 140,
+        "line": 121,
         "column": 1
       }
     },
@@ -521,7 +930,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/session.ts",
-        "line": 152,
+        "line": 133,
         "column": 1
       }
     },
@@ -530,7 +939,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/session.ts",
-        "line": 164,
+        "line": 145,
         "column": 1
       }
     },
@@ -539,7 +948,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/session.ts",
-        "line": 168,
+        "line": 149,
         "column": 1
       }
     },
@@ -548,7 +957,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/session.ts",
-        "line": 182,
+        "line": 163,
         "column": 1
       }
     }
@@ -559,6 +968,38 @@
       "name": "createSupabaseAuthAdapter",
       "sourcePath": "src/createSupabaseAuthAdapter.ts",
       "symbolName": "createSupabaseAuthAdapter",
+      "description": null,
+      "isReadme": false
+    },
+    {
+      "kind": "export",
+      "name": "getSupabaseOAuthProviderDefinition",
+      "sourcePath": "src/oauthProviderDefinitions.ts",
+      "symbolName": "getSupabaseOAuthProviderDefinition",
+      "description": null,
+      "isReadme": false
+    },
+    {
+      "kind": "export",
+      "name": "isSupabaseOAuthProviderId",
+      "sourcePath": "src/oauthProviderDefinitions.ts",
+      "symbolName": "isSupabaseOAuthProviderId",
+      "description": null,
+      "isReadme": false
+    },
+    {
+      "kind": "export",
+      "name": "materializeSupabaseOAuthEnvironment",
+      "sourcePath": "src/oauthProviderDefinitions.ts",
+      "symbolName": "materializeSupabaseOAuthEnvironment",
+      "description": null,
+      "isReadme": false
+    },
+    {
+      "kind": "export",
+      "name": "validateSupabaseOAuthSecretPayload",
+      "sourcePath": "src/oauthProviderDefinitions.ts",
+      "symbolName": "validateSupabaseOAuthSecretPayload",
       "description": null,
       "isReadme": false
     }
@@ -588,6 +1029,11 @@
       {
         "fromPath": "src/index.ts",
         "toPath": "src/createSupabaseAuthAdapter.ts",
+        "sourcePath": "src/index.ts"
+      },
+      {
+        "fromPath": "src/index.ts",
+        "toPath": "src/oauthProviderDefinitions.ts",
         "sourcePath": "src/index.ts"
       },
       {
@@ -958,6 +1404,30 @@
         "sourcePath": "src/errors.ts"
       },
       {
+        "fromSymbol": "getSupabaseOAuthProviderDefinition",
+        "toSymbol": "isSupabaseOAuthProviderId",
+        "callExpression": "isSupabaseOAuthProviderId",
+        "sourcePath": "src/oauthProviderDefinitions.ts"
+      },
+      {
+        "fromSymbol": "validateSupabaseOAuthSecretPayload",
+        "toSymbol": "getSupabaseOAuthProviderDefinition",
+        "callExpression": "getSupabaseOAuthProviderDefinition",
+        "sourcePath": "src/oauthProviderDefinitions.ts"
+      },
+      {
+        "fromSymbol": "materializeSupabaseOAuthEnvironment",
+        "toSymbol": "getSupabaseOAuthProviderDefinition",
+        "callExpression": "getSupabaseOAuthProviderDefinition",
+        "sourcePath": "src/oauthProviderDefinitions.ts"
+      },
+      {
+        "fromSymbol": "materializeSupabaseOAuthEnvironment",
+        "toSymbol": "validateSupabaseOAuthSecretPayload",
+        "callExpression": "validateSupabaseOAuthSecretPayload",
+        "sourcePath": "src/oauthProviderDefinitions.ts"
+      },
+      {
         "fromSymbol": "normalizeSupabaseSession",
         "toSymbol": "isRecord",
         "callExpression": "isRecord",
@@ -1040,6 +1510,71 @@
         "fromSymbol": "createSupabaseAuthAdapter",
         "toType": "SupabaseAuthConfig",
         "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "SupabaseOAuthProviderDefinition",
+        "toType": "SupabaseOAuthRuntimeEnvironmentDefinition",
+        "sourcePath": "src/oauthProviderDefinitions.ts"
+      },
+      {
+        "fromSymbol": "SupabaseOAuthProviderDefinition",
+        "toType": "SupabaseOAuthSecretFieldDefinition",
+        "sourcePath": "src/oauthProviderDefinitions.ts"
+      },
+      {
+        "fromSymbol": "getSupabaseOAuthProviderDefinition",
+        "toType": "AuthOAuthProviderId",
+        "sourcePath": "src/oauthProviderDefinitions.ts"
+      },
+      {
+        "fromSymbol": "getSupabaseOAuthProviderDefinition",
+        "toType": "SupabaseOAuthProviderDefinition",
+        "sourcePath": "src/oauthProviderDefinitions.ts"
+      },
+      {
+        "fromSymbol": "isSupabaseOAuthProviderId",
+        "toType": "AuthOAuthProviderId",
+        "sourcePath": "src/oauthProviderDefinitions.ts"
+      },
+      {
+        "fromSymbol": "materializeSupabaseOAuthEnvironment",
+        "toType": "AuthOAuthProviderId",
+        "sourcePath": "src/oauthProviderDefinitions.ts"
+      },
+      {
+        "fromSymbol": "materializeSupabaseOAuthEnvironment",
+        "toType": "Readonly",
+        "sourcePath": "src/oauthProviderDefinitions.ts"
+      },
+      {
+        "fromSymbol": "materializeSupabaseOAuthEnvironment",
+        "toType": "SecretPayload",
+        "sourcePath": "src/oauthProviderDefinitions.ts"
+      },
+      {
+        "fromSymbol": "materializeSupabaseOAuthEnvironment",
+        "toType": "SecretStoreResult",
+        "sourcePath": "src/oauthProviderDefinitions.ts"
+      },
+      {
+        "fromSymbol": "validateSupabaseOAuthSecretPayload",
+        "toType": "AuthOAuthProviderId",
+        "sourcePath": "src/oauthProviderDefinitions.ts"
+      },
+      {
+        "fromSymbol": "validateSupabaseOAuthSecretPayload",
+        "toType": "Readonly",
+        "sourcePath": "src/oauthProviderDefinitions.ts"
+      },
+      {
+        "fromSymbol": "validateSupabaseOAuthSecretPayload",
+        "toType": "SecretStoreResult",
+        "sourcePath": "src/oauthProviderDefinitions.ts"
+      },
+      {
+        "fromSymbol": "validateSupabaseOAuthSecretPayload",
+        "toType": "SupabaseOAuthSecretPayload",
+        "sourcePath": "src/oauthProviderDefinitions.ts"
       },
       {
         "fromSymbol": "SupabaseAuthConfig",

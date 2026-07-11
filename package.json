@@ -1,7 +1,7 @@
 {
   "name": "@ankhorage/supabase-auth",
   "type": "module",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Supabase auth adapter implementing shared TypeScript auth contracts.",
   "homepage": "https://github.com/ankhorage/supabase-auth#readme",
   "bugs": {
@@ -26,6 +26,9 @@
     "supabase",
     "auth",
     "authentication",
+    "oauth",
+    "gotrue",
+    "secret-store",
     "adapter",
     "session"
   ],
@@ -41,7 +44,7 @@
     "build": "rm -rf dist tsconfig.tsbuildinfo && bun x tsc -p tsconfig.json",
     "changeset": "changeset",
     "changeset:status": "changeset status --since=origin/main",
-    "docs": "paradox",
+    "docs": "paradox && ankhorage-prettier --write paradox README.md",
     "knip": "knip",
     "lint": "ankhorage-eslint . --max-warnings=0",
     "lint:fix": "ankhorage-eslint . --fix --max-warnings=0",

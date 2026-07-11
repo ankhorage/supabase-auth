@@ -11,12 +11,8 @@
       "line": 22,
       "column": 1
     },
-    "exportPaths": [
-      "src/index.ts"
-    ],
-    "relatedSymbols": [
-      "SupabaseAuthConfig"
-    ],
+    "exportPaths": ["src/index.ts"],
+    "relatedSymbols": ["SupabaseAuthConfig"],
     "signatures": [
       {
         "label": "(config: SupabaseAuthConfig) => AuthAdapter",
@@ -47,12 +43,8 @@
       "line": 71,
       "column": 1
     },
-    "exportPaths": [
-      "src/index.ts"
-    ],
-    "relatedSymbols": [
-      "SupabaseOAuthProviderDefinition"
-    ],
+    "exportPaths": ["src/index.ts"],
+    "relatedSymbols": ["SupabaseOAuthProviderDefinition"],
     "signatures": [
       {
         "label": "(provider: AuthOAuthProviderId) => SupabaseOAuthProviderDefinition | null",
@@ -83,9 +75,7 @@
       "line": 65,
       "column": 1
     },
-    "exportPaths": [
-      "src/index.ts"
-    ],
+    "exportPaths": ["src/index.ts"],
     "relatedSymbols": [],
     "signatures": [
       {
@@ -117,9 +107,7 @@
       "line": 122,
       "column": 1
     },
-    "exportPaths": [
-      "src/index.ts"
-    ],
+    "exportPaths": ["src/index.ts"],
     "relatedSymbols": [],
     "signatures": [
       {
@@ -151,9 +139,7 @@
       "line": 38,
       "column": 14
     },
-    "exportPaths": [
-      "src/index.ts"
-    ],
+    "exportPaths": ["src/index.ts"],
     "relatedSymbols": [],
     "signatures": [],
     "members": [],
@@ -171,9 +157,7 @@
       "line": 4,
       "column": 14
     },
-    "exportPaths": [
-      "src/index.ts"
-    ],
+    "exportPaths": ["src/index.ts"],
     "relatedSymbols": [],
     "signatures": [],
     "members": [],
@@ -191,12 +175,8 @@
       "line": 11,
       "column": 1
     },
-    "exportPaths": [
-      "src/index.ts"
-    ],
-    "relatedSymbols": [
-      "SupabaseAuthStorage"
-    ],
+    "exportPaths": ["src/index.ts"],
+    "relatedSymbols": ["SupabaseAuthStorage"],
     "signatures": [],
     "members": [
       {
@@ -256,9 +236,7 @@
       "line": 20,
       "column": 1
     },
-    "exportPaths": [
-      "src/index.ts"
-    ],
+    "exportPaths": ["src/index.ts"],
     "relatedSymbols": [],
     "signatures": [],
     "members": [],
@@ -276,9 +254,7 @@
       "line": 5,
       "column": 1
     },
-    "exportPaths": [
-      "src/index.ts"
-    ],
+    "exportPaths": ["src/index.ts"],
     "relatedSymbols": [],
     "signatures": [],
     "members": [
@@ -318,9 +294,7 @@
       "line": 25,
       "column": 1
     },
-    "exportPaths": [
-      "src/index.ts"
-    ],
+    "exportPaths": ["src/index.ts"],
     "relatedSymbols": [
       "SupabaseOAuthRuntimeEnvironmentDefinition",
       "SupabaseOAuthSecretFieldDefinition"
@@ -377,9 +351,7 @@
       "line": 5,
       "column": 1
     },
-    "exportPaths": [
-      "src/index.ts"
-    ],
+    "exportPaths": ["src/index.ts"],
     "relatedSymbols": [],
     "signatures": [],
     "members": [],
@@ -397,9 +369,7 @@
       "line": 18,
       "column": 1
     },
-    "exportPaths": [
-      "src/index.ts"
-    ],
+    "exportPaths": ["src/index.ts"],
     "relatedSymbols": [],
     "signatures": [],
     "members": [
@@ -446,9 +416,7 @@
       "line": 12,
       "column": 1
     },
-    "exportPaths": [
-      "src/index.ts"
-    ],
+    "exportPaths": ["src/index.ts"],
     "relatedSymbols": [],
     "signatures": [],
     "members": [
@@ -488,9 +456,7 @@
       "line": 7,
       "column": 1
     },
-    "exportPaths": [
-      "src/index.ts"
-    ],
+    "exportPaths": ["src/index.ts"],
     "relatedSymbols": [],
     "signatures": [],
     "members": [],
@@ -508,9 +474,7 @@
       "line": 32,
       "column": 1
     },
-    "exportPaths": [
-      "src/index.ts"
-    ],
+    "exportPaths": ["src/index.ts"],
     "relatedSymbols": [],
     "signatures": [],
     "members": [
@@ -543,12 +507,8 @@
       "line": 77,
       "column": 1
     },
-    "exportPaths": [
-      "src/index.ts"
-    ],
-    "relatedSymbols": [
-      "SupabaseOAuthSecretPayload"
-    ],
+    "exportPaths": ["src/index.ts"],
+    "relatedSymbols": ["SupabaseOAuthSecretPayload"],
     "signatures": [
       {
         "label": "(provider: AuthOAuthProviderId, payload: Readonly<Record<string, string>>) => SecretStoreResult<SupabaseOAuthSecretPayload>",

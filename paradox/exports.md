@@ -68,14 +68,14 @@ Source: `src/types.ts:11:1`
 
 ### Members
 
-| Name | Kind | Type | Required | Description |
-| --- | --- | --- | --- | --- |
-| anonKey | property | `string` | yes |  |
-| fetch | property | `SupabaseAuthFetch \| undefined` | no |  |
-| oauthProviders | property | `AuthOAuthProviderId[] \| undefined` | no |  |
-| storage | property | `SupabaseAuthStorage \| undefined` | no |  |
-| storageKey | property | `string \| undefined` | no |  |
-| url | property | `string` | yes |  |
+| Name           | Kind     | Type                                 | Required | Description |
+| -------------- | -------- | ------------------------------------ | -------- | ----------- |
+| anonKey        | property | `string`                             | yes      |             |
+| fetch          | property | `SupabaseAuthFetch \| undefined`     | no       |             |
+| oauthProviders | property | `AuthOAuthProviderId[] \| undefined` | no       |             |
+| storage        | property | `SupabaseAuthStorage \| undefined`   | no       |             |
+| storageKey     | property | `string \| undefined`                | no       |             |
+| url            | property | `string`                             | yes      |             |
 
 ## SupabaseAuthErrorCode
 
@@ -91,11 +91,11 @@ Source: `src/types.ts:5:1`
 
 ### Members
 
-| Name | Kind | Type | Required | Description |
-| --- | --- | --- | --- | --- |
-| getItem | method | `(key: string) => string \| Promise<string \| null> \| null` | yes |  |
-| removeItem | method | `(key: string) => void \| Promise<void>` | yes |  |
-| setItem | method | `(key: string, value: string) => void \| Promise<void>` | yes |  |
+| Name       | Kind   | Type                                                         | Required | Description |
+| ---------- | ------ | ------------------------------------------------------------ | -------- | ----------- |
+| getItem    | method | `(key: string) => string \| Promise<string \| null> \| null` | yes      |             |
+| removeItem | method | `(key: string) => void \| Promise<void>`                     | yes      |             |
+| setItem    | method | `(key: string, value: string) => void \| Promise<void>`      | yes      |             |
 
 ## SupabaseOAuthProviderDefinition
 
@@ -105,13 +105,13 @@ Source: `src/oauthProviderDefinitions.ts:25:1`
 
 ### Members
 
-| Name | Kind | Type | Required | Description |
-| --- | --- | --- | --- | --- |
-| defaultScopes | property | `readonly string[]` | yes |  |
-| id | property | `"google" \| "apple"` | yes |  |
-| label | property | `string` | yes |  |
-| runtimeEnvironment | property | `SupabaseOAuthRuntimeEnvironmentDefinition` | yes |  |
-| secretFields | property | `readonly SupabaseOAuthSecretFieldDefinition[]` | yes |  |
+| Name               | Kind     | Type                                            | Required | Description |
+| ------------------ | -------- | ----------------------------------------------- | -------- | ----------- |
+| defaultScopes      | property | `readonly string[]`                             | yes      |             |
+| id                 | property | `"google" \| "apple"`                           | yes      |             |
+| label              | property | `string`                                        | yes      |             |
+| runtimeEnvironment | property | `SupabaseOAuthRuntimeEnvironmentDefinition`     | yes      |             |
+| secretFields       | property | `readonly SupabaseOAuthSecretFieldDefinition[]` | yes      |             |
 
 ## SupabaseOAuthProviderId
 
@@ -127,12 +127,12 @@ Source: `src/oauthProviderDefinitions.ts:18:1`
 
 ### Members
 
-| Name | Kind | Type | Required | Description |
-| --- | --- | --- | --- | --- |
-| clientId | property | `string` | yes |  |
-| clientSecret | property | `string` | yes |  |
-| enabled | property | `string` | yes |  |
-| redirectUri | property | `string` | yes |  |
+| Name         | Kind     | Type     | Required | Description |
+| ------------ | -------- | -------- | -------- | ----------- |
+| clientId     | property | `string` | yes      |             |
+| clientSecret | property | `string` | yes      |             |
+| enabled      | property | `string` | yes      |             |
+| redirectUri  | property | `string` | yes      |             |
 
 ## SupabaseOAuthSecretFieldDefinition
 
@@ -142,11 +142,11 @@ Source: `src/oauthProviderDefinitions.ts:12:1`
 
 ### Members
 
-| Name | Kind | Type | Required | Description |
-| --- | --- | --- | --- | --- |
-| label | property | `string` | yes |  |
-| name | property | `"clientId" \| "clientSecret"` | yes |  |
-| secret | property | `boolean` | yes |  |
+| Name   | Kind     | Type                           | Required | Description |
+| ------ | -------- | ------------------------------ | -------- | ----------- |
+| label  | property | `string`                       | yes      |             |
+| name   | property | `"clientId" \| "clientSecret"` | yes      |             |
+| secret | property | `boolean`                      | yes      |             |
 
 ## SupabaseOAuthSecretPayload
 
@@ -162,10 +162,10 @@ Source: `src/types.ts:32:1`
 
 ### Members
 
-| Name | Kind | Type | Required | Description |
-| --- | --- | --- | --- | --- |
-| body | property | `unknown` | no |  |
-| status | property | `number \| undefined` | no |  |
+| Name   | Kind     | Type                  | Required | Description |
+| ------ | -------- | --------------------- | -------- | ----------- |
+| body   | property | `unknown`             | no       |             |
+| status | property | `number \| undefined` | no       |             |
 
 ## validateSupabaseOAuthSecretPayload
 

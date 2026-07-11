@@ -1,0 +1,8 @@
+$ ankhorage-prettier --check .
+Checking formatting...
+[[33mwarn[39m] paradox/exports.json
+[[33mwarn[39m] paradox/exports.md
+[[33mwarn[39m] paradox/index.html
+[[33mwarn[39m] paradox/paradox.json
+[[33mwarn[39m] Code style issues found in 4 files. Run Prettier with --write to fix.
+error: script "format:check" exited with code 1

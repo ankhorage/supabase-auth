@@ -12,6 +12,7 @@ export type {
   SupabaseOAuthProviderId,
   SupabaseOAuthRuntimeEnvironmentDefinition,
   SupabaseOAuthSecretFieldDefinition,
+  SupabaseOAuthSecretPayload,
 } from './oauthProviderDefinitions.js';
 export type {
   SupabaseAuthConfig,

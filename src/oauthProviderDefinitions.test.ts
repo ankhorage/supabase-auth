@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'bun:test';
 
 import {
-  SUPABASE_OAUTH_PROVIDER_DEFINITIONS,
   getSupabaseOAuthProviderDefinition,
   materializeSupabaseOAuthEnvironment,
+  SUPABASE_OAUTH_PROVIDER_DEFINITIONS,
   validateSupabaseOAuthSecretPayload,
 } from './oauthProviderDefinitions.js';
 

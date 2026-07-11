@@ -71,9 +71,7 @@ export function isSupabaseOAuthProviderId(
 export function getSupabaseOAuthProviderDefinition(
   provider: AuthOAuthProviderId,
 ): SupabaseOAuthProviderDefinition | null {
-  return isSupabaseOAuthProviderId(provider)
-    ? SUPABASE_OAUTH_PROVIDER_DEFINITIONS[provider]
-    : null;
+  return isSupabaseOAuthProviderId(provider) ? SUPABASE_OAUTH_PROVIDER_DEFINITIONS[provider] : null;
 }
 
 export function validateSupabaseOAuthSecretPayload(
@@ -91,8 +89,8 @@ export function validateSupabaseOAuthSecretPayload(
     };
   }
 
-  const clientId = payload.clientId;
-  const clientSecret = payload.clientSecret;
+  const { clientId } = payload;
+  const { clientSecret } = payload;
   const missingFields = definition.secretFields
     .map((field) => field.name)
     .filter((field) => typeof payload[field] !== 'string' || payload[field].trim().length === 0);

@@ -68,16 +68,5 @@
     "@ankhorage/contracts": "^3.0.0",
     "@supabase/supabase-js": "2.105.4"
   },
-  "packageManager": "bun@1.3.13",
-  "knip": {
-    "entry": [
-      "src/index.ts",
-      ".prettierrc.js",
-      "eslint.config.mjs",
-      "paradox.config.ts"
-    ],
-    "project": [
-      "src/**/*.ts"
-    ]
-  }
+  "packageManager": "bun@1.3.13"
 }

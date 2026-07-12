@@ -1,5 +1,6 @@
 import type {
   AuthAdapter,
+  AuthAdapterError,
   AuthOAuthProviderId,
   AuthResult,
   AuthSession,
@@ -17,14 +18,31 @@ import {
   isSupabaseOAuthProviderId,
   type SupabaseOAuthProviderId,
 } from './oauthProviderDefinitions.js';
-import { normalizeSupabaseSession, normalizeSupabaseUser, parseStoredSession } from './session.js';
-import type { SupabaseAuthConfig, SupabaseAuthFetch } from './types.js';
+import {
+  createSupabaseOAuthProfileVerifier,
+  normalizeSupabaseAuthProfileVerificationConfig,
+} from './profileVerification.js';
+import {
+  isAuthSessionExpired,
+  normalizeSupabaseSession,
+  normalizeSupabaseUser,
+  parseStoredSession,
+} from './session.js';
+import type {
+  SupabaseAuthConfig,
+  SupabaseAuthFetch,
+  SupabaseAuthProfileVerificationConfig,
+  SupabaseAuthStorage,
+  SupabaseOAuthLifecycleObserver,
+  SupabaseOAuthProfileVerifier,
+} from './types.js';
 
 const DEFAULT_STORAGE_KEY = 'ankhorage.supabase-auth.session';
 
 export function createSupabaseAuthAdapter(config: SupabaseAuthConfig): AuthAdapter {
   const normalizedConfig = validateConfig(config);
   let currentSession: AuthSession | null = null;
+  let sessionLoaded = false;
 
   const request = async (
     path: string,
@@ -45,6 +63,7 @@ export function createSupabaseAuthAdapter(config: SupabaseAuthConfig): AuthAdapt
 
   const persistSession = async (session: AuthSession | null): Promise<void> => {
     currentSession = session;
+    sessionLoaded = true;
     if (normalizedConfig.storage === undefined) return;
     if (session === null) {
       await normalizedConfig.storage.removeItem(normalizedConfig.storageKey);
@@ -53,17 +72,48 @@ export function createSupabaseAuthAdapter(config: SupabaseAuthConfig): AuthAdapt
     await normalizedConfig.storage.setItem(normalizedConfig.storageKey, JSON.stringify(session));
   };
 
-  const readStoredSession = async (): Promise<AuthSession | null> => {
-    if (currentSession !== null) return currentSession;
-    if (normalizedConfig.storage === undefined) return null;
-    const stored = await normalizedConfig.storage.getItem(normalizedConfig.storageKey);
-    currentSession = parseStoredSession(stored);
-    return currentSession;
+  const persistSessionSafely = async (session: AuthSession | null): Promise<AuthAdapterError | null> => {
+    try {
+      await persistSession(session);
+      return null;
+    } catch {
+      return createAuthError(
+        'session_persistence_failed',
+        session === null
+          ? 'The persisted auth session could not be cleared.'
+          : 'The auth session could not be persisted.',
+      );
+    }
   };
 
-  const handleSessionResponse = async (response: Response): Promise<AuthResult<AuthSession>> => {
+  const readStoredSession = async (): Promise<AuthSession | null> => {
+    if (sessionLoaded) return currentSession;
+    sessionLoaded = true;
+    if (normalizedConfig.storage === undefined) return null;
+
+    const stored = await normalizedConfig.storage.getItem(normalizedConfig.storageKey);
+    currentSession = parseStoredSession(stored);
+    if (!isAuthSessionExpired(currentSession)) return currentSession;
+
+    currentSession = null;
+    await normalizedConfig.storage.removeItem(normalizedConfig.storageKey);
+    return null;
+  };
+
+  const handleSessionResponse = async (
+    response: Response,
+    options: { clearExpiredSession?: boolean } = {},
+  ): Promise<AuthResult<AuthSession>> => {
     const body = await readResponseBody(response);
-    if (!response.ok) return { ok: false, error: mapSupabaseError(response, body) };
+    if (!response.ok) {
+      const error = mapSupabaseError(response, body);
+      if (options.clearExpiredSession === true && error.code === 'session_expired') {
+        const persistenceError = await persistSessionSafely(null);
+        if (persistenceError !== null) return { ok: false, error: persistenceError };
+      }
+      return { ok: false, error };
+    }
+
     const session = normalizeSupabaseSession(body);
     if (session === null) {
       return {
@@ -75,11 +125,15 @@ export function createSupabaseAuthAdapter(config: SupabaseAuthConfig): AuthAdapt
         ),
       };
     }
-    await persistSession(session);
-    return { ok: true, data: session };
+
+    const persistenceError = await persistSessionSafely(session);
+    return persistenceError === null
+      ? { ok: true, data: session }
+      : { ok: false, error: persistenceError };
   };
 
   const oauthStorage = normalizedConfig.storage;
+  const profileVerifier = createProfileVerifier(normalizedConfig);
   const oauth =
     normalizedConfig.oauthProviders.length === 0
       ? undefined
@@ -90,7 +144,14 @@ export function createSupabaseAuthAdapter(config: SupabaseAuthConfig): AuthAdapt
           storage: requireOAuthStorage(oauthStorage),
           storageKey: normalizedConfig.storageKey,
           providers: normalizedConfig.oauthProviders,
-          persistSession: async (session) => persistSession(session),
+          persistSession: async (session) => {
+            const error = await persistSessionSafely(session);
+            if (error !== null) throw error;
+          },
+          ...(profileVerifier === undefined ? {} : { verifyProfile: profileVerifier }),
+          ...(normalizedConfig.onOAuthLifecycleEvent === undefined
+            ? {}
+            : { onLifecycleEvent: normalizedConfig.onOAuthLifecycleEvent }),
         });
 
   return {
@@ -136,8 +197,10 @@ export function createSupabaseAuthAdapter(config: SupabaseAuthConfig): AuthAdapt
         if (!response.ok) return { ok: false, error: mapSupabaseError(response, body) };
         const session = normalizeSupabaseSession(body);
         if (session !== null) {
-          await persistSession(session);
-          return { ok: true, data: session };
+          const persistenceError = await persistSessionSafely(session);
+          return persistenceError === null
+            ? { ok: true, data: session }
+            : { ok: false, error: persistenceError };
         }
         const user = normalizeSupabaseUser(isRecord(body) && 'user' in body ? body.user : body);
         if (user !== null) return { ok: true, data: user };
@@ -155,8 +218,19 @@ export function createSupabaseAuthAdapter(config: SupabaseAuthConfig): AuthAdapt
     },
 
     async signOut(input?: SignOutInput): Promise<AuthResult> {
-      const session = await readStoredSession();
-      if (session?.accessToken !== undefined) {
+      let providerError: AuthAdapterError | null = null;
+      let session: AuthSession | null = null;
+
+      try {
+        session = await readStoredSession();
+      } catch {
+        providerError = createAuthError(
+          'session_persistence_failed',
+          'The persisted auth session could not be read before sign-out.',
+        );
+      }
+
+      if (providerError === null && session?.accessToken !== undefined) {
         try {
           const response = await request('logout', {
             accessToken: session.accessToken,
@@ -164,22 +238,46 @@ export function createSupabaseAuthAdapter(config: SupabaseAuthConfig): AuthAdapt
           });
           if (!response.ok) {
             const body = await readResponseBody(response);
-            return { ok: false, error: mapSupabaseError(response, body) };
+            providerError = mapSupabaseError(response, body);
           }
         } catch (error) {
-          return { ok: false, error: mapNetworkError(error) };
+          providerError = mapNetworkError(error);
         }
       }
-      await persistSession(null);
-      return { ok: true };
+
+      const persistenceError = await persistSessionSafely(null);
+      if (persistenceError !== null) return { ok: false, error: persistenceError };
+      return providerError === null ? { ok: true } : { ok: false, error: providerError };
     },
 
     async getSession(): Promise<AuthResult<AuthSession | null>> {
-      return { ok: true, data: await readStoredSession() };
+      try {
+        return { ok: true, data: await readStoredSession() };
+      } catch {
+        return {
+          ok: false,
+          error: createAuthError(
+            'session_persistence_failed',
+            'The persisted auth session could not be read.',
+          ),
+        };
+      }
     },
 
     async refreshSession(): Promise<AuthResult<AuthSession | null>> {
-      const session = await readStoredSession();
+      let session: AuthSession | null;
+      try {
+        session = await readStoredSession();
+      } catch {
+        return {
+          ok: false,
+          error: createAuthError(
+            'session_persistence_failed',
+            'The persisted auth session could not be read for refresh.',
+          ),
+        };
+      }
+
       if (session?.refreshToken === undefined) {
         return {
           ok: false,
@@ -190,7 +288,7 @@ export function createSupabaseAuthAdapter(config: SupabaseAuthConfig): AuthAdapt
         const response = await request('token?grant_type=refresh_token', {
           body: { refresh_token: session.refreshToken },
         });
-        return await handleSessionResponse(response);
+        return await handleSessionResponse(response, { clearExpiredSession: true });
       } catch (error) {
         return { ok: false, error: mapNetworkError(error) };
       }
@@ -282,8 +380,15 @@ function validateConfig(config: SupabaseAuthConfig): RequiredConfig {
   if (oauthProviders.length > 0 && config.storage === undefined) {
     throw new TypeError('Supabase OAuth PKCE requires persistent auth storage.');
   }
+  if (config.profileVerification !== undefined && oauthProviders.length === 0) {
+    throw new TypeError('Supabase OAuth profile verification requires at least one OAuth provider.');
+  }
 
   const configuredStorageKey = config.storageKey?.trim();
+  const profileVerification =
+    config.profileVerification === undefined
+      ? undefined
+      : normalizeSupabaseAuthProfileVerificationConfig(config.profileVerification);
 
   return {
     url: url.replace(/\/+$/, ''),
@@ -295,7 +400,19 @@ function validateConfig(config: SupabaseAuthConfig): RequiredConfig {
         ? DEFAULT_STORAGE_KEY
         : configuredStorageKey,
     oauthProviders,
+    profileVerification,
+    onOAuthLifecycleEvent: config.onOAuthLifecycleEvent,
   };
+}
+
+function createProfileVerifier(config: RequiredConfig): SupabaseOAuthProfileVerifier | undefined {
+  if (config.profileVerification === undefined) return undefined;
+  return createSupabaseOAuthProfileVerifier({
+    url: config.url,
+    anonKey: config.anonKey,
+    fetch: config.fetch,
+    config: config.profileVerification,
+  });
 }
 
 function requireOAuthStorage(
@@ -349,16 +466,18 @@ function createHeaders(anonKey: string, accessToken?: string): Record<string, st
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 interface RequiredConfig {
   url: string;
   anonKey: string;
   fetch: SupabaseAuthFetch;
-  storage?: SupabaseAuthConfig['storage'];
+  storage?: SupabaseAuthStorage;
   storageKey: string;
   oauthProviders: SupabaseOAuthProviderId[];
+  profileVerification?: SupabaseAuthProfileVerificationConfig;
+  onOAuthLifecycleEvent?: SupabaseOAuthLifecycleObserver;
 }
 
 type IdentifierResult =

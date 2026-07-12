@@ -7,4 +7,7 @@ const count = source.split(search).length - 1;
 if (count !== 1) {
   throw new Error(`Expected one persistence throw, found ${count}.`);
 }
-await writeFile(path, source.replace(search, `            if (error !== null) throw new Error(error.message);`));
+await writeFile(
+  path,
+  source.replace(search, `            if (error !== null) throw new Error(error.message);`),
+);

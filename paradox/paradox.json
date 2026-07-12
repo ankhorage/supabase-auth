@@ -12,7 +12,7 @@
     {
       "id": "npm",
       "label": "npm",
-      "value": "v0.4.0",
+      "value": "v1.0.0",
       "color": "cb3837"
     },
     {
@@ -70,6 +70,7 @@
         "src/errors.ts",
         "src/oauth.ts",
         "src/oauthProviderDefinitions.ts",
+        "src/profileVerification.ts",
         "src/session.ts",
         "src/types.ts"
       ],
@@ -87,21 +88,33 @@
       "dependencies": [],
       "exports": [
         "createSupabaseAuthAdapter",
+        "createSupabaseOAuthProfileVerifier",
         "getSupabaseOAuthProviderDefinition",
         "isSupabaseOAuthProviderId",
         "materializeSupabaseOAuthEnvironment",
+        "normalizeSupabaseAuthProfileVerificationConfig",
+        "SUPABASE_AUTH_PROFILE_FIELDS",
         "SUPABASE_OAUTH_PROVIDER_DEFINITIONS",
         "SUPABASE_OAUTH_PROVIDER_IDS",
         "SupabaseAuthConfig",
         "SupabaseAuthErrorCode",
+        "SupabaseAuthProfileField",
+        "SupabaseAuthProfileVerificationConfig",
         "SupabaseAuthStorage",
+        "SupabaseOAuthLifecycleEvent",
+        "SupabaseOAuthLifecycleObserver",
+        "SupabaseOAuthLifecycleStatus",
+        "SupabaseOAuthProfileVerificationInput",
+        "SupabaseOAuthProfileVerificationResult",
+        "SupabaseOAuthProfileVerifier",
         "SupabaseOAuthProviderDefinition",
         "SupabaseOAuthProviderId",
         "SupabaseOAuthRuntimeEnvironmentDefinition",
         "SupabaseOAuthSecretFieldDefinition",
         "SupabaseOAuthSecretPayload",
         "SupabaseProviderErrorCause",
-        "validateSupabaseOAuthSecretPayload"
+        "validateSupabaseOAuthSecretPayload",
+        "verifySupabaseOAuthProfile"
       ]
     },
     {
@@ -129,10 +142,22 @@
       ]
     },
     {
+      "path": "src/profileVerification.ts",
+      "isEntrypoint": false,
+      "dependencies": ["src/types.ts"],
+      "exports": [
+        "createSupabaseOAuthProfileVerifier",
+        "NormalizedSupabaseAuthProfileVerificationConfig",
+        "normalizeSupabaseAuthProfileVerificationConfig",
+        "verifySupabaseOAuthProfile"
+      ]
+    },
+    {
       "path": "src/session.ts",
       "isEntrypoint": false,
       "dependencies": [],
       "exports": [
+        "isAuthSessionExpired",
         "normalizeSupabaseClientSession",
         "normalizeSupabaseSession",
         "normalizeSupabaseUser",
@@ -144,10 +169,19 @@
       "isEntrypoint": false,
       "dependencies": [],
       "exports": [
+        "SUPABASE_AUTH_PROFILE_FIELDS",
         "SupabaseAuthConfig",
         "SupabaseAuthErrorCode",
         "SupabaseAuthFetch",
+        "SupabaseAuthProfileField",
+        "SupabaseAuthProfileVerificationConfig",
         "SupabaseAuthStorage",
+        "SupabaseOAuthLifecycleEvent",
+        "SupabaseOAuthLifecycleObserver",
+        "SupabaseOAuthLifecycleStatus",
+        "SupabaseOAuthProfileVerificationInput",
+        "SupabaseOAuthProfileVerificationResult",
+        "SupabaseOAuthProfileVerifier",
         "SupabaseProviderErrorCause"
       ]
     }
@@ -162,7 +196,7 @@
       "modulePath": "src/createSupabaseAuthAdapter.ts",
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 25,
+        "line": 42,
         "column": 1
       },
       "exportPaths": ["src/index.ts"],
@@ -179,6 +213,38 @@
             }
           ],
           "returnType": "AuthAdapter",
+          "returnDescription": null
+        }
+      ],
+      "members": [],
+      "structuredRows": []
+    },
+    {
+      "name": "createSupabaseOAuthProfileVerifier",
+      "description": null,
+      "isReadme": false,
+      "examples": [],
+      "kind": "function",
+      "modulePath": "src/profileVerification.ts",
+      "sourceLocation": {
+        "filePath": "src/profileVerification.ts",
+        "line": 30,
+        "column": 1
+      },
+      "exportPaths": ["src/index.ts"],
+      "relatedSymbols": ["SupabaseAuthProfileVerificationConfig", "SupabaseOAuthProfileVerifier"],
+      "signatures": [
+        {
+          "label": "(input: { url: string; anonKey: string; fetch: SupabaseAuthFetch; config: SupabaseAuthProfileVerificationConfig; }) => SupabaseOAuthProfileVerifier",
+          "parameters": [
+            {
+              "name": "input",
+              "type": "{ url: string; anonKey: string; fetch: SupabaseAuthFetch; config: SupabaseAuthProfileVerificationConfig; }",
+              "required": true,
+              "description": null
+            }
+          ],
+          "returnType": "SupabaseOAuthProfileVerifier",
           "returnDescription": null
         }
       ],
@@ -282,6 +348,56 @@
       "structuredRows": []
     },
     {
+      "name": "normalizeSupabaseAuthProfileVerificationConfig",
+      "description": null,
+      "isReadme": false,
+      "examples": [],
+      "kind": "function",
+      "modulePath": "src/profileVerification.ts",
+      "sourceLocation": {
+        "filePath": "src/profileVerification.ts",
+        "line": 132,
+        "column": 1
+      },
+      "exportPaths": ["src/index.ts"],
+      "relatedSymbols": ["SupabaseAuthProfileVerificationConfig"],
+      "signatures": [
+        {
+          "label": "(config: SupabaseAuthProfileVerificationConfig) => NormalizedSupabaseAuthProfileVerificationConfig",
+          "parameters": [
+            {
+              "name": "config",
+              "type": "SupabaseAuthProfileVerificationConfig",
+              "required": true,
+              "description": null
+            }
+          ],
+          "returnType": "NormalizedSupabaseAuthProfileVerificationConfig",
+          "returnDescription": null
+        }
+      ],
+      "members": [],
+      "structuredRows": []
+    },
+    {
+      "name": "SUPABASE_AUTH_PROFILE_FIELDS",
+      "description": null,
+      "isReadme": false,
+      "examples": [],
+      "kind": "value",
+      "modulePath": "src/types.ts",
+      "sourceLocation": {
+        "filePath": "src/types.ts",
+        "line": 16,
+        "column": 14
+      },
+      "exportPaths": ["src/index.ts"],
+      "relatedSymbols": [],
+      "signatures": [],
+      "members": [],
+      "structuredRows": []
+    },
+    {
       "name": "SUPABASE_OAUTH_PROVIDER_DEFINITIONS",
       "description": null,
       "isReadme": false,
@@ -326,11 +442,15 @@
       "modulePath": "src/types.ts",
       "sourceLocation": {
         "filePath": "src/types.ts",
-        "line": 11,
+        "line": 71,
         "column": 1
       },
       "exportPaths": ["src/index.ts"],
-      "relatedSymbols": ["SupabaseAuthStorage"],
+      "relatedSymbols": [
+        "SupabaseAuthProfileVerificationConfig",
+        "SupabaseAuthStorage",
+        "SupabaseOAuthLifecycleObserver"
+      ],
       "signatures": [],
       "members": [
         {
@@ -351,6 +471,20 @@
           "name": "oauthProviders",
           "kind": "property",
           "type": "readonly AuthOAuthProviderId[] | undefined",
+          "required": false,
+          "description": null
+        },
+        {
+          "name": "onOAuthLifecycleEvent",
+          "kind": "property",
+          "type": "SupabaseOAuthLifecycleObserver | undefined",
+          "required": false,
+          "description": null
+        },
+        {
+          "name": "profileVerification",
+          "kind": "property",
+          "type": "SupabaseAuthProfileVerificationConfig | undefined",
           "required": false,
           "description": null
         },
@@ -387,13 +521,78 @@
       "modulePath": "src/types.ts",
       "sourceLocation": {
         "filePath": "src/types.ts",
-        "line": 20,
+        "line": 82,
         "column": 1
       },
       "exportPaths": ["src/index.ts"],
       "relatedSymbols": [],
       "signatures": [],
       "members": [],
+      "structuredRows": []
+    },
+    {
+      "name": "SupabaseAuthProfileField",
+      "description": null,
+      "isReadme": false,
+      "examples": [],
+      "kind": "unknown",
+      "modulePath": "src/types.ts",
+      "sourceLocation": {
+        "filePath": "src/types.ts",
+        "line": 23,
+        "column": 1
+      },
+      "exportPaths": ["src/index.ts"],
+      "relatedSymbols": [],
+      "signatures": [],
+      "members": [],
+      "structuredRows": []
+    },
+    {
+      "name": "SupabaseAuthProfileVerificationConfig",
+      "description": null,
+      "isReadme": false,
+      "examples": [],
+      "kind": "type",
+      "modulePath": "src/types.ts",
+      "sourceLocation": {
+        "filePath": "src/types.ts",
+        "line": 25,
+        "column": 1
+      },
+      "exportPaths": ["src/index.ts"],
+      "relatedSymbols": [],
+      "signatures": [],
+      "members": [
+        {
+          "name": "fields",
+          "kind": "property",
+          "type": "readonly (\"email\" | \"displayName\" | \"avatarUrl\" | \"username\" | \"phone\")[] | undefined",
+          "required": false,
+          "description": null
+        },
+        {
+          "name": "maxAttempts",
+          "kind": "property",
+          "type": "number | undefined",
+          "required": false,
+          "description": null
+        },
+        {
+          "name": "retryDelayMs",
+          "kind": "property",
+          "type": "number | undefined",
+          "required": false,
+          "description": null
+        },
+        {
+          "name": "table",
+          "kind": "property",
+          "type": "string",
+          "required": true,
+          "description": null
+        }
+      ],
       "structuredRows": []
     },
     {
@@ -405,7 +604,7 @@
       "modulePath": "src/types.ts",
       "sourceLocation": {
         "filePath": "src/types.ts",
-        "line": 5,
+        "line": 10,
         "column": 1
       },
       "exportPaths": ["src/index.ts"],
@@ -434,6 +633,172 @@
           "description": null
         }
       ],
+      "structuredRows": []
+    },
+    {
+      "name": "SupabaseOAuthLifecycleEvent",
+      "description": null,
+      "isReadme": false,
+      "examples": [],
+      "kind": "type",
+      "modulePath": "src/types.ts",
+      "sourceLocation": {
+        "filePath": "src/types.ts",
+        "line": 55,
+        "column": 1
+      },
+      "exportPaths": ["src/index.ts"],
+      "relatedSymbols": ["SupabaseOAuthLifecycleStatus"],
+      "signatures": [],
+      "members": [
+        {
+          "name": "correlationId",
+          "kind": "property",
+          "type": "string",
+          "required": true,
+          "description": null
+        },
+        {
+          "name": "errorCode",
+          "kind": "property",
+          "type": "\"oauth_unavailable\" | \"provider_disabled\" | \"provider_misconfigured\" | \"invalid_redirect_uri\" | \"authorization_failed\" | \"authorization_attempt_not_found\" | \"invalid_callback\" | \"state_mismatch\" | \"pkce_mismatch\" | \"callback_already_completed\" | \"code_exchange_failed\" | \"network_error\" | \"session_persistence_failed\" | \"profile_creation_failed\" | \"provider_error\" | undefined",
+          "required": false,
+          "description": null
+        },
+        {
+          "name": "provider",
+          "kind": "property",
+          "type": "AuthOAuthProviderId",
+          "required": true,
+          "description": null
+        },
+        {
+          "name": "stage",
+          "kind": "property",
+          "type": "\"start\" | \"transport\" | \"callback\" | \"exchange\" | \"session\" | \"profile\"",
+          "required": true,
+          "description": null
+        },
+        {
+          "name": "status",
+          "kind": "property",
+          "type": "SupabaseOAuthLifecycleStatus",
+          "required": true,
+          "description": null
+        }
+      ],
+      "structuredRows": []
+    },
+    {
+      "name": "SupabaseOAuthLifecycleObserver",
+      "description": null,
+      "isReadme": false,
+      "examples": [],
+      "kind": "unknown",
+      "modulePath": "src/types.ts",
+      "sourceLocation": {
+        "filePath": "src/types.ts",
+        "line": 67,
+        "column": 1
+      },
+      "exportPaths": ["src/index.ts"],
+      "relatedSymbols": [],
+      "signatures": [],
+      "members": [],
+      "structuredRows": []
+    },
+    {
+      "name": "SupabaseOAuthLifecycleStatus",
+      "description": null,
+      "isReadme": false,
+      "examples": [],
+      "kind": "unknown",
+      "modulePath": "src/types.ts",
+      "sourceLocation": {
+        "filePath": "src/types.ts",
+        "line": 48,
+        "column": 1
+      },
+      "exportPaths": ["src/index.ts"],
+      "relatedSymbols": [],
+      "signatures": [],
+      "members": [],
+      "structuredRows": []
+    },
+    {
+      "name": "SupabaseOAuthProfileVerificationInput",
+      "description": null,
+      "isReadme": false,
+      "examples": [],
+      "kind": "type",
+      "modulePath": "src/types.ts",
+      "sourceLocation": {
+        "filePath": "src/types.ts",
+        "line": 36,
+        "column": 1
+      },
+      "exportPaths": ["src/index.ts"],
+      "relatedSymbols": [],
+      "signatures": [],
+      "members": [
+        {
+          "name": "correlationId",
+          "kind": "property",
+          "type": "string",
+          "required": true,
+          "description": null
+        },
+        {
+          "name": "provider",
+          "kind": "property",
+          "type": "AuthOAuthProviderId",
+          "required": true,
+          "description": null
+        },
+        {
+          "name": "session",
+          "kind": "property",
+          "type": "AuthSession",
+          "required": true,
+          "description": null
+        }
+      ],
+      "structuredRows": []
+    },
+    {
+      "name": "SupabaseOAuthProfileVerificationResult",
+      "description": null,
+      "isReadme": false,
+      "examples": [],
+      "kind": "unknown",
+      "modulePath": "src/types.ts",
+      "sourceLocation": {
+        "filePath": "src/types.ts",
+        "line": 42,
+        "column": 1
+      },
+      "exportPaths": ["src/index.ts"],
+      "relatedSymbols": [],
+      "signatures": [],
+      "members": [],
+      "structuredRows": []
+    },
+    {
+      "name": "SupabaseOAuthProfileVerifier",
+      "description": null,
+      "isReadme": false,
+      "examples": [],
+      "kind": "unknown",
+      "modulePath": "src/types.ts",
+      "sourceLocation": {
+        "filePath": "src/types.ts",
+        "line": 44,
+        "column": 1
+      },
+      "exportPaths": ["src/index.ts"],
+      "relatedSymbols": [],
+      "signatures": [],
+      "members": [],
       "structuredRows": []
     },
     {
@@ -625,7 +990,7 @@
       "modulePath": "src/types.ts",
       "sourceLocation": {
         "filePath": "src/types.ts",
-        "line": 31,
+        "line": 94,
         "column": 1
       },
       "exportPaths": ["src/index.ts"],
@@ -686,6 +1051,41 @@
       ],
       "members": [],
       "structuredRows": []
+    },
+    {
+      "name": "verifySupabaseOAuthProfile",
+      "description": null,
+      "isReadme": false,
+      "examples": [],
+      "kind": "function",
+      "modulePath": "src/profileVerification.ts",
+      "sourceLocation": {
+        "filePath": "src/profileVerification.ts",
+        "line": 49,
+        "column": 1
+      },
+      "exportPaths": ["src/index.ts"],
+      "relatedSymbols": [
+        "SupabaseAuthProfileVerificationConfig",
+        "SupabaseOAuthProfileVerificationResult"
+      ],
+      "signatures": [
+        {
+          "label": "(input: { url: string; anonKey: string; fetch: SupabaseAuthFetch; config: SupabaseAuthProfileVerificationConfig; session: AuthSession; }) => Promise<SupabaseOAuthProfileVerificationResult>",
+          "parameters": [
+            {
+              "name": "input",
+              "type": "{ url: string; anonKey: string; fetch: SupabaseAuthFetch; config: SupabaseAuthProfileVerificationConfig; session: AuthSession; }",
+              "required": true,
+              "description": null
+            }
+          ],
+          "returnType": "Promise<SupabaseOAuthProfileVerificationResult>",
+          "returnDescription": null
+        }
+      ],
+      "members": [],
+      "structuredRows": []
     }
   ],
   "components": [],
@@ -695,7 +1095,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 25,
+        "line": 42,
         "column": 1
       }
     },
@@ -704,7 +1104,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 29,
+        "line": 47,
         "column": 9
       }
     },
@@ -713,7 +1113,16 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 46,
+        "line": 64,
+        "column": 9
+      }
+    },
+    {
+      "name": "persistSessionSafely",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/createSupabaseAuthAdapter.ts",
+        "line": 79,
         "column": 9
       }
     },
@@ -722,7 +1131,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 56,
+        "line": 95,
         "column": 9
       }
     },
@@ -731,7 +1140,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 64,
+        "line": 109,
         "column": 9
       }
     },
@@ -740,7 +1149,16 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 258,
+        "line": 362,
+        "column": 1
+      }
+    },
+    {
+      "name": "createProfileVerifier",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/createSupabaseAuthAdapter.ts",
+        "line": 416,
         "column": 1
       }
     },
@@ -749,7 +1167,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 301,
+        "line": 426,
         "column": 1
       }
     },
@@ -758,7 +1176,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 310,
+        "line": 435,
         "column": 1
       }
     },
@@ -767,7 +1185,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 316,
+        "line": 441,
         "column": 1
       }
     },
@@ -776,7 +1194,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 334,
+        "line": 459,
         "column": 1
       }
     },
@@ -785,7 +1203,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 342,
+        "line": 467,
         "column": 1
       }
     },
@@ -794,7 +1212,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 351,
+        "line": 476,
         "column": 1
       }
     },
@@ -857,7 +1275,25 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/oauth.ts",
-        "line": 53,
+        "line": 61,
+        "column": 1
+      }
+    },
+    {
+      "name": "emitOAuthError",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/oauth.ts",
+        "line": 429,
+        "column": 1
+      }
+    },
+    {
+      "name": "emitLifecycleEvent",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/oauth.ts",
+        "line": 444,
         "column": 1
       }
     },
@@ -866,7 +1302,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/oauth.ts",
-        "line": 337,
+        "line": 456,
         "column": 1
       }
     },
@@ -875,7 +1311,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/oauth.ts",
-        "line": 354,
+        "line": 473,
         "column": 1
       }
     },
@@ -884,7 +1320,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/oauth.ts",
-        "line": 373,
+        "line": 492,
         "column": 1
       }
     },
@@ -893,7 +1329,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/oauth.ts",
-        "line": 415,
+        "line": 534,
         "column": 1
       }
     },
@@ -902,7 +1338,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/oauth.ts",
-        "line": 439,
+        "line": 558,
         "column": 1
       }
     },
@@ -911,7 +1347,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/oauth.ts",
-        "line": 447,
+        "line": 566,
         "column": 1
       }
     },
@@ -920,7 +1356,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/oauth.ts",
-        "line": 517,
+        "line": 636,
         "column": 1
       }
     },
@@ -929,7 +1365,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/oauth.ts",
-        "line": 527,
+        "line": 646,
         "column": 1
       }
     },
@@ -938,7 +1374,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/oauth.ts",
-        "line": 537,
+        "line": 656,
         "column": 1
       }
     },
@@ -947,7 +1383,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/oauth.ts",
-        "line": 541,
+        "line": 660,
         "column": 1
       }
     },
@@ -956,7 +1392,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/oauth.ts",
-        "line": 548,
+        "line": 667,
         "column": 1
       }
     },
@@ -965,7 +1401,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/oauth.ts",
-        "line": 562,
+        "line": 681,
         "column": 1
       }
     },
@@ -974,7 +1410,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/oauth.ts",
-        "line": 570,
+        "line": 689,
         "column": 1
       }
     },
@@ -983,7 +1419,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/oauth.ts",
-        "line": 582,
+        "line": 701,
         "column": 1
       }
     },
@@ -992,7 +1428,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/oauth.ts",
-        "line": 590,
+        "line": 709,
         "column": 1
       }
     },
@@ -1001,7 +1437,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/oauth.ts",
-        "line": 601,
+        "line": 720,
         "column": 1
       }
     },
@@ -1010,7 +1446,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/oauth.ts",
-        "line": 697,
+        "line": 816,
         "column": 1
       }
     },
@@ -1019,7 +1455,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/oauth.ts",
-        "line": 709,
+        "line": 828,
         "column": 1
       }
     },
@@ -1028,7 +1464,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/oauth.ts",
-        "line": 723,
+        "line": 842,
         "column": 1
       }
     },
@@ -1037,7 +1473,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/oauth.ts",
-        "line": 735,
+        "line": 854,
         "column": 1
       }
     },
@@ -1046,7 +1482,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/oauth.ts",
-        "line": 739,
+        "line": 858,
         "column": 1
       }
     },
@@ -1087,6 +1523,96 @@
       }
     },
     {
+      "name": "createSupabaseOAuthProfileVerifier",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/profileVerification.ts",
+        "line": 30,
+        "column": 1
+      }
+    },
+    {
+      "name": "verifySupabaseOAuthProfile",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/profileVerification.ts",
+        "line": 49,
+        "column": 1
+      }
+    },
+    {
+      "name": "normalizeSupabaseAuthProfileVerificationConfig",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/profileVerification.ts",
+        "line": 132,
+        "column": 1
+      }
+    },
+    {
+      "name": "createProfileEndpoint",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/profileVerification.ts",
+        "line": 166,
+        "column": 1
+      }
+    },
+    {
+      "name": "validateProfileRow",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/profileVerification.ts",
+        "line": 179,
+        "column": 1
+      }
+    },
+    {
+      "name": "getExpectedProfileValue",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/profileVerification.ts",
+        "line": 205,
+        "column": 1
+      }
+    },
+    {
+      "name": "uniqueProfileFields",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/profileVerification.ts",
+        "line": 223,
+        "column": 1
+      }
+    },
+    {
+      "name": "normalizeIntegerOption",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/profileVerification.ts",
+        "line": 239,
+        "column": 1
+      }
+    },
+    {
+      "name": "delay",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/profileVerification.ts",
+        "line": 255,
+        "column": 1
+      }
+    },
+    {
+      "name": "isRecord",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/profileVerification.ts",
+        "line": 262,
+        "column": 1
+      }
+    },
+    {
       "name": "normalizeSupabaseSession",
       "description": null,
       "sourceLocation": {
@@ -1118,7 +1644,16 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/session.ts",
-        "line": 49,
+        "line": 62,
+        "column": 1
+      }
+    },
+    {
+      "name": "isAuthSessionExpired",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/session.ts",
+        "line": 78,
         "column": 1
       }
     },
@@ -1127,7 +1662,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/session.ts",
-        "line": 65,
+        "line": 86,
         "column": 1
       }
     },
@@ -1136,7 +1671,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/session.ts",
-        "line": 68,
+        "line": 90,
         "column": 1
       }
     },
@@ -1145,7 +1680,16 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/session.ts",
-        "line": 79,
+        "line": 102,
+        "column": 1
+      }
+    },
+    {
+      "name": "metadataString",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/session.ts",
+        "line": 108,
         "column": 1
       }
     },
@@ -1154,7 +1698,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/session.ts",
-        "line": 84,
+        "line": 120,
         "column": 1
       }
     },
@@ -1163,7 +1707,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/session.ts",
-        "line": 92,
+        "line": 129,
         "column": 1
       }
     },
@@ -1172,7 +1716,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/session.ts",
-        "line": 95,
+        "line": 133,
         "column": 1
       }
     },
@@ -1181,7 +1725,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/session.ts",
-        "line": 103,
+        "line": 142,
         "column": 1
       }
     }
@@ -1192,6 +1736,14 @@
       "name": "createSupabaseAuthAdapter",
       "sourcePath": "src/createSupabaseAuthAdapter.ts",
       "symbolName": "createSupabaseAuthAdapter",
+      "description": null,
+      "isReadme": false
+    },
+    {
+      "kind": "export",
+      "name": "createSupabaseOAuthProfileVerifier",
+      "sourcePath": "src/profileVerification.ts",
+      "symbolName": "createSupabaseOAuthProfileVerifier",
       "description": null,
       "isReadme": false
     },
@@ -1221,9 +1773,25 @@
     },
     {
       "kind": "export",
+      "name": "normalizeSupabaseAuthProfileVerificationConfig",
+      "sourcePath": "src/profileVerification.ts",
+      "symbolName": "normalizeSupabaseAuthProfileVerificationConfig",
+      "description": null,
+      "isReadme": false
+    },
+    {
+      "kind": "export",
       "name": "validateSupabaseOAuthSecretPayload",
       "sourcePath": "src/oauthProviderDefinitions.ts",
       "symbolName": "validateSupabaseOAuthSecretPayload",
+      "description": null,
+      "isReadme": false
+    },
+    {
+      "kind": "export",
+      "name": "verifySupabaseOAuthProfile",
+      "sourcePath": "src/profileVerification.ts",
+      "symbolName": "verifySupabaseOAuthProfile",
       "description": null,
       "isReadme": false
     }
@@ -1243,6 +1811,11 @@
       {
         "fromPath": "src/createSupabaseAuthAdapter.ts",
         "toPath": "src/oauthProviderDefinitions.ts",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromPath": "src/createSupabaseAuthAdapter.ts",
+        "toPath": "src/profileVerification.ts",
         "sourcePath": "src/createSupabaseAuthAdapter.ts"
       },
       {
@@ -1272,6 +1845,11 @@
       },
       {
         "fromPath": "src/index.ts",
+        "toPath": "src/profileVerification.ts",
+        "sourcePath": "src/index.ts"
+      },
+      {
+        "fromPath": "src/index.ts",
         "toPath": "src/types.ts",
         "sourcePath": "src/index.ts"
       },
@@ -1289,6 +1867,11 @@
         "fromPath": "src/oauth.ts",
         "toPath": "src/types.ts",
         "sourcePath": "src/oauth.ts"
+      },
+      {
+        "fromPath": "src/profileVerification.ts",
+        "toPath": "src/types.ts",
+        "sourcePath": "src/profileVerification.ts"
       }
     ],
     "calls": [
@@ -1323,6 +1906,18 @@
         "sourcePath": "src/createSupabaseAuthAdapter.ts"
       },
       {
+        "fromSymbol": "persistSessionSafely",
+        "toSymbol": "persistSession",
+        "callExpression": "persistSession",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "persistSessionSafely",
+        "toSymbol": "createAuthError",
+        "callExpression": "createAuthError",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
         "fromSymbol": "readStoredSession",
         "toSymbol": "getItem",
         "callExpression": "normalizedConfig.storage.getItem",
@@ -1332,6 +1927,18 @@
         "fromSymbol": "readStoredSession",
         "toSymbol": "parseStoredSession",
         "callExpression": "parseStoredSession",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "readStoredSession",
+        "toSymbol": "isAuthSessionExpired",
+        "callExpression": "isAuthSessionExpired",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "readStoredSession",
+        "toSymbol": "removeItem",
+        "callExpression": "normalizedConfig.storage.removeItem",
         "sourcePath": "src/createSupabaseAuthAdapter.ts"
       },
       {
@@ -1348,6 +1955,12 @@
       },
       {
         "fromSymbol": "handleSessionResponse",
+        "toSymbol": "persistSessionSafely",
+        "callExpression": "persistSessionSafely",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "handleSessionResponse",
         "toSymbol": "normalizeSupabaseSession",
         "callExpression": "normalizeSupabaseSession",
         "sourcePath": "src/createSupabaseAuthAdapter.ts"
@@ -1359,9 +1972,9 @@
         "sourcePath": "src/createSupabaseAuthAdapter.ts"
       },
       {
-        "fromSymbol": "handleSessionResponse",
-        "toSymbol": "persistSession",
-        "callExpression": "persistSession",
+        "fromSymbol": "createSupabaseAuthAdapter",
+        "toSymbol": "createProfileVerifier",
+        "callExpression": "createProfileVerifier",
         "sourcePath": "src/createSupabaseAuthAdapter.ts"
       },
       {
@@ -1378,8 +1991,8 @@
       },
       {
         "fromSymbol": "persistSession",
-        "toSymbol": "persistSession",
-        "callExpression": "persistSession",
+        "toSymbol": "persistSessionSafely",
+        "callExpression": "persistSessionSafely",
         "sourcePath": "src/createSupabaseAuthAdapter.ts"
       },
       {
@@ -1456,8 +2069,8 @@
       },
       {
         "fromSymbol": "signUp",
-        "toSymbol": "persistSession",
-        "callExpression": "persistSession",
+        "toSymbol": "persistSessionSafely",
+        "callExpression": "persistSessionSafely",
         "sourcePath": "src/createSupabaseAuthAdapter.ts"
       },
       {
@@ -1492,6 +2105,12 @@
       },
       {
         "fromSymbol": "signOut",
+        "toSymbol": "createAuthError",
+        "callExpression": "createAuthError",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "signOut",
         "toSymbol": "request",
         "callExpression": "request",
         "sourcePath": "src/createSupabaseAuthAdapter.ts"
@@ -1516,14 +2135,20 @@
       },
       {
         "fromSymbol": "signOut",
-        "toSymbol": "persistSession",
-        "callExpression": "persistSession",
+        "toSymbol": "persistSessionSafely",
+        "callExpression": "persistSessionSafely",
         "sourcePath": "src/createSupabaseAuthAdapter.ts"
       },
       {
         "fromSymbol": "getSession",
         "toSymbol": "readStoredSession",
         "callExpression": "readStoredSession",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "getSession",
+        "toSymbol": "createAuthError",
+        "callExpression": "createAuthError",
         "sourcePath": "src/createSupabaseAuthAdapter.ts"
       },
       {
@@ -1620,6 +2245,18 @@
         "fromSymbol": "validateConfig",
         "toSymbol": "isSupabaseOAuthProviderId",
         "callExpression": "isSupabaseOAuthProviderId",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "validateConfig",
+        "toSymbol": "normalizeSupabaseAuthProfileVerificationConfig",
+        "callExpression": "normalizeSupabaseAuthProfileVerificationConfig",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "createProfileVerifier",
+        "toSymbol": "createSupabaseOAuthProfileVerifier",
+        "callExpression": "createSupabaseOAuthProfileVerifier",
         "sourcePath": "src/createSupabaseAuthAdapter.ts"
       },
       {
@@ -1737,6 +2374,12 @@
         "sourcePath": "src/oauth.ts"
       },
       {
+        "fromSymbol": "startAuthorization",
+        "toSymbol": "emitLifecycleEvent",
+        "callExpression": "emitLifecycleEvent",
+        "sourcePath": "src/oauth.ts"
+      },
+      {
         "fromSymbol": "completeAuthorization",
         "toSymbol": "readAttempt",
         "callExpression": "readAttempt",
@@ -1758,6 +2401,18 @@
         "fromSymbol": "completeAuthorization",
         "toSymbol": "safeRemove",
         "callExpression": "safeRemove",
+        "sourcePath": "src/oauth.ts"
+      },
+      {
+        "fromSymbol": "completeAuthorization",
+        "toSymbol": "emitLifecycleEvent",
+        "callExpression": "emitLifecycleEvent",
+        "sourcePath": "src/oauth.ts"
+      },
+      {
+        "fromSymbol": "completeAuthorization",
+        "toSymbol": "emitOAuthError",
+        "callExpression": "emitOAuthError",
         "sourcePath": "src/oauth.ts"
       },
       {
@@ -1788,6 +2443,24 @@
         "fromSymbol": "completeAuthorization",
         "toSymbol": "persistSession",
         "callExpression": "input.persistSession",
+        "sourcePath": "src/oauth.ts"
+      },
+      {
+        "fromSymbol": "completeAuthorization",
+        "toSymbol": "verifyProfile",
+        "callExpression": "input.verifyProfile",
+        "sourcePath": "src/oauth.ts"
+      },
+      {
+        "fromSymbol": "emitOAuthError",
+        "toSymbol": "emitLifecycleEvent",
+        "callExpression": "emitLifecycleEvent",
+        "sourcePath": "src/oauth.ts"
+      },
+      {
+        "fromSymbol": "emitLifecycleEvent",
+        "toSymbol": "observer",
+        "callExpression": "observer",
         "sourcePath": "src/oauth.ts"
       },
       {
@@ -1959,6 +2632,72 @@
         "sourcePath": "src/oauthProviderDefinitions.ts"
       },
       {
+        "fromSymbol": "createSupabaseOAuthProfileVerifier",
+        "toSymbol": "normalizeSupabaseAuthProfileVerificationConfig",
+        "callExpression": "normalizeSupabaseAuthProfileVerificationConfig",
+        "sourcePath": "src/profileVerification.ts"
+      },
+      {
+        "fromSymbol": "src/profileVerification.ts",
+        "toSymbol": "verifySupabaseOAuthProfile",
+        "callExpression": "verifySupabaseOAuthProfile",
+        "sourcePath": "src/profileVerification.ts"
+      },
+      {
+        "fromSymbol": "verifySupabaseOAuthProfile",
+        "toSymbol": "normalizeSupabaseAuthProfileVerificationConfig",
+        "callExpression": "normalizeSupabaseAuthProfileVerificationConfig",
+        "sourcePath": "src/profileVerification.ts"
+      },
+      {
+        "fromSymbol": "verifySupabaseOAuthProfile",
+        "toSymbol": "createProfileEndpoint",
+        "callExpression": "createProfileEndpoint",
+        "sourcePath": "src/profileVerification.ts"
+      },
+      {
+        "fromSymbol": "verifySupabaseOAuthProfile",
+        "toSymbol": "fetch",
+        "callExpression": "input.fetch",
+        "sourcePath": "src/profileVerification.ts"
+      },
+      {
+        "fromSymbol": "verifySupabaseOAuthProfile",
+        "toSymbol": "delay",
+        "callExpression": "delay",
+        "sourcePath": "src/profileVerification.ts"
+      },
+      {
+        "fromSymbol": "verifySupabaseOAuthProfile",
+        "toSymbol": "validateProfileRow",
+        "callExpression": "validateProfileRow",
+        "sourcePath": "src/profileVerification.ts"
+      },
+      {
+        "fromSymbol": "normalizeSupabaseAuthProfileVerificationConfig",
+        "toSymbol": "uniqueProfileFields",
+        "callExpression": "uniqueProfileFields",
+        "sourcePath": "src/profileVerification.ts"
+      },
+      {
+        "fromSymbol": "normalizeSupabaseAuthProfileVerificationConfig",
+        "toSymbol": "normalizeIntegerOption",
+        "callExpression": "normalizeIntegerOption",
+        "sourcePath": "src/profileVerification.ts"
+      },
+      {
+        "fromSymbol": "validateProfileRow",
+        "toSymbol": "isRecord",
+        "callExpression": "isRecord",
+        "sourcePath": "src/profileVerification.ts"
+      },
+      {
+        "fromSymbol": "validateProfileRow",
+        "toSymbol": "getExpectedProfileValue",
+        "callExpression": "getExpectedProfileValue",
+        "sourcePath": "src/profileVerification.ts"
+      },
+      {
         "fromSymbol": "normalizeSupabaseSession",
         "toSymbol": "isRecord",
         "callExpression": "isRecord",
@@ -2007,6 +2746,12 @@
         "sourcePath": "src/session.ts"
       },
       {
+        "fromSymbol": "normalizeSupabaseUser",
+        "toSymbol": "metadataString",
+        "callExpression": "metadataString",
+        "sourcePath": "src/session.ts"
+      },
+      {
         "fromSymbol": "parseStoredSession",
         "toSymbol": "isAuthSession",
         "callExpression": "isAuthSession",
@@ -2031,9 +2776,21 @@
         "sourcePath": "src/session.ts"
       },
       {
+        "fromSymbol": "metadataString",
+        "toSymbol": "stringValue",
+        "callExpression": "stringValue",
+        "sourcePath": "src/session.ts"
+      },
+      {
         "fromSymbol": "isAuthSession",
         "toSymbol": "isRecord",
         "callExpression": "isRecord",
+        "sourcePath": "src/session.ts"
+      },
+      {
+        "fromSymbol": "isAuthSession",
+        "toSymbol": "stringValue",
+        "callExpression": "stringValue",
         "sourcePath": "src/session.ts"
       }
     ],
@@ -2114,13 +2871,88 @@
         "sourcePath": "src/oauthProviderDefinitions.ts"
       },
       {
+        "fromSymbol": "createSupabaseOAuthProfileVerifier",
+        "toType": "SupabaseAuthFetch",
+        "sourcePath": "src/profileVerification.ts"
+      },
+      {
+        "fromSymbol": "createSupabaseOAuthProfileVerifier",
+        "toType": "SupabaseAuthProfileVerificationConfig",
+        "sourcePath": "src/profileVerification.ts"
+      },
+      {
+        "fromSymbol": "createSupabaseOAuthProfileVerifier",
+        "toType": "SupabaseOAuthProfileVerifier",
+        "sourcePath": "src/profileVerification.ts"
+      },
+      {
+        "fromSymbol": "normalizeSupabaseAuthProfileVerificationConfig",
+        "toType": "NormalizedSupabaseAuthProfileVerificationConfig",
+        "sourcePath": "src/profileVerification.ts"
+      },
+      {
+        "fromSymbol": "normalizeSupabaseAuthProfileVerificationConfig",
+        "toType": "SupabaseAuthProfileVerificationConfig",
+        "sourcePath": "src/profileVerification.ts"
+      },
+      {
+        "fromSymbol": "verifySupabaseOAuthProfile",
+        "toType": "AuthSession",
+        "sourcePath": "src/profileVerification.ts"
+      },
+      {
+        "fromSymbol": "verifySupabaseOAuthProfile",
+        "toType": "SupabaseAuthFetch",
+        "sourcePath": "src/profileVerification.ts"
+      },
+      {
+        "fromSymbol": "verifySupabaseOAuthProfile",
+        "toType": "SupabaseAuthProfileVerificationConfig",
+        "sourcePath": "src/profileVerification.ts"
+      },
+      {
+        "fromSymbol": "verifySupabaseOAuthProfile",
+        "toType": "SupabaseOAuthProfileVerificationResult",
+        "sourcePath": "src/profileVerification.ts"
+      },
+      {
         "fromSymbol": "SupabaseAuthConfig",
         "toType": "AuthOAuthProviderId",
         "sourcePath": "src/types.ts"
       },
       {
         "fromSymbol": "SupabaseAuthConfig",
+        "toType": "SupabaseAuthProfileVerificationConfig",
+        "sourcePath": "src/types.ts"
+      },
+      {
+        "fromSymbol": "SupabaseAuthConfig",
         "toType": "SupabaseAuthStorage",
+        "sourcePath": "src/types.ts"
+      },
+      {
+        "fromSymbol": "SupabaseAuthConfig",
+        "toType": "SupabaseOAuthLifecycleObserver",
+        "sourcePath": "src/types.ts"
+      },
+      {
+        "fromSymbol": "SupabaseOAuthLifecycleEvent",
+        "toType": "AuthOAuthProviderId",
+        "sourcePath": "src/types.ts"
+      },
+      {
+        "fromSymbol": "SupabaseOAuthLifecycleEvent",
+        "toType": "SupabaseOAuthLifecycleStatus",
+        "sourcePath": "src/types.ts"
+      },
+      {
+        "fromSymbol": "SupabaseOAuthProfileVerificationInput",
+        "toType": "AuthOAuthProviderId",
+        "sourcePath": "src/types.ts"
+      },
+      {
+        "fromSymbol": "SupabaseOAuthProfileVerificationInput",
+        "toType": "AuthSession",
         "sourcePath": "src/types.ts"
       }
     ],

@@ -4,11 +4,16 @@ graph LR
   module_src_index_ts["src/index.ts"]
   module_src_oauth_ts["src/oauth.ts"]
   module_src_oauthProviderDefinitions_ts["src/oauthProviderDefinitions.ts"]
+  module_src_profileVerification_ts["src/profileVerification.ts"]
   module_src_session_ts["src/session.ts"]
   module_src_types_ts["src/types.ts"]
   export_createSupabaseAuthAdapter["createSupabaseAuthAdapter"]
   module_src_createSupabaseAuthAdapter_ts --> export_createSupabaseAuthAdapter
   export_createSupabaseAuthAdapter -.-> export_SupabaseAuthConfig
+  export_createSupabaseOAuthProfileVerifier["createSupabaseOAuthProfileVerifier"]
+  module_src_profileVerification_ts --> export_createSupabaseOAuthProfileVerifier
+  export_createSupabaseOAuthProfileVerifier -.-> export_SupabaseAuthProfileVerificationConfig
+  export_createSupabaseOAuthProfileVerifier -.-> export_SupabaseOAuthProfileVerifier
   export_getSupabaseOAuthProviderDefinition["getSupabaseOAuthProviderDefinition"]
   module_src_oauthProviderDefinitions_ts --> export_getSupabaseOAuthProviderDefinition
   export_getSupabaseOAuthProviderDefinition -.-> export_SupabaseOAuthProviderDefinition
@@ -16,17 +21,41 @@ graph LR
   module_src_oauthProviderDefinitions_ts --> export_isSupabaseOAuthProviderId
   export_materializeSupabaseOAuthEnvironment["materializeSupabaseOAuthEnvironment"]
   module_src_oauthProviderDefinitions_ts --> export_materializeSupabaseOAuthEnvironment
+  export_normalizeSupabaseAuthProfileVerificationConfig["normalizeSupabaseAuthProfileVerificationConfig"]
+  module_src_profileVerification_ts --> export_normalizeSupabaseAuthProfileVerificationConfig
+  export_normalizeSupabaseAuthProfileVerificationConfig -.-> export_SupabaseAuthProfileVerificationConfig
+  export_SUPABASE_AUTH_PROFILE_FIELDS["SUPABASE_AUTH_PROFILE_FIELDS"]
+  module_src_types_ts --> export_SUPABASE_AUTH_PROFILE_FIELDS
   export_SUPABASE_OAUTH_PROVIDER_DEFINITIONS["SUPABASE_OAUTH_PROVIDER_DEFINITIONS"]
   module_src_oauthProviderDefinitions_ts --> export_SUPABASE_OAUTH_PROVIDER_DEFINITIONS
   export_SUPABASE_OAUTH_PROVIDER_IDS["SUPABASE_OAUTH_PROVIDER_IDS"]
   module_src_oauthProviderDefinitions_ts --> export_SUPABASE_OAUTH_PROVIDER_IDS
   export_SupabaseAuthConfig["SupabaseAuthConfig"]
   module_src_types_ts --> export_SupabaseAuthConfig
+  export_SupabaseAuthConfig -.-> export_SupabaseAuthProfileVerificationConfig
   export_SupabaseAuthConfig -.-> export_SupabaseAuthStorage
+  export_SupabaseAuthConfig -.-> export_SupabaseOAuthLifecycleObserver
   export_SupabaseAuthErrorCode["SupabaseAuthErrorCode"]
   module_src_types_ts --> export_SupabaseAuthErrorCode
+  export_SupabaseAuthProfileField["SupabaseAuthProfileField"]
+  module_src_types_ts --> export_SupabaseAuthProfileField
+  export_SupabaseAuthProfileVerificationConfig["SupabaseAuthProfileVerificationConfig"]
+  module_src_types_ts --> export_SupabaseAuthProfileVerificationConfig
   export_SupabaseAuthStorage["SupabaseAuthStorage"]
   module_src_types_ts --> export_SupabaseAuthStorage
+  export_SupabaseOAuthLifecycleEvent["SupabaseOAuthLifecycleEvent"]
+  module_src_types_ts --> export_SupabaseOAuthLifecycleEvent
+  export_SupabaseOAuthLifecycleEvent -.-> export_SupabaseOAuthLifecycleStatus
+  export_SupabaseOAuthLifecycleObserver["SupabaseOAuthLifecycleObserver"]
+  module_src_types_ts --> export_SupabaseOAuthLifecycleObserver
+  export_SupabaseOAuthLifecycleStatus["SupabaseOAuthLifecycleStatus"]
+  module_src_types_ts --> export_SupabaseOAuthLifecycleStatus
+  export_SupabaseOAuthProfileVerificationInput["SupabaseOAuthProfileVerificationInput"]
+  module_src_types_ts --> export_SupabaseOAuthProfileVerificationInput
+  export_SupabaseOAuthProfileVerificationResult["SupabaseOAuthProfileVerificationResult"]
+  module_src_types_ts --> export_SupabaseOAuthProfileVerificationResult
+  export_SupabaseOAuthProfileVerifier["SupabaseOAuthProfileVerifier"]
+  module_src_types_ts --> export_SupabaseOAuthProfileVerifier
   export_SupabaseOAuthProviderDefinition["SupabaseOAuthProviderDefinition"]
   module_src_oauthProviderDefinitions_ts --> export_SupabaseOAuthProviderDefinition
   export_SupabaseOAuthProviderDefinition -.-> export_SupabaseOAuthRuntimeEnvironmentDefinition
@@ -44,3 +73,7 @@ graph LR
   export_validateSupabaseOAuthSecretPayload["validateSupabaseOAuthSecretPayload"]
   module_src_oauthProviderDefinitions_ts --> export_validateSupabaseOAuthSecretPayload
   export_validateSupabaseOAuthSecretPayload -.-> export_SupabaseOAuthSecretPayload
+  export_verifySupabaseOAuthProfile["verifySupabaseOAuthProfile"]
+  module_src_profileVerification_ts --> export_verifySupabaseOAuthProfile
+  export_verifySupabaseOAuthProfile -.-> export_SupabaseAuthProfileVerificationConfig
+  export_verifySupabaseOAuthProfile -.-> export_SupabaseOAuthProfileVerificationResult

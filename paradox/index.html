@@ -202,7 +202,7 @@
                 data-target="src/createSupabaseAuthAdapter.ts"
               >
                 src/createSupabaseAuthAdapter.ts
-                <small>12 functions</small>
+                <small>14 functions</small>
               </button>
             </li>
             <li>
@@ -214,7 +214,7 @@
             <li>
               <button class="nav-button" type="button" data-target="src/oauth.ts">
                 src/oauth.ts
-                <small>22 functions</small>
+                <small>24 functions</small>
               </button>
             </li>
             <li>
@@ -228,9 +228,15 @@
               </button>
             </li>
             <li>
+              <button class="nav-button" type="button" data-target="src/profileVerification.ts">
+                src/profileVerification.ts
+                <small>10 functions</small>
+              </button>
+            </li>
+            <li>
               <button class="nav-button" type="button" data-target="src/session.ts">
                 src/session.ts
-                <small>11 functions</small>
+                <small>13 functions</small>
               </button>
             </li>
           </ul>
@@ -241,9 +247,9 @@
           <section class="panel">
             <h2>Package overview</h2>
             <div class="summary">
-              <div><strong>16</strong><span class="muted">public exports</span></div>
+              <div><strong>28</strong><span class="muted">public exports</span></div>
               <div><strong>0</strong><span class="muted">components</span></div>
-              <div><strong>7</strong><span class="muted">modules</span></div>
+              <div><strong>8</strong><span class="muted">modules</span></div>
               <div><strong>1</strong><span class="muted">entrypoints</span></div>
             </div>
             <h3>Entrypoints</h3>
@@ -256,14 +262,15 @@
             <h2>Modules</h2>
             <article
               class="item"
-              data-search="src/createSupabaseAuthAdapter.ts src/errors.ts src/oauth.ts src/oauthProviderDefinitions.ts src/session.ts src/types.ts createSupabaseAuthAdapter"
+              data-search="src/createSupabaseAuthAdapter.ts src/errors.ts src/oauth.ts src/oauthProviderDefinitions.ts src/profileVerification.ts src/session.ts src/types.ts createSupabaseAuthAdapter"
             >
               <h3>src/createSupabaseAuthAdapter.ts</h3>
               <p class="muted">Referenced module</p>
               <p>
                 <strong>Dependencies:</strong> <code>src/errors.ts</code>,
                 <code>src/oauth.ts</code>, <code>src/oauthProviderDefinitions.ts</code>,
-                <code>src/session.ts</code>, <code>src/types.ts</code>
+                <code>src/profileVerification.ts</code>, <code>src/session.ts</code>,
+                <code>src/types.ts</code>
               </p>
               <p><strong>Exports:</strong> <code>createSupabaseAuthAdapter</code></p>
             </article>
@@ -282,24 +289,35 @@
             </article>
             <article
               class="item"
-              data-search="src/index.ts createSupabaseAuthAdapter getSupabaseOAuthProviderDefinition isSupabaseOAuthProviderId materializeSupabaseOAuthEnvironment SUPABASE_OAUTH_PROVIDER_DEFINITIONS SUPABASE_OAUTH_PROVIDER_IDS SupabaseAuthConfig SupabaseAuthErrorCode SupabaseAuthStorage SupabaseOAuthProviderDefinition SupabaseOAuthProviderId SupabaseOAuthRuntimeEnvironmentDefinition SupabaseOAuthSecretFieldDefinition SupabaseOAuthSecretPayload SupabaseProviderErrorCause validateSupabaseOAuthSecretPayload"
+              data-search="src/index.ts createSupabaseAuthAdapter createSupabaseOAuthProfileVerifier getSupabaseOAuthProviderDefinition isSupabaseOAuthProviderId materializeSupabaseOAuthEnvironment normalizeSupabaseAuthProfileVerificationConfig SUPABASE_AUTH_PROFILE_FIELDS SUPABASE_OAUTH_PROVIDER_DEFINITIONS SUPABASE_OAUTH_PROVIDER_IDS SupabaseAuthConfig SupabaseAuthErrorCode SupabaseAuthProfileField SupabaseAuthProfileVerificationConfig SupabaseAuthStorage SupabaseOAuthLifecycleEvent SupabaseOAuthLifecycleObserver SupabaseOAuthLifecycleStatus SupabaseOAuthProfileVerificationInput SupabaseOAuthProfileVerificationResult SupabaseOAuthProfileVerifier SupabaseOAuthProviderDefinition SupabaseOAuthProviderId SupabaseOAuthRuntimeEnvironmentDefinition SupabaseOAuthSecretFieldDefinition SupabaseOAuthSecretPayload SupabaseProviderErrorCause validateSupabaseOAuthSecretPayload verifySupabaseOAuthProfile"
             >
               <h3>src/index.ts</h3>
               <p class="muted">Configured entrypoint</p>
               <p><strong>Dependencies:</strong> <span class="empty">None</span></p>
               <p>
                 <strong>Exports:</strong> <code>createSupabaseAuthAdapter</code>,
+                <code>createSupabaseOAuthProfileVerifier</code>,
                 <code>getSupabaseOAuthProviderDefinition</code>,
                 <code>isSupabaseOAuthProviderId</code>,
                 <code>materializeSupabaseOAuthEnvironment</code>,
+                <code>normalizeSupabaseAuthProfileVerificationConfig</code>,
+                <code>SUPABASE_AUTH_PROFILE_FIELDS</code>,
                 <code>SUPABASE_OAUTH_PROVIDER_DEFINITIONS</code>,
                 <code>SUPABASE_OAUTH_PROVIDER_IDS</code>, <code>SupabaseAuthConfig</code>,
-                <code>SupabaseAuthErrorCode</code>, <code>SupabaseAuthStorage</code>,
+                <code>SupabaseAuthErrorCode</code>, <code>SupabaseAuthProfileField</code>,
+                <code>SupabaseAuthProfileVerificationConfig</code>,
+                <code>SupabaseAuthStorage</code>, <code>SupabaseOAuthLifecycleEvent</code>,
+                <code>SupabaseOAuthLifecycleObserver</code>,
+                <code>SupabaseOAuthLifecycleStatus</code>,
+                <code>SupabaseOAuthProfileVerificationInput</code>,
+                <code>SupabaseOAuthProfileVerificationResult</code>,
+                <code>SupabaseOAuthProfileVerifier</code>,
                 <code>SupabaseOAuthProviderDefinition</code>, <code>SupabaseOAuthProviderId</code>,
                 <code>SupabaseOAuthRuntimeEnvironmentDefinition</code>,
                 <code>SupabaseOAuthSecretFieldDefinition</code>,
                 <code>SupabaseOAuthSecretPayload</code>, <code>SupabaseProviderErrorCause</code>,
-                <code>validateSupabaseOAuthSecretPayload</code>
+                <code>validateSupabaseOAuthSecretPayload</code>,
+                <code>verifySupabaseOAuthProfile</code>
               </p>
             </article>
             <article
@@ -336,28 +354,49 @@
             </article>
             <article
               class="item"
-              data-search="src/session.ts normalizeSupabaseClientSession normalizeSupabaseSession normalizeSupabaseUser parseStoredSession"
+              data-search="src/profileVerification.ts src/types.ts createSupabaseOAuthProfileVerifier NormalizedSupabaseAuthProfileVerificationConfig normalizeSupabaseAuthProfileVerificationConfig verifySupabaseOAuthProfile"
+            >
+              <h3>src/profileVerification.ts</h3>
+              <p class="muted">Referenced module</p>
+              <p><strong>Dependencies:</strong> <code>src/types.ts</code></p>
+              <p>
+                <strong>Exports:</strong> <code>createSupabaseOAuthProfileVerifier</code>,
+                <code>NormalizedSupabaseAuthProfileVerificationConfig</code>,
+                <code>normalizeSupabaseAuthProfileVerificationConfig</code>,
+                <code>verifySupabaseOAuthProfile</code>
+              </p>
+            </article>
+            <article
+              class="item"
+              data-search="src/session.ts isAuthSessionExpired normalizeSupabaseClientSession normalizeSupabaseSession normalizeSupabaseUser parseStoredSession"
             >
               <h3>src/session.ts</h3>
               <p class="muted">Referenced module</p>
               <p><strong>Dependencies:</strong> <span class="empty">None</span></p>
               <p>
-                <strong>Exports:</strong> <code>normalizeSupabaseClientSession</code>,
-                <code>normalizeSupabaseSession</code>, <code>normalizeSupabaseUser</code>,
-                <code>parseStoredSession</code>
+                <strong>Exports:</strong> <code>isAuthSessionExpired</code>,
+                <code>normalizeSupabaseClientSession</code>, <code>normalizeSupabaseSession</code>,
+                <code>normalizeSupabaseUser</code>, <code>parseStoredSession</code>
               </p>
             </article>
             <article
               class="item"
-              data-search="src/types.ts SupabaseAuthConfig SupabaseAuthErrorCode SupabaseAuthFetch SupabaseAuthStorage SupabaseProviderErrorCause"
+              data-search="src/types.ts SUPABASE_AUTH_PROFILE_FIELDS SupabaseAuthConfig SupabaseAuthErrorCode SupabaseAuthFetch SupabaseAuthProfileField SupabaseAuthProfileVerificationConfig SupabaseAuthStorage SupabaseOAuthLifecycleEvent SupabaseOAuthLifecycleObserver SupabaseOAuthLifecycleStatus SupabaseOAuthProfileVerificationInput SupabaseOAuthProfileVerificationResult SupabaseOAuthProfileVerifier SupabaseProviderErrorCause"
             >
               <h3>src/types.ts</h3>
               <p class="muted">Referenced module</p>
               <p><strong>Dependencies:</strong> <span class="empty">None</span></p>
               <p>
-                <strong>Exports:</strong> <code>SupabaseAuthConfig</code>,
-                <code>SupabaseAuthErrorCode</code>, <code>SupabaseAuthFetch</code>,
-                <code>SupabaseAuthStorage</code>, <code>SupabaseProviderErrorCause</code>
+                <strong>Exports:</strong> <code>SUPABASE_AUTH_PROFILE_FIELDS</code>,
+                <code>SupabaseAuthConfig</code>, <code>SupabaseAuthErrorCode</code>,
+                <code>SupabaseAuthFetch</code>, <code>SupabaseAuthProfileField</code>,
+                <code>SupabaseAuthProfileVerificationConfig</code>,
+                <code>SupabaseAuthStorage</code>, <code>SupabaseOAuthLifecycleEvent</code>,
+                <code>SupabaseOAuthLifecycleObserver</code>,
+                <code>SupabaseOAuthLifecycleStatus</code>,
+                <code>SupabaseOAuthProfileVerificationInput</code>,
+                <code>SupabaseOAuthProfileVerificationResult</code>,
+                <code>SupabaseOAuthProfileVerifier</code>, <code>SupabaseProviderErrorCause</code>
               </p>
             </article>
           </section>
@@ -372,7 +411,7 @@
                 data-search="createSupabaseAuthAdapter function src/createSupabaseAuthAdapter.ts  SupabaseAuthConfig (config: SupabaseAuthConfig) =&gt; AuthAdapter"
               >
                 <h4>createSupabaseAuthAdapter</h4>
-                <p class="muted">function • <code>src/createSupabaseAuthAdapter.ts:25:1</code></p>
+                <p class="muted">function • <code>src/createSupabaseAuthAdapter.ts:42:1</code></p>
 
                 <p><strong>Export paths:</strong> <code>src/index.ts</code></p>
                 <div>
@@ -792,20 +831,177 @@
               </article>
             </section>
             <section>
-              <h3>src/types.ts</h3>
+              <h3>src/profileVerification.ts</h3>
               <article
                 class="item"
-                id="symbol-supabaseauthconfig"
-                data-search="SupabaseAuthConfig type src/types.ts  SupabaseAuthStorage"
+                id="symbol-createsupabaseoauthprofileverifier"
+                data-search="createSupabaseOAuthProfileVerifier function src/profileVerification.ts  SupabaseAuthProfileVerificationConfig SupabaseOAuthProfileVerifier (input: { url: string; anonKey: string; fetch: SupabaseAuthFetch; config: SupabaseAuthProfileVerificationConfig; }) =&gt; SupabaseOAuthProfileVerifier"
               >
-                <h4>SupabaseAuthConfig</h4>
-                <p class="muted">type • <code>src/types.ts:11:1</code></p>
+                <h4>createSupabaseOAuthProfileVerifier</h4>
+                <p class="muted">function • <code>src/profileVerification.ts:30:1</code></p>
 
                 <p><strong>Export paths:</strong> <code>src/index.ts</code></p>
                 <div>
                   <strong>Related symbols:</strong>
                   <ul class="chips">
+                    <li class="chip">SupabaseAuthProfileVerificationConfig</li>
+                    <li class="chip">SupabaseOAuthProfileVerifier</li>
+                  </ul>
+                </div>
+                <div>
+                  <h5>Signature</h5>
+                  <pre>
+(input: { url: string; anonKey: string; fetch: SupabaseAuthFetch; config: SupabaseAuthProfileVerificationConfig; }) =&gt; SupabaseOAuthProfileVerifier</pre
+                  >
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Parameter</th>
+                        <th>Type</th>
+                        <th>Required</th>
+                        <th>Description</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><code>input</code></td>
+                        <td>
+                          <code
+                            >{ url: string; anonKey: string; fetch: SupabaseAuthFetch; config:
+                            SupabaseAuthProfileVerificationConfig; }</code
+                          >
+                        </td>
+                        <td>yes</td>
+                        <td></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <p><strong>Returns:</strong> <code>SupabaseOAuthProfileVerifier</code></p>
+                </div>
+              </article>
+              <article
+                class="item"
+                id="symbol-normalizesupabaseauthprofileverificationconfig"
+                data-search="normalizeSupabaseAuthProfileVerificationConfig function src/profileVerification.ts  SupabaseAuthProfileVerificationConfig (config: SupabaseAuthProfileVerificationConfig) =&gt; NormalizedSupabaseAuthProfileVerificationConfig"
+              >
+                <h4>normalizeSupabaseAuthProfileVerificationConfig</h4>
+                <p class="muted">function • <code>src/profileVerification.ts:132:1</code></p>
+
+                <p><strong>Export paths:</strong> <code>src/index.ts</code></p>
+                <div>
+                  <strong>Related symbols:</strong>
+                  <ul class="chips">
+                    <li class="chip">SupabaseAuthProfileVerificationConfig</li>
+                  </ul>
+                </div>
+                <div>
+                  <h5>Signature</h5>
+                  <pre>
+(config: SupabaseAuthProfileVerificationConfig) =&gt; NormalizedSupabaseAuthProfileVerificationConfig</pre
+                  >
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Parameter</th>
+                        <th>Type</th>
+                        <th>Required</th>
+                        <th>Description</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><code>config</code></td>
+                        <td><code>SupabaseAuthProfileVerificationConfig</code></td>
+                        <td>yes</td>
+                        <td></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <p>
+                    <strong>Returns:</strong>
+                    <code>NormalizedSupabaseAuthProfileVerificationConfig</code>
+                  </p>
+                </div>
+              </article>
+              <article
+                class="item"
+                id="symbol-verifysupabaseoauthprofile"
+                data-search="verifySupabaseOAuthProfile function src/profileVerification.ts  SupabaseAuthProfileVerificationConfig SupabaseOAuthProfileVerificationResult (input: { url: string; anonKey: string; fetch: SupabaseAuthFetch; config: SupabaseAuthProfileVerificationConfig; session: AuthSession; }) =&gt; Promise&lt;SupabaseOAuthProfileVerificationResult&gt;"
+              >
+                <h4>verifySupabaseOAuthProfile</h4>
+                <p class="muted">function • <code>src/profileVerification.ts:49:1</code></p>
+
+                <p><strong>Export paths:</strong> <code>src/index.ts</code></p>
+                <div>
+                  <strong>Related symbols:</strong>
+                  <ul class="chips">
+                    <li class="chip">SupabaseAuthProfileVerificationConfig</li>
+                    <li class="chip">SupabaseOAuthProfileVerificationResult</li>
+                  </ul>
+                </div>
+                <div>
+                  <h5>Signature</h5>
+                  <pre>
+(input: { url: string; anonKey: string; fetch: SupabaseAuthFetch; config: SupabaseAuthProfileVerificationConfig; session: AuthSession; }) =&gt; Promise&lt;SupabaseOAuthProfileVerificationResult&gt;</pre
+                  >
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Parameter</th>
+                        <th>Type</th>
+                        <th>Required</th>
+                        <th>Description</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><code>input</code></td>
+                        <td>
+                          <code
+                            >{ url: string; anonKey: string; fetch: SupabaseAuthFetch; config:
+                            SupabaseAuthProfileVerificationConfig; session: AuthSession; }</code
+                          >
+                        </td>
+                        <td>yes</td>
+                        <td></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <p>
+                    <strong>Returns:</strong>
+                    <code>Promise&lt;SupabaseOAuthProfileVerificationResult&gt;</code>
+                  </p>
+                </div>
+              </article>
+            </section>
+            <section>
+              <h3>src/types.ts</h3>
+              <article
+                class="item"
+                id="symbol-supabase-auth-profile-fields"
+                data-search="SUPABASE_AUTH_PROFILE_FIELDS value src/types.ts "
+              >
+                <h4>SUPABASE_AUTH_PROFILE_FIELDS</h4>
+                <p class="muted">value • <code>src/types.ts:16:14</code></p>
+
+                <p><strong>Export paths:</strong> <code>src/index.ts</code></p>
+                <div><strong>Related symbols:</strong> <span class="empty">None</span></div>
+              </article>
+              <article
+                class="item"
+                id="symbol-supabaseauthconfig"
+                data-search="SupabaseAuthConfig type src/types.ts  SupabaseAuthProfileVerificationConfig SupabaseAuthStorage SupabaseOAuthLifecycleObserver"
+              >
+                <h4>SupabaseAuthConfig</h4>
+                <p class="muted">type • <code>src/types.ts:71:1</code></p>
+
+                <p><strong>Export paths:</strong> <code>src/index.ts</code></p>
+                <div>
+                  <strong>Related symbols:</strong>
+                  <ul class="chips">
+                    <li class="chip">SupabaseAuthProfileVerificationConfig</li>
                     <li class="chip">SupabaseAuthStorage</li>
+                    <li class="chip">SupabaseOAuthLifecycleObserver</li>
                   </ul>
                 </div>
 
@@ -842,6 +1038,20 @@
                       <td></td>
                     </tr>
                     <tr>
+                      <td><code>onOAuthLifecycleEvent</code></td>
+                      <td>property</td>
+                      <td><code>SupabaseOAuthLifecycleObserver | undefined</code></td>
+                      <td>no</td>
+                      <td></td>
+                    </tr>
+                    <tr>
+                      <td><code>profileVerification</code></td>
+                      <td>property</td>
+                      <td><code>SupabaseAuthProfileVerificationConfig | undefined</code></td>
+                      <td>no</td>
+                      <td></td>
+                    </tr>
+                    <tr>
                       <td><code>storage</code></td>
                       <td>property</td>
                       <td><code>SupabaseAuthStorage | undefined</code></td>
@@ -871,10 +1081,80 @@
                 data-search="SupabaseAuthErrorCode unknown src/types.ts "
               >
                 <h4>SupabaseAuthErrorCode</h4>
-                <p class="muted">unknown • <code>src/types.ts:20:1</code></p>
+                <p class="muted">unknown • <code>src/types.ts:82:1</code></p>
 
                 <p><strong>Export paths:</strong> <code>src/index.ts</code></p>
                 <div><strong>Related symbols:</strong> <span class="empty">None</span></div>
+              </article>
+              <article
+                class="item"
+                id="symbol-supabaseauthprofilefield"
+                data-search="SupabaseAuthProfileField unknown src/types.ts "
+              >
+                <h4>SupabaseAuthProfileField</h4>
+                <p class="muted">unknown • <code>src/types.ts:23:1</code></p>
+
+                <p><strong>Export paths:</strong> <code>src/index.ts</code></p>
+                <div><strong>Related symbols:</strong> <span class="empty">None</span></div>
+              </article>
+              <article
+                class="item"
+                id="symbol-supabaseauthprofileverificationconfig"
+                data-search="SupabaseAuthProfileVerificationConfig type src/types.ts "
+              >
+                <h4>SupabaseAuthProfileVerificationConfig</h4>
+                <p class="muted">type • <code>src/types.ts:25:1</code></p>
+
+                <p><strong>Export paths:</strong> <code>src/index.ts</code></p>
+                <div><strong>Related symbols:</strong> <span class="empty">None</span></div>
+
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Member</th>
+                      <th>Kind</th>
+                      <th>Type</th>
+                      <th>Required</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>fields</code></td>
+                      <td>property</td>
+                      <td>
+                        <code
+                          >readonly (&quot;email&quot; | &quot;displayName&quot; |
+                          &quot;avatarUrl&quot; | &quot;username&quot; | &quot;phone&quot;)[] |
+                          undefined</code
+                        >
+                      </td>
+                      <td>no</td>
+                      <td></td>
+                    </tr>
+                    <tr>
+                      <td><code>maxAttempts</code></td>
+                      <td>property</td>
+                      <td><code>number | undefined</code></td>
+                      <td>no</td>
+                      <td></td>
+                    </tr>
+                    <tr>
+                      <td><code>retryDelayMs</code></td>
+                      <td>property</td>
+                      <td><code>number | undefined</code></td>
+                      <td>no</td>
+                      <td></td>
+                    </tr>
+                    <tr>
+                      <td><code>table</code></td>
+                      <td>property</td>
+                      <td><code>string</code></td>
+                      <td>yes</td>
+                      <td></td>
+                    </tr>
+                  </tbody>
+                </table>
               </article>
               <article
                 class="item"
@@ -882,7 +1162,7 @@
                 data-search="SupabaseAuthStorage type src/types.ts "
               >
                 <h4>SupabaseAuthStorage</h4>
-                <p class="muted">type • <code>src/types.ts:5:1</code></p>
+                <p class="muted">type • <code>src/types.ts:10:1</code></p>
 
                 <p><strong>Export paths:</strong> <code>src/index.ts</code></p>
                 <div><strong>Related symbols:</strong> <span class="empty">None</span></div>
@@ -930,11 +1210,183 @@
               </article>
               <article
                 class="item"
+                id="symbol-supabaseoauthlifecycleevent"
+                data-search="SupabaseOAuthLifecycleEvent type src/types.ts  SupabaseOAuthLifecycleStatus"
+              >
+                <h4>SupabaseOAuthLifecycleEvent</h4>
+                <p class="muted">type • <code>src/types.ts:55:1</code></p>
+
+                <p><strong>Export paths:</strong> <code>src/index.ts</code></p>
+                <div>
+                  <strong>Related symbols:</strong>
+                  <ul class="chips">
+                    <li class="chip">SupabaseOAuthLifecycleStatus</li>
+                  </ul>
+                </div>
+
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Member</th>
+                      <th>Kind</th>
+                      <th>Type</th>
+                      <th>Required</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>correlationId</code></td>
+                      <td>property</td>
+                      <td><code>string</code></td>
+                      <td>yes</td>
+                      <td></td>
+                    </tr>
+                    <tr>
+                      <td><code>errorCode</code></td>
+                      <td>property</td>
+                      <td>
+                        <code
+                          >&quot;oauth_unavailable&quot; | &quot;provider_disabled&quot; |
+                          &quot;provider_misconfigured&quot; | &quot;invalid_redirect_uri&quot; |
+                          &quot;authorization_failed&quot; |
+                          &quot;authorization_attempt_not_found&quot; | &quot;invalid_callback&quot;
+                          | &quot;state_mismatch&quot; | &quot;pkce_mismatch&quot; |
+                          &quot;callback_already_completed&quot; | &quot;code_exchange_failed&quot;
+                          | &quot;network_error&quot; | &quot;session_persistence_failed&quot; |
+                          &quot;profile_creation_failed&quot; | &quot;provider_error&quot; |
+                          undefined</code
+                        >
+                      </td>
+                      <td>no</td>
+                      <td></td>
+                    </tr>
+                    <tr>
+                      <td><code>provider</code></td>
+                      <td>property</td>
+                      <td><code>AuthOAuthProviderId</code></td>
+                      <td>yes</td>
+                      <td></td>
+                    </tr>
+                    <tr>
+                      <td><code>stage</code></td>
+                      <td>property</td>
+                      <td>
+                        <code
+                          >&quot;start&quot; | &quot;transport&quot; | &quot;callback&quot; |
+                          &quot;exchange&quot; | &quot;session&quot; | &quot;profile&quot;</code
+                        >
+                      </td>
+                      <td>yes</td>
+                      <td></td>
+                    </tr>
+                    <tr>
+                      <td><code>status</code></td>
+                      <td>property</td>
+                      <td><code>SupabaseOAuthLifecycleStatus</code></td>
+                      <td>yes</td>
+                      <td></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </article>
+              <article
+                class="item"
+                id="symbol-supabaseoauthlifecycleobserver"
+                data-search="SupabaseOAuthLifecycleObserver unknown src/types.ts "
+              >
+                <h4>SupabaseOAuthLifecycleObserver</h4>
+                <p class="muted">unknown • <code>src/types.ts:67:1</code></p>
+
+                <p><strong>Export paths:</strong> <code>src/index.ts</code></p>
+                <div><strong>Related symbols:</strong> <span class="empty">None</span></div>
+              </article>
+              <article
+                class="item"
+                id="symbol-supabaseoauthlifecyclestatus"
+                data-search="SupabaseOAuthLifecycleStatus unknown src/types.ts "
+              >
+                <h4>SupabaseOAuthLifecycleStatus</h4>
+                <p class="muted">unknown • <code>src/types.ts:48:1</code></p>
+
+                <p><strong>Export paths:</strong> <code>src/index.ts</code></p>
+                <div><strong>Related symbols:</strong> <span class="empty">None</span></div>
+              </article>
+              <article
+                class="item"
+                id="symbol-supabaseoauthprofileverificationinput"
+                data-search="SupabaseOAuthProfileVerificationInput type src/types.ts "
+              >
+                <h4>SupabaseOAuthProfileVerificationInput</h4>
+                <p class="muted">type • <code>src/types.ts:36:1</code></p>
+
+                <p><strong>Export paths:</strong> <code>src/index.ts</code></p>
+                <div><strong>Related symbols:</strong> <span class="empty">None</span></div>
+
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Member</th>
+                      <th>Kind</th>
+                      <th>Type</th>
+                      <th>Required</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>correlationId</code></td>
+                      <td>property</td>
+                      <td><code>string</code></td>
+                      <td>yes</td>
+                      <td></td>
+                    </tr>
+                    <tr>
+                      <td><code>provider</code></td>
+                      <td>property</td>
+                      <td><code>AuthOAuthProviderId</code></td>
+                      <td>yes</td>
+                      <td></td>
+                    </tr>
+                    <tr>
+                      <td><code>session</code></td>
+                      <td>property</td>
+                      <td><code>AuthSession</code></td>
+                      <td>yes</td>
+                      <td></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </article>
+              <article
+                class="item"
+                id="symbol-supabaseoauthprofileverificationresult"
+                data-search="SupabaseOAuthProfileVerificationResult unknown src/types.ts "
+              >
+                <h4>SupabaseOAuthProfileVerificationResult</h4>
+                <p class="muted">unknown • <code>src/types.ts:42:1</code></p>
+
+                <p><strong>Export paths:</strong> <code>src/index.ts</code></p>
+                <div><strong>Related symbols:</strong> <span class="empty">None</span></div>
+              </article>
+              <article
+                class="item"
+                id="symbol-supabaseoauthprofileverifier"
+                data-search="SupabaseOAuthProfileVerifier unknown src/types.ts "
+              >
+                <h4>SupabaseOAuthProfileVerifier</h4>
+                <p class="muted">unknown • <code>src/types.ts:44:1</code></p>
+
+                <p><strong>Export paths:</strong> <code>src/index.ts</code></p>
+                <div><strong>Related symbols:</strong> <span class="empty">None</span></div>
+              </article>
+              <article
+                class="item"
                 id="symbol-supabaseprovidererrorcause"
                 data-search="SupabaseProviderErrorCause type src/types.ts "
               >
                 <h4>SupabaseProviderErrorCause</h4>
-                <p class="muted">type • <code>src/types.ts:31:1</code></p>
+                <p class="muted">type • <code>src/types.ts:94:1</code></p>
 
                 <p><strong>Export paths:</strong> <code>src/index.ts</code></p>
                 <div><strong>Related symbols:</strong> <span class="empty">None</span></div>
@@ -991,6 +1443,7 @@
                 module_src_createSupabaseAuthAdapter_ts --&gt; module_src_oauth_ts
                 module_src_createSupabaseAuthAdapter_ts --&gt;
                 module_src_oauthProviderDefinitions_ts module_src_createSupabaseAuthAdapter_ts
+                --&gt; module_src_profileVerification_ts module_src_createSupabaseAuthAdapter_ts
                 --&gt; module_src_session_ts module_src_createSupabaseAuthAdapter_ts --&gt;
                 module_src_types_ts module_src_errors_ts[&quot;src/errors.ts&quot;]
                 package__ankhorage_supabase_auth -.-&gt; module_src_errors_ts module_src_errors_ts
@@ -1001,6 +1454,9 @@
                 module_src_session_ts module_src_oauth_ts --&gt; module_src_types_ts
                 module_src_oauthProviderDefinitions_ts[&quot;src/oauthProviderDefinitions.ts&quot;]
                 package__ankhorage_supabase_auth -.-&gt; module_src_oauthProviderDefinitions_ts
+                module_src_profileVerification_ts[&quot;src/profileVerification.ts&quot;]
+                package__ankhorage_supabase_auth -.-&gt; module_src_profileVerification_ts
+                module_src_profileVerification_ts --&gt; module_src_types_ts
                 module_src_session_ts[&quot;src/session.ts&quot;] package__ankhorage_supabase_auth
                 -.-&gt; module_src_session_ts module_src_types_ts[&quot;src/types.ts&quot;]
                 package__ankhorage_supabase_auth -.-&gt; module_src_types_ts
@@ -1017,6 +1473,7 @@ graph TD
   module_src_createSupabaseAuthAdapter_ts --&gt; module_src_errors_ts
   module_src_createSupabaseAuthAdapter_ts --&gt; module_src_oauth_ts
   module_src_createSupabaseAuthAdapter_ts --&gt; module_src_oauthProviderDefinitions_ts
+  module_src_createSupabaseAuthAdapter_ts --&gt; module_src_profileVerification_ts
   module_src_createSupabaseAuthAdapter_ts --&gt; module_src_session_ts
   module_src_createSupabaseAuthAdapter_ts --&gt; module_src_types_ts
   module_src_errors_ts[&quot;src/errors.ts&quot;]
@@ -1030,6 +1487,9 @@ graph TD
   module_src_oauth_ts --&gt; module_src_types_ts
   module_src_oauthProviderDefinitions_ts[&quot;src/oauthProviderDefinitions.ts&quot;]
   package__ankhorage_supabase_auth -.-&gt; module_src_oauthProviderDefinitions_ts
+  module_src_profileVerification_ts[&quot;src/profileVerification.ts&quot;]
+  package__ankhorage_supabase_auth -.-&gt; module_src_profileVerification_ts
+  module_src_profileVerification_ts --&gt; module_src_types_ts
   module_src_session_ts[&quot;src/session.ts&quot;]
   package__ankhorage_supabase_auth -.-&gt; module_src_session_ts
   module_src_types_ts[&quot;src/types.ts&quot;]
@@ -1051,17 +1511,19 @@ graph TD
                 module_src_index_ts[&quot;src/index.ts&quot;]
                 module_src_oauth_ts[&quot;src/oauth.ts&quot;]
                 module_src_oauthProviderDefinitions_ts[&quot;src/oauthProviderDefinitions.ts&quot;]
+                module_src_profileVerification_ts[&quot;src/profileVerification.ts&quot;]
                 module_src_session_ts[&quot;src/session.ts&quot;]
                 module_src_types_ts[&quot;src/types.ts&quot;]
                 module_src_createSupabaseAuthAdapter_ts --&gt; module_src_errors_ts
                 module_src_createSupabaseAuthAdapter_ts --&gt; module_src_oauth_ts
                 module_src_createSupabaseAuthAdapter_ts --&gt;
                 module_src_oauthProviderDefinitions_ts module_src_createSupabaseAuthAdapter_ts
+                --&gt; module_src_profileVerification_ts module_src_createSupabaseAuthAdapter_ts
                 --&gt; module_src_session_ts module_src_createSupabaseAuthAdapter_ts --&gt;
                 module_src_types_ts module_src_errors_ts --&gt; module_src_types_ts
                 module_src_oauth_ts --&gt; module_src_oauthProviderDefinitions_ts
                 module_src_oauth_ts --&gt; module_src_session_ts module_src_oauth_ts --&gt;
-                module_src_types_ts
+                module_src_types_ts module_src_profileVerification_ts --&gt; module_src_types_ts
               </div>
               <details>
                 <summary>View Mermaid source</summary>
@@ -1072,17 +1534,20 @@ graph LR
   module_src_index_ts[&quot;src/index.ts&quot;]
   module_src_oauth_ts[&quot;src/oauth.ts&quot;]
   module_src_oauthProviderDefinitions_ts[&quot;src/oauthProviderDefinitions.ts&quot;]
+  module_src_profileVerification_ts[&quot;src/profileVerification.ts&quot;]
   module_src_session_ts[&quot;src/session.ts&quot;]
   module_src_types_ts[&quot;src/types.ts&quot;]
   module_src_createSupabaseAuthAdapter_ts --&gt; module_src_errors_ts
   module_src_createSupabaseAuthAdapter_ts --&gt; module_src_oauth_ts
   module_src_createSupabaseAuthAdapter_ts --&gt; module_src_oauthProviderDefinitions_ts
+  module_src_createSupabaseAuthAdapter_ts --&gt; module_src_profileVerification_ts
   module_src_createSupabaseAuthAdapter_ts --&gt; module_src_session_ts
   module_src_createSupabaseAuthAdapter_ts --&gt; module_src_types_ts
   module_src_errors_ts --&gt; module_src_types_ts
   module_src_oauth_ts --&gt; module_src_oauthProviderDefinitions_ts
   module_src_oauth_ts --&gt; module_src_session_ts
   module_src_oauth_ts --&gt; module_src_types_ts
+  module_src_profileVerification_ts --&gt; module_src_types_ts
 </pre
                 >
               </details>
@@ -1097,11 +1562,18 @@ graph LR
                 module_src_index_ts[&quot;src/index.ts&quot;]
                 module_src_oauth_ts[&quot;src/oauth.ts&quot;]
                 module_src_oauthProviderDefinitions_ts[&quot;src/oauthProviderDefinitions.ts&quot;]
+                module_src_profileVerification_ts[&quot;src/profileVerification.ts&quot;]
                 module_src_session_ts[&quot;src/session.ts&quot;]
                 module_src_types_ts[&quot;src/types.ts&quot;]
                 export_createSupabaseAuthAdapter[&quot;createSupabaseAuthAdapter&quot;]
                 module_src_createSupabaseAuthAdapter_ts --&gt; export_createSupabaseAuthAdapter
                 export_createSupabaseAuthAdapter -.-&gt; export_SupabaseAuthConfig
+                export_createSupabaseOAuthProfileVerifier[&quot;createSupabaseOAuthProfileVerifier&quot;]
+                module_src_profileVerification_ts --&gt; export_createSupabaseOAuthProfileVerifier
+                export_createSupabaseOAuthProfileVerifier -.-&gt;
+                export_SupabaseAuthProfileVerificationConfig
+                export_createSupabaseOAuthProfileVerifier -.-&gt;
+                export_SupabaseOAuthProfileVerifier
                 export_getSupabaseOAuthProviderDefinition[&quot;getSupabaseOAuthProviderDefinition&quot;]
                 module_src_oauthProviderDefinitions_ts --&gt;
                 export_getSupabaseOAuthProviderDefinition export_getSupabaseOAuthProviderDefinition
@@ -1111,6 +1583,13 @@ graph LR
                 export_materializeSupabaseOAuthEnvironment[&quot;materializeSupabaseOAuthEnvironment&quot;]
                 module_src_oauthProviderDefinitions_ts --&gt;
                 export_materializeSupabaseOAuthEnvironment
+                export_normalizeSupabaseAuthProfileVerificationConfig[&quot;normalizeSupabaseAuthProfileVerificationConfig&quot;]
+                module_src_profileVerification_ts --&gt;
+                export_normalizeSupabaseAuthProfileVerificationConfig
+                export_normalizeSupabaseAuthProfileVerificationConfig -.-&gt;
+                export_SupabaseAuthProfileVerificationConfig
+                export_SUPABASE_AUTH_PROFILE_FIELDS[&quot;SUPABASE_AUTH_PROFILE_FIELDS&quot;]
+                module_src_types_ts --&gt; export_SUPABASE_AUTH_PROFILE_FIELDS
                 export_SUPABASE_OAUTH_PROVIDER_DEFINITIONS[&quot;SUPABASE_OAUTH_PROVIDER_DEFINITIONS&quot;]
                 module_src_oauthProviderDefinitions_ts --&gt;
                 export_SUPABASE_OAUTH_PROVIDER_DEFINITIONS
@@ -1118,11 +1597,30 @@ graph LR
                 module_src_oauthProviderDefinitions_ts --&gt; export_SUPABASE_OAUTH_PROVIDER_IDS
                 export_SupabaseAuthConfig[&quot;SupabaseAuthConfig&quot;] module_src_types_ts --&gt;
                 export_SupabaseAuthConfig export_SupabaseAuthConfig -.-&gt;
-                export_SupabaseAuthStorage
+                export_SupabaseAuthProfileVerificationConfig export_SupabaseAuthConfig -.-&gt;
+                export_SupabaseAuthStorage export_SupabaseAuthConfig -.-&gt;
+                export_SupabaseOAuthLifecycleObserver
                 export_SupabaseAuthErrorCode[&quot;SupabaseAuthErrorCode&quot;] module_src_types_ts
                 --&gt; export_SupabaseAuthErrorCode
+                export_SupabaseAuthProfileField[&quot;SupabaseAuthProfileField&quot;]
+                module_src_types_ts --&gt; export_SupabaseAuthProfileField
+                export_SupabaseAuthProfileVerificationConfig[&quot;SupabaseAuthProfileVerificationConfig&quot;]
+                module_src_types_ts --&gt; export_SupabaseAuthProfileVerificationConfig
                 export_SupabaseAuthStorage[&quot;SupabaseAuthStorage&quot;] module_src_types_ts
                 --&gt; export_SupabaseAuthStorage
+                export_SupabaseOAuthLifecycleEvent[&quot;SupabaseOAuthLifecycleEvent&quot;]
+                module_src_types_ts --&gt; export_SupabaseOAuthLifecycleEvent
+                export_SupabaseOAuthLifecycleEvent -.-&gt; export_SupabaseOAuthLifecycleStatus
+                export_SupabaseOAuthLifecycleObserver[&quot;SupabaseOAuthLifecycleObserver&quot;]
+                module_src_types_ts --&gt; export_SupabaseOAuthLifecycleObserver
+                export_SupabaseOAuthLifecycleStatus[&quot;SupabaseOAuthLifecycleStatus&quot;]
+                module_src_types_ts --&gt; export_SupabaseOAuthLifecycleStatus
+                export_SupabaseOAuthProfileVerificationInput[&quot;SupabaseOAuthProfileVerificationInput&quot;]
+                module_src_types_ts --&gt; export_SupabaseOAuthProfileVerificationInput
+                export_SupabaseOAuthProfileVerificationResult[&quot;SupabaseOAuthProfileVerificationResult&quot;]
+                module_src_types_ts --&gt; export_SupabaseOAuthProfileVerificationResult
+                export_SupabaseOAuthProfileVerifier[&quot;SupabaseOAuthProfileVerifier&quot;]
+                module_src_types_ts --&gt; export_SupabaseOAuthProfileVerifier
                 export_SupabaseOAuthProviderDefinition[&quot;SupabaseOAuthProviderDefinition&quot;]
                 module_src_oauthProviderDefinitions_ts --&gt; export_SupabaseOAuthProviderDefinition
                 export_SupabaseOAuthProviderDefinition -.-&gt;
@@ -1145,6 +1643,11 @@ graph LR
                 module_src_oauthProviderDefinitions_ts --&gt;
                 export_validateSupabaseOAuthSecretPayload export_validateSupabaseOAuthSecretPayload
                 -.-&gt; export_SupabaseOAuthSecretPayload
+                export_verifySupabaseOAuthProfile[&quot;verifySupabaseOAuthProfile&quot;]
+                module_src_profileVerification_ts --&gt; export_verifySupabaseOAuthProfile
+                export_verifySupabaseOAuthProfile -.-&gt;
+                export_SupabaseAuthProfileVerificationConfig export_verifySupabaseOAuthProfile
+                -.-&gt; export_SupabaseOAuthProfileVerificationResult
               </div>
               <details>
                 <summary>View Mermaid source</summary>
@@ -1155,11 +1658,16 @@ graph LR
   module_src_index_ts[&quot;src/index.ts&quot;]
   module_src_oauth_ts[&quot;src/oauth.ts&quot;]
   module_src_oauthProviderDefinitions_ts[&quot;src/oauthProviderDefinitions.ts&quot;]
+  module_src_profileVerification_ts[&quot;src/profileVerification.ts&quot;]
   module_src_session_ts[&quot;src/session.ts&quot;]
   module_src_types_ts[&quot;src/types.ts&quot;]
   export_createSupabaseAuthAdapter[&quot;createSupabaseAuthAdapter&quot;]
   module_src_createSupabaseAuthAdapter_ts --&gt; export_createSupabaseAuthAdapter
   export_createSupabaseAuthAdapter -.-&gt; export_SupabaseAuthConfig
+  export_createSupabaseOAuthProfileVerifier[&quot;createSupabaseOAuthProfileVerifier&quot;]
+  module_src_profileVerification_ts --&gt; export_createSupabaseOAuthProfileVerifier
+  export_createSupabaseOAuthProfileVerifier -.-&gt; export_SupabaseAuthProfileVerificationConfig
+  export_createSupabaseOAuthProfileVerifier -.-&gt; export_SupabaseOAuthProfileVerifier
   export_getSupabaseOAuthProviderDefinition[&quot;getSupabaseOAuthProviderDefinition&quot;]
   module_src_oauthProviderDefinitions_ts --&gt; export_getSupabaseOAuthProviderDefinition
   export_getSupabaseOAuthProviderDefinition -.-&gt; export_SupabaseOAuthProviderDefinition
@@ -1167,17 +1675,41 @@ graph LR
   module_src_oauthProviderDefinitions_ts --&gt; export_isSupabaseOAuthProviderId
   export_materializeSupabaseOAuthEnvironment[&quot;materializeSupabaseOAuthEnvironment&quot;]
   module_src_oauthProviderDefinitions_ts --&gt; export_materializeSupabaseOAuthEnvironment
+  export_normalizeSupabaseAuthProfileVerificationConfig[&quot;normalizeSupabaseAuthProfileVerificationConfig&quot;]
+  module_src_profileVerification_ts --&gt; export_normalizeSupabaseAuthProfileVerificationConfig
+  export_normalizeSupabaseAuthProfileVerificationConfig -.-&gt; export_SupabaseAuthProfileVerificationConfig
+  export_SUPABASE_AUTH_PROFILE_FIELDS[&quot;SUPABASE_AUTH_PROFILE_FIELDS&quot;]
+  module_src_types_ts --&gt; export_SUPABASE_AUTH_PROFILE_FIELDS
   export_SUPABASE_OAUTH_PROVIDER_DEFINITIONS[&quot;SUPABASE_OAUTH_PROVIDER_DEFINITIONS&quot;]
   module_src_oauthProviderDefinitions_ts --&gt; export_SUPABASE_OAUTH_PROVIDER_DEFINITIONS
   export_SUPABASE_OAUTH_PROVIDER_IDS[&quot;SUPABASE_OAUTH_PROVIDER_IDS&quot;]
   module_src_oauthProviderDefinitions_ts --&gt; export_SUPABASE_OAUTH_PROVIDER_IDS
   export_SupabaseAuthConfig[&quot;SupabaseAuthConfig&quot;]
   module_src_types_ts --&gt; export_SupabaseAuthConfig
+  export_SupabaseAuthConfig -.-&gt; export_SupabaseAuthProfileVerificationConfig
   export_SupabaseAuthConfig -.-&gt; export_SupabaseAuthStorage
+  export_SupabaseAuthConfig -.-&gt; export_SupabaseOAuthLifecycleObserver
   export_SupabaseAuthErrorCode[&quot;SupabaseAuthErrorCode&quot;]
   module_src_types_ts --&gt; export_SupabaseAuthErrorCode
+  export_SupabaseAuthProfileField[&quot;SupabaseAuthProfileField&quot;]
+  module_src_types_ts --&gt; export_SupabaseAuthProfileField
+  export_SupabaseAuthProfileVerificationConfig[&quot;SupabaseAuthProfileVerificationConfig&quot;]
+  module_src_types_ts --&gt; export_SupabaseAuthProfileVerificationConfig
   export_SupabaseAuthStorage[&quot;SupabaseAuthStorage&quot;]
   module_src_types_ts --&gt; export_SupabaseAuthStorage
+  export_SupabaseOAuthLifecycleEvent[&quot;SupabaseOAuthLifecycleEvent&quot;]
+  module_src_types_ts --&gt; export_SupabaseOAuthLifecycleEvent
+  export_SupabaseOAuthLifecycleEvent -.-&gt; export_SupabaseOAuthLifecycleStatus
+  export_SupabaseOAuthLifecycleObserver[&quot;SupabaseOAuthLifecycleObserver&quot;]
+  module_src_types_ts --&gt; export_SupabaseOAuthLifecycleObserver
+  export_SupabaseOAuthLifecycleStatus[&quot;SupabaseOAuthLifecycleStatus&quot;]
+  module_src_types_ts --&gt; export_SupabaseOAuthLifecycleStatus
+  export_SupabaseOAuthProfileVerificationInput[&quot;SupabaseOAuthProfileVerificationInput&quot;]
+  module_src_types_ts --&gt; export_SupabaseOAuthProfileVerificationInput
+  export_SupabaseOAuthProfileVerificationResult[&quot;SupabaseOAuthProfileVerificationResult&quot;]
+  module_src_types_ts --&gt; export_SupabaseOAuthProfileVerificationResult
+  export_SupabaseOAuthProfileVerifier[&quot;SupabaseOAuthProfileVerifier&quot;]
+  module_src_types_ts --&gt; export_SupabaseOAuthProfileVerifier
   export_SupabaseOAuthProviderDefinition[&quot;SupabaseOAuthProviderDefinition&quot;]
   module_src_oauthProviderDefinitions_ts --&gt; export_SupabaseOAuthProviderDefinition
   export_SupabaseOAuthProviderDefinition -.-&gt; export_SupabaseOAuthRuntimeEnvironmentDefinition
@@ -1195,69 +1727,56 @@ graph LR
   export_validateSupabaseOAuthSecretPayload[&quot;validateSupabaseOAuthSecretPayload&quot;]
   module_src_oauthProviderDefinitions_ts --&gt; export_validateSupabaseOAuthSecretPayload
   export_validateSupabaseOAuthSecretPayload -.-&gt; export_SupabaseOAuthSecretPayload
+  export_verifySupabaseOAuthProfile[&quot;verifySupabaseOAuthProfile&quot;]
+  module_src_profileVerification_ts --&gt; export_verifySupabaseOAuthProfile
+  export_verifySupabaseOAuthProfile -.-&gt; export_SupabaseAuthProfileVerificationConfig
+  export_verifySupabaseOAuthProfile -.-&gt; export_SupabaseOAuthProfileVerificationResult
 </pre
                 >
               </details>
             </article>
             <article
               class="item"
-              data-search="createSupabaseAuthAdapter sequence diagrams/sequences/create-supabase-auth-adapter.mmd"
+              data-search="createSupabaseOAuthProfileVerifier sequence diagrams/sequences/create-supabase-oauth-profile-verifier.mmd"
             >
-              <h3>createSupabaseAuthAdapter sequence</h3>
-              <p class="muted"><code>diagrams/sequences/create-supabase-auth-adapter.mmd</code></p>
+              <h3>createSupabaseOAuthProfileVerifier sequence</h3>
+              <p class="muted">
+                <code>diagrams/sequences/create-supabase-oauth-profile-verifier.mmd</code>
+              </p>
               <div class="mermaid">
-                sequenceDiagram participant participant_createClient as createClient participant
-                participant_createPkceOnlyStorage as createPkceOnlyStorage participant
-                participant_createSupabaseAuthAdapter as createSupabaseAuthAdapter participant
-                participant_createSupabaseOAuthAdapter as createSupabaseOAuthAdapter participant
-                participant_isSupabaseOAuthProviderId as isSupabaseOAuthProviderId participant
-                participant_requireOAuthStorage as requireOAuthStorage participant
-                participant_validateConfig as validateConfig
-                participant_createSupabaseAuthAdapter-&gt;&gt;participant_validateConfig:
-                validateConfig()
-                participant_validateConfig-&gt;&gt;participant_isSupabaseOAuthProviderId:
-                isSupabaseOAuthProviderId()
-                participant_isSupabaseOAuthProviderId--&gt;&gt;participant_validateConfig: return
-                participant_validateConfig--&gt;&gt;participant_createSupabaseAuthAdapter: return
-                participant_createSupabaseAuthAdapter-&gt;&gt;participant_createSupabaseOAuthAdapter:
-                createSupabaseOAuthAdapter()
-                participant_createSupabaseOAuthAdapter-&gt;&gt;participant_createClient:
-                createClient()
-                participant_createClient--&gt;&gt;participant_createSupabaseOAuthAdapter: return
-                participant_createSupabaseOAuthAdapter-&gt;&gt;participant_createPkceOnlyStorage:
-                createPkceOnlyStorage()
-                participant_createPkceOnlyStorage--&gt;&gt;participant_createSupabaseOAuthAdapter:
+                sequenceDiagram participant participant_createSupabaseOAuthProfileVerifier as
+                createSupabaseOAuthProfileVerifier participant participant_normalizeIntegerOption as
+                normalizeIntegerOption participant
+                participant_normalizeSupabaseAuthProfileVerificationConfig as
+                normalizeSupabaseAuthProfileVerificationConfig participant
+                participant_uniqueProfileFields as uniqueProfileFields
+                participant_createSupabaseOAuthProfileVerifier-&gt;&gt;participant_normalizeSupabaseAuthProfileVerificationConfig:
+                normalizeSupabaseAuthProfileVerificationConfig()
+                participant_normalizeSupabaseAuthProfileVerificationConfig-&gt;&gt;participant_uniqueProfileFields:
+                uniqueProfileFields()
+                participant_uniqueProfileFields--&gt;&gt;participant_normalizeSupabaseAuthProfileVerificationConfig:
                 return
-                participant_createSupabaseOAuthAdapter--&gt;&gt;participant_createSupabaseAuthAdapter:
+                participant_normalizeSupabaseAuthProfileVerificationConfig-&gt;&gt;participant_normalizeIntegerOption:
+                normalizeIntegerOption()
+                participant_normalizeIntegerOption--&gt;&gt;participant_normalizeSupabaseAuthProfileVerificationConfig:
                 return
-                participant_createSupabaseAuthAdapter-&gt;&gt;participant_requireOAuthStorage:
-                requireOAuthStorage()
-                participant_requireOAuthStorage--&gt;&gt;participant_createSupabaseAuthAdapter:
+                participant_normalizeSupabaseAuthProfileVerificationConfig--&gt;&gt;participant_createSupabaseOAuthProfileVerifier:
                 return
               </div>
               <details>
                 <summary>View Mermaid source</summary>
                 <pre>
 sequenceDiagram
-  participant participant_createClient as createClient
-  participant participant_createPkceOnlyStorage as createPkceOnlyStorage
-  participant participant_createSupabaseAuthAdapter as createSupabaseAuthAdapter
-  participant participant_createSupabaseOAuthAdapter as createSupabaseOAuthAdapter
-  participant participant_isSupabaseOAuthProviderId as isSupabaseOAuthProviderId
-  participant participant_requireOAuthStorage as requireOAuthStorage
-  participant participant_validateConfig as validateConfig
-  participant_createSupabaseAuthAdapter-&gt;&gt;participant_validateConfig: validateConfig()
-  participant_validateConfig-&gt;&gt;participant_isSupabaseOAuthProviderId: isSupabaseOAuthProviderId()
-  participant_isSupabaseOAuthProviderId--&gt;&gt;participant_validateConfig: return
-  participant_validateConfig--&gt;&gt;participant_createSupabaseAuthAdapter: return
-  participant_createSupabaseAuthAdapter-&gt;&gt;participant_createSupabaseOAuthAdapter: createSupabaseOAuthAdapter()
-  participant_createSupabaseOAuthAdapter-&gt;&gt;participant_createClient: createClient()
-  participant_createClient--&gt;&gt;participant_createSupabaseOAuthAdapter: return
-  participant_createSupabaseOAuthAdapter-&gt;&gt;participant_createPkceOnlyStorage: createPkceOnlyStorage()
-  participant_createPkceOnlyStorage--&gt;&gt;participant_createSupabaseOAuthAdapter: return
-  participant_createSupabaseOAuthAdapter--&gt;&gt;participant_createSupabaseAuthAdapter: return
-  participant_createSupabaseAuthAdapter-&gt;&gt;participant_requireOAuthStorage: requireOAuthStorage()
-  participant_requireOAuthStorage--&gt;&gt;participant_createSupabaseAuthAdapter: return
+  participant participant_createSupabaseOAuthProfileVerifier as createSupabaseOAuthProfileVerifier
+  participant participant_normalizeIntegerOption as normalizeIntegerOption
+  participant participant_normalizeSupabaseAuthProfileVerificationConfig as normalizeSupabaseAuthProfileVerificationConfig
+  participant participant_uniqueProfileFields as uniqueProfileFields
+  participant_createSupabaseOAuthProfileVerifier-&gt;&gt;participant_normalizeSupabaseAuthProfileVerificationConfig: normalizeSupabaseAuthProfileVerificationConfig()
+  participant_normalizeSupabaseAuthProfileVerificationConfig-&gt;&gt;participant_uniqueProfileFields: uniqueProfileFields()
+  participant_uniqueProfileFields--&gt;&gt;participant_normalizeSupabaseAuthProfileVerificationConfig: return
+  participant_normalizeSupabaseAuthProfileVerificationConfig-&gt;&gt;participant_normalizeIntegerOption: normalizeIntegerOption()
+  participant_normalizeIntegerOption--&gt;&gt;participant_normalizeSupabaseAuthProfileVerificationConfig: return
+  participant_normalizeSupabaseAuthProfileVerificationConfig--&gt;&gt;participant_createSupabaseOAuthProfileVerifier: return
 </pre
                 >
               </details>
@@ -1345,6 +1864,46 @@ sequenceDiagram
             </article>
             <article
               class="item"
+              data-search="normalizeSupabaseAuthProfileVerificationConfig sequence diagrams/sequences/normalize-supabase-auth-profile-verification-config.mmd"
+            >
+              <h3>normalizeSupabaseAuthProfileVerificationConfig sequence</h3>
+              <p class="muted">
+                <code
+                  >diagrams/sequences/normalize-supabase-auth-profile-verification-config.mmd</code
+                >
+              </p>
+              <div class="mermaid">
+                sequenceDiagram participant participant_normalizeIntegerOption as
+                normalizeIntegerOption participant
+                participant_normalizeSupabaseAuthProfileVerificationConfig as
+                normalizeSupabaseAuthProfileVerificationConfig participant
+                participant_uniqueProfileFields as uniqueProfileFields
+                participant_normalizeSupabaseAuthProfileVerificationConfig-&gt;&gt;participant_uniqueProfileFields:
+                uniqueProfileFields()
+                participant_uniqueProfileFields--&gt;&gt;participant_normalizeSupabaseAuthProfileVerificationConfig:
+                return
+                participant_normalizeSupabaseAuthProfileVerificationConfig-&gt;&gt;participant_normalizeIntegerOption:
+                normalizeIntegerOption()
+                participant_normalizeIntegerOption--&gt;&gt;participant_normalizeSupabaseAuthProfileVerificationConfig:
+                return
+              </div>
+              <details>
+                <summary>View Mermaid source</summary>
+                <pre>
+sequenceDiagram
+  participant participant_normalizeIntegerOption as normalizeIntegerOption
+  participant participant_normalizeSupabaseAuthProfileVerificationConfig as normalizeSupabaseAuthProfileVerificationConfig
+  participant participant_uniqueProfileFields as uniqueProfileFields
+  participant_normalizeSupabaseAuthProfileVerificationConfig-&gt;&gt;participant_uniqueProfileFields: uniqueProfileFields()
+  participant_uniqueProfileFields--&gt;&gt;participant_normalizeSupabaseAuthProfileVerificationConfig: return
+  participant_normalizeSupabaseAuthProfileVerificationConfig-&gt;&gt;participant_normalizeIntegerOption: normalizeIntegerOption()
+  participant_normalizeIntegerOption--&gt;&gt;participant_normalizeSupabaseAuthProfileVerificationConfig: return
+</pre
+                >
+              </details>
+            </article>
+            <article
+              class="item"
               data-search="validateSupabaseOAuthSecretPayload sequence diagrams/sequences/validate-supabase-oauth-secret-payload.mmd"
             >
               <h3>validateSupabaseOAuthSecretPayload sequence</h3>
@@ -1395,22 +1954,30 @@ sequenceDiagram
               data-search="createSupabaseAuthAdapter src/createSupabaseAuthAdapter.ts "
             >
               <h3>createSupabaseAuthAdapter</h3>
-              <p class="muted"><code>src/createSupabaseAuthAdapter.ts:25:1</code></p>
+              <p class="muted"><code>src/createSupabaseAuthAdapter.ts:42:1</code></p>
               <p class="empty">No description available.</p>
             </article>
             <article class="item" data-search="request src/createSupabaseAuthAdapter.ts ">
               <h3>request</h3>
-              <p class="muted"><code>src/createSupabaseAuthAdapter.ts:29:9</code></p>
+              <p class="muted"><code>src/createSupabaseAuthAdapter.ts:47:9</code></p>
               <p class="empty">No description available.</p>
             </article>
             <article class="item" data-search="persistSession src/createSupabaseAuthAdapter.ts ">
               <h3>persistSession</h3>
-              <p class="muted"><code>src/createSupabaseAuthAdapter.ts:46:9</code></p>
+              <p class="muted"><code>src/createSupabaseAuthAdapter.ts:64:9</code></p>
+              <p class="empty">No description available.</p>
+            </article>
+            <article
+              class="item"
+              data-search="persistSessionSafely src/createSupabaseAuthAdapter.ts "
+            >
+              <h3>persistSessionSafely</h3>
+              <p class="muted"><code>src/createSupabaseAuthAdapter.ts:79:9</code></p>
               <p class="empty">No description available.</p>
             </article>
             <article class="item" data-search="readStoredSession src/createSupabaseAuthAdapter.ts ">
               <h3>readStoredSession</h3>
-              <p class="muted"><code>src/createSupabaseAuthAdapter.ts:56:9</code></p>
+              <p class="muted"><code>src/createSupabaseAuthAdapter.ts:95:9</code></p>
               <p class="empty">No description available.</p>
             </article>
             <article
@@ -1418,12 +1985,20 @@ sequenceDiagram
               data-search="handleSessionResponse src/createSupabaseAuthAdapter.ts "
             >
               <h3>handleSessionResponse</h3>
-              <p class="muted"><code>src/createSupabaseAuthAdapter.ts:64:9</code></p>
+              <p class="muted"><code>src/createSupabaseAuthAdapter.ts:109:9</code></p>
               <p class="empty">No description available.</p>
             </article>
             <article class="item" data-search="validateConfig src/createSupabaseAuthAdapter.ts ">
               <h3>validateConfig</h3>
-              <p class="muted"><code>src/createSupabaseAuthAdapter.ts:258:1</code></p>
+              <p class="muted"><code>src/createSupabaseAuthAdapter.ts:362:1</code></p>
+              <p class="empty">No description available.</p>
+            </article>
+            <article
+              class="item"
+              data-search="createProfileVerifier src/createSupabaseAuthAdapter.ts "
+            >
+              <h3>createProfileVerifier</h3>
+              <p class="muted"><code>src/createSupabaseAuthAdapter.ts:416:1</code></p>
               <p class="empty">No description available.</p>
             </article>
             <article
@@ -1431,32 +2006,32 @@ sequenceDiagram
               data-search="requireOAuthStorage src/createSupabaseAuthAdapter.ts "
             >
               <h3>requireOAuthStorage</h3>
-              <p class="muted"><code>src/createSupabaseAuthAdapter.ts:301:1</code></p>
+              <p class="muted"><code>src/createSupabaseAuthAdapter.ts:426:1</code></p>
               <p class="empty">No description available.</p>
             </article>
             <article class="item" data-search="validatePassword src/createSupabaseAuthAdapter.ts ">
               <h3>validatePassword</h3>
-              <p class="muted"><code>src/createSupabaseAuthAdapter.ts:310:1</code></p>
+              <p class="muted"><code>src/createSupabaseAuthAdapter.ts:435:1</code></p>
               <p class="empty">No description available.</p>
             </article>
             <article class="item" data-search="identifierBody src/createSupabaseAuthAdapter.ts ">
               <h3>identifierBody</h3>
-              <p class="muted"><code>src/createSupabaseAuthAdapter.ts:316:1</code></p>
+              <p class="muted"><code>src/createSupabaseAuthAdapter.ts:441:1</code></p>
               <p class="empty">No description available.</p>
             </article>
             <article class="item" data-search="metadataBody src/createSupabaseAuthAdapter.ts ">
               <h3>metadataBody</h3>
-              <p class="muted"><code>src/createSupabaseAuthAdapter.ts:334:1</code></p>
+              <p class="muted"><code>src/createSupabaseAuthAdapter.ts:459:1</code></p>
               <p class="empty">No description available.</p>
             </article>
             <article class="item" data-search="createHeaders src/createSupabaseAuthAdapter.ts ">
               <h3>createHeaders</h3>
-              <p class="muted"><code>src/createSupabaseAuthAdapter.ts:342:1</code></p>
+              <p class="muted"><code>src/createSupabaseAuthAdapter.ts:467:1</code></p>
               <p class="empty">No description available.</p>
             </article>
             <article class="item" data-search="isRecord src/createSupabaseAuthAdapter.ts ">
               <h3>isRecord</h3>
-              <p class="muted"><code>src/createSupabaseAuthAdapter.ts:351:1</code></p>
+              <p class="muted"><code>src/createSupabaseAuthAdapter.ts:476:1</code></p>
               <p class="empty">No description available.</p>
             </article>
           </section>
@@ -1501,112 +2076,122 @@ sequenceDiagram
             <h2>src/oauth.ts</h2>
             <article class="item" data-search="createSupabaseOAuthAdapter src/oauth.ts ">
               <h3>createSupabaseOAuthAdapter</h3>
-              <p class="muted"><code>src/oauth.ts:53:1</code></p>
+              <p class="muted"><code>src/oauth.ts:61:1</code></p>
+              <p class="empty">No description available.</p>
+            </article>
+            <article class="item" data-search="emitOAuthError src/oauth.ts ">
+              <h3>emitOAuthError</h3>
+              <p class="muted"><code>src/oauth.ts:429:1</code></p>
+              <p class="empty">No description available.</p>
+            </article>
+            <article class="item" data-search="emitLifecycleEvent src/oauth.ts ">
+              <h3>emitLifecycleEvent</h3>
+              <p class="muted"><code>src/oauth.ts:444:1</code></p>
               <p class="empty">No description available.</p>
             </article>
             <article class="item" data-search="createPkceOnlyStorage src/oauth.ts ">
               <h3>createPkceOnlyStorage</h3>
-              <p class="muted"><code>src/oauth.ts:337:1</code></p>
+              <p class="muted"><code>src/oauth.ts:456:1</code></p>
               <p class="empty">No description available.</p>
             </article>
             <article class="item" data-search="resolveEnabledProvider src/oauth.ts ">
               <h3>resolveEnabledProvider</h3>
-              <p class="muted"><code>src/oauth.ts:354:1</code></p>
+              <p class="muted"><code>src/oauth.ts:473:1</code></p>
               <p class="empty">No description available.</p>
             </article>
             <article class="item" data-search="normalizeRedirectUri src/oauth.ts ">
               <h3>normalizeRedirectUri</h3>
-              <p class="muted"><code>src/oauth.ts:373:1</code></p>
+              <p class="muted"><code>src/oauth.ts:492:1</code></p>
               <p class="empty">No description available.</p>
             </article>
             <article class="item" data-search="normalizeQueryParams src/oauth.ts ">
               <h3>normalizeQueryParams</h3>
-              <p class="muted"><code>src/oauth.ts:415:1</code></p>
+              <p class="muted"><code>src/oauth.ts:534:1</code></p>
               <p class="empty">No description available.</p>
             </article>
             <article class="item" data-search="normalizeScopes src/oauth.ts ">
               <h3>normalizeScopes</h3>
-              <p class="muted"><code>src/oauth.ts:439:1</code></p>
+              <p class="muted"><code>src/oauth.ts:558:1</code></p>
               <p class="empty">No description available.</p>
             </article>
             <article class="item" data-search="parseCallback src/oauth.ts ">
               <h3>parseCallback</h3>
-              <p class="muted"><code>src/oauth.ts:447:1</code></p>
+              <p class="muted"><code>src/oauth.ts:566:1</code></p>
               <p class="empty">No description available.</p>
             </article>
             <article class="item" data-search="invalidCallback src/oauth.ts ">
               <h3>invalidCallback</h3>
-              <p class="muted"><code>src/oauth.ts:517:1</code></p>
+              <p class="muted"><code>src/oauth.ts:636:1</code></p>
               <p class="empty">No description available.</p>
             </article>
             <article class="item" data-search="sameCallbackLocation src/oauth.ts ">
               <h3>sameCallbackLocation</h3>
-              <p class="muted"><code>src/oauth.ts:527:1</code></p>
+              <p class="muted"><code>src/oauth.ts:646:1</code></p>
               <p class="empty">No description available.</p>
             </article>
             <article class="item" data-search="isLocalhost src/oauth.ts ">
               <h3>isLocalhost</h3>
-              <p class="muted"><code>src/oauth.ts:537:1</code></p>
+              <p class="muted"><code>src/oauth.ts:656:1</code></p>
               <p class="empty">No description available.</p>
             </article>
             <article class="item" data-search="createAttemptId src/oauth.ts ">
               <h3>createAttemptId</h3>
-              <p class="muted"><code>src/oauth.ts:541:1</code></p>
+              <p class="muted"><code>src/oauth.ts:660:1</code></p>
               <p class="empty">No description available.</p>
             </article>
             <article class="item" data-search="readAttempt src/oauth.ts ">
               <h3>readAttempt</h3>
-              <p class="muted"><code>src/oauth.ts:548:1</code></p>
+              <p class="muted"><code>src/oauth.ts:667:1</code></p>
               <p class="empty">No description available.</p>
             </article>
             <article class="item" data-search="writeAttempt src/oauth.ts ">
               <h3>writeAttempt</h3>
-              <p class="muted"><code>src/oauth.ts:562:1</code></p>
+              <p class="muted"><code>src/oauth.ts:681:1</code></p>
               <p class="empty">No description available.</p>
             </article>
             <article class="item" data-search="completeAttempt src/oauth.ts ">
               <h3>completeAttempt</h3>
-              <p class="muted"><code>src/oauth.ts:570:1</code></p>
+              <p class="muted"><code>src/oauth.ts:689:1</code></p>
               <p class="empty">No description available.</p>
             </article>
             <article class="item" data-search="safeRemove src/oauth.ts ">
               <h3>safeRemove</h3>
-              <p class="muted"><code>src/oauth.ts:582:1</code></p>
+              <p class="muted"><code>src/oauth.ts:701:1</code></p>
               <p class="empty">No description available.</p>
             </article>
             <article class="item" data-search="isStoredAttempt src/oauth.ts ">
               <h3>isStoredAttempt</h3>
-              <p class="muted"><code>src/oauth.ts:590:1</code></p>
+              <p class="muted"><code>src/oauth.ts:709:1</code></p>
               <p class="empty">No description available.</p>
             </article>
             <article class="item" data-search="mapSupabaseOAuthError src/oauth.ts ">
               <h3>mapSupabaseOAuthError</h3>
-              <p class="muted"><code>src/oauth.ts:601:1</code></p>
+              <p class="muted"><code>src/oauth.ts:720:1</code></p>
               <p class="empty">No description available.</p>
             </article>
             <article class="item" data-search="oauthStartError src/oauth.ts ">
               <h3>oauthStartError</h3>
-              <p class="muted"><code>src/oauth.ts:697:1</code></p>
+              <p class="muted"><code>src/oauth.ts:816:1</code></p>
               <p class="empty">No description available.</p>
             </article>
             <article class="item" data-search="oauthCompletionError src/oauth.ts ">
               <h3>oauthCompletionError</h3>
-              <p class="muted"><code>src/oauth.ts:709:1</code></p>
+              <p class="muted"><code>src/oauth.ts:828:1</code></p>
               <p class="empty">No description available.</p>
             </article>
             <article class="item" data-search="createOAuthError src/oauth.ts ">
               <h3>createOAuthError</h3>
-              <p class="muted"><code>src/oauth.ts:723:1</code></p>
+              <p class="muted"><code>src/oauth.ts:842:1</code></p>
               <p class="empty">No description available.</p>
             </article>
             <article class="item" data-search="readString src/oauth.ts ">
               <h3>readString</h3>
-              <p class="muted"><code>src/oauth.ts:735:1</code></p>
+              <p class="muted"><code>src/oauth.ts:854:1</code></p>
               <p class="empty">No description available.</p>
             </article>
             <article class="item" data-search="isRecord src/oauth.ts ">
               <h3>isRecord</h3>
-              <p class="muted"><code>src/oauth.ts:739:1</code></p>
+              <p class="muted"><code>src/oauth.ts:858:1</code></p>
               <p class="empty">No description available.</p>
             </article>
           </section>
@@ -1653,6 +2238,75 @@ sequenceDiagram
             </article>
           </section>
         </section>
+        <section
+          id="view-src-profileverification-ts"
+          class="view"
+          data-view="src/profileVerification.ts"
+          hidden
+        >
+          <section class="panel">
+            <h2>src/profileVerification.ts</h2>
+            <article
+              class="item"
+              data-search="createSupabaseOAuthProfileVerifier src/profileVerification.ts "
+            >
+              <h3>createSupabaseOAuthProfileVerifier</h3>
+              <p class="muted"><code>src/profileVerification.ts:30:1</code></p>
+              <p class="empty">No description available.</p>
+            </article>
+            <article
+              class="item"
+              data-search="verifySupabaseOAuthProfile src/profileVerification.ts "
+            >
+              <h3>verifySupabaseOAuthProfile</h3>
+              <p class="muted"><code>src/profileVerification.ts:49:1</code></p>
+              <p class="empty">No description available.</p>
+            </article>
+            <article
+              class="item"
+              data-search="normalizeSupabaseAuthProfileVerificationConfig src/profileVerification.ts "
+            >
+              <h3>normalizeSupabaseAuthProfileVerificationConfig</h3>
+              <p class="muted"><code>src/profileVerification.ts:132:1</code></p>
+              <p class="empty">No description available.</p>
+            </article>
+            <article class="item" data-search="createProfileEndpoint src/profileVerification.ts ">
+              <h3>createProfileEndpoint</h3>
+              <p class="muted"><code>src/profileVerification.ts:166:1</code></p>
+              <p class="empty">No description available.</p>
+            </article>
+            <article class="item" data-search="validateProfileRow src/profileVerification.ts ">
+              <h3>validateProfileRow</h3>
+              <p class="muted"><code>src/profileVerification.ts:179:1</code></p>
+              <p class="empty">No description available.</p>
+            </article>
+            <article class="item" data-search="getExpectedProfileValue src/profileVerification.ts ">
+              <h3>getExpectedProfileValue</h3>
+              <p class="muted"><code>src/profileVerification.ts:205:1</code></p>
+              <p class="empty">No description available.</p>
+            </article>
+            <article class="item" data-search="uniqueProfileFields src/profileVerification.ts ">
+              <h3>uniqueProfileFields</h3>
+              <p class="muted"><code>src/profileVerification.ts:223:1</code></p>
+              <p class="empty">No description available.</p>
+            </article>
+            <article class="item" data-search="normalizeIntegerOption src/profileVerification.ts ">
+              <h3>normalizeIntegerOption</h3>
+              <p class="muted"><code>src/profileVerification.ts:239:1</code></p>
+              <p class="empty">No description available.</p>
+            </article>
+            <article class="item" data-search="delay src/profileVerification.ts ">
+              <h3>delay</h3>
+              <p class="muted"><code>src/profileVerification.ts:255:1</code></p>
+              <p class="empty">No description available.</p>
+            </article>
+            <article class="item" data-search="isRecord src/profileVerification.ts ">
+              <h3>isRecord</h3>
+              <p class="muted"><code>src/profileVerification.ts:262:1</code></p>
+              <p class="empty">No description available.</p>
+            </article>
+          </section>
+        </section>
         <section id="view-src-session-ts" class="view" data-view="src/session.ts" hidden>
           <section class="panel">
             <h2>src/session.ts</h2>
@@ -1673,42 +2327,52 @@ sequenceDiagram
             </article>
             <article class="item" data-search="parseStoredSession src/session.ts ">
               <h3>parseStoredSession</h3>
-              <p class="muted"><code>src/session.ts:49:1</code></p>
+              <p class="muted"><code>src/session.ts:62:1</code></p>
+              <p class="empty">No description available.</p>
+            </article>
+            <article class="item" data-search="isAuthSessionExpired src/session.ts ">
+              <h3>isAuthSessionExpired</h3>
+              <p class="muted"><code>src/session.ts:78:1</code></p>
               <p class="empty">No description available.</p>
             </article>
             <article class="item" data-search="normalizeStoredExpiresAt src/session.ts ">
               <h3>normalizeStoredExpiresAt</h3>
-              <p class="muted"><code>src/session.ts:65:1</code></p>
+              <p class="muted"><code>src/session.ts:86:1</code></p>
               <p class="empty">No description available.</p>
             </article>
             <article class="item" data-search="normalizeExpiresAt src/session.ts ">
               <h3>normalizeExpiresAt</h3>
-              <p class="muted"><code>src/session.ts:68:1</code></p>
+              <p class="muted"><code>src/session.ts:90:1</code></p>
               <p class="empty">No description available.</p>
             </article>
             <article class="item" data-search="mergeMetadata src/session.ts ">
               <h3>mergeMetadata</h3>
-              <p class="muted"><code>src/session.ts:79:1</code></p>
+              <p class="muted"><code>src/session.ts:102:1</code></p>
+              <p class="empty">No description available.</p>
+            </article>
+            <article class="item" data-search="metadataString src/session.ts ">
+              <h3>metadataString</h3>
+              <p class="muted"><code>src/session.ts:108:1</code></p>
               <p class="empty">No description available.</p>
             </article>
             <article class="item" data-search="isAuthSession src/session.ts ">
               <h3>isAuthSession</h3>
-              <p class="muted"><code>src/session.ts:84:1</code></p>
+              <p class="muted"><code>src/session.ts:120:1</code></p>
               <p class="empty">No description available.</p>
             </article>
             <article class="item" data-search="stringValue src/session.ts ">
               <h3>stringValue</h3>
-              <p class="muted"><code>src/session.ts:92:1</code></p>
+              <p class="muted"><code>src/session.ts:129:1</code></p>
               <p class="empty">No description available.</p>
             </article>
             <article class="item" data-search="numberValue src/session.ts ">
               <h3>numberValue</h3>
-              <p class="muted"><code>src/session.ts:95:1</code></p>
+              <p class="muted"><code>src/session.ts:133:1</code></p>
               <p class="empty">No description available.</p>
             </article>
             <article class="item" data-search="isRecord src/session.ts ">
               <h3>isRecord</h3>
-              <p class="muted"><code>src/session.ts:103:1</code></p>
+              <p class="muted"><code>src/session.ts:142:1</code></p>
               <p class="empty">No description available.</p>
             </article>
           </section>

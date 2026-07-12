@@ -1,5 +1,11 @@
 # @ankhorage/supabase-auth
 
+## 1.0.0
+
+### Major Changes
+
+- 19649d8: Replace the manual URL-only OAuth adapter with the canonical Supabase client PKCE start and callback-completion runtime, including persistent authorization attempts, exactly-once code exchange, typed failures, and canonical session persistence.
+
 ## 0.4.0
 
 ### Minor Changes

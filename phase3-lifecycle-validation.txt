@@ -3,18 +3,25 @@ $ ankhorage-eslint . --max-warnings=0
 $ bun test src
 bun test v1.3.13 (bf2e2cec)
 
+::group::src/profileVerification.test.ts:
+(pass) Supabase OAuth profile verification > normalizes one safe app-owned profile verification model
+(pass) Supabase OAuth profile verification > retries trigger visibility and verifies exactly one matching profile row [1.00ms]
+(pass) Supabase OAuth profile verification > returns safe failures for missing, duplicate, and mismatched profile rows [1.00ms]
+
+::endgroup::
+
 ::group::src/createSupabaseAuthAdapter.test.ts:
-(pass) createSupabaseAuthAdapter > validates required config [1.00ms]
+(pass) createSupabaseAuthAdapter > validates required config
 (pass) createSupabaseAuthAdapter > returns an AuthAdapter-compatible object
-(pass) createSupabaseAuthAdapter > normalizes a successful email and password sign-in response [2.00ms]
-(pass) createSupabaseAuthAdapter > normalizes failed sign-in provider errors
-(pass) createSupabaseAuthAdapter > normalizes a sign-up response with a session [1.00ms]
+(pass) createSupabaseAuthAdapter > normalizes a successful email and password sign-in response [1.00ms]
+(pass) createSupabaseAuthAdapter > normalizes failed sign-in provider errors [1.00ms]
+(pass) createSupabaseAuthAdapter > normalizes a sign-up response with a session
 (pass) createSupabaseAuthAdapter > normalizes a sign-up response with a user only
 (pass) createSupabaseAuthAdapter > requests an email password reset [1.00ms]
 (pass) createSupabaseAuthAdapter > verifies an email OTP and persists the session
 (pass) createSupabaseAuthAdapter > refreshes a stored session [1.00ms]
 (pass) createSupabaseAuthAdapter > returns a missing refresh token error
-(pass) createSupabaseAuthAdapter > reads and removes storage-backed sessions [1.00ms]
+(pass) createSupabaseAuthAdapter > reads and removes storage-backed sessions
 
 ::endgroup::
 
@@ -31,13 +38,13 @@ bun test v1.3.13 (bf2e2cec)
 (pass) canonical OAuth PKCE adapter > requires persistent storage when OAuth is enabled
 (pass) canonical OAuth PKCE adapter > starts with the Supabase client PKCE flow and completes exactly once [14.00ms]
 (pass) canonical OAuth PKCE adapter > rejects disabled providers and unsafe redirects [1.00ms]
-(pass) canonical OAuth PKCE adapter > models browser and provider cancellation without exchanging a code [2.00ms]
-(pass) canonical OAuth PKCE adapter > uses only the Supabase client OAuth APIs and removes the manual legacy surface [1.00ms]
+(pass) canonical OAuth PKCE adapter > models browser and provider cancellation without exchanging a code [3.00ms]
+(pass) canonical OAuth PKCE adapter > uses only the Supabase client OAuth APIs and removes the manual legacy surface
 
 ::endgroup::
 
- 21 pass
+ 24 pass
  0 fail
- 63 expect() calls
-Ran 21 tests across 3 files. [97.00ms]
+ 79 expect() calls
+Ran 24 tests across 4 files. [93.00ms]
 $ bun x tsc --noEmit -p tsconfig.json

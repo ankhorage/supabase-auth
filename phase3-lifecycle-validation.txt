@@ -5,7 +5,7 @@ bun test v1.3.13 (bf2e2cec)
 
 ::group::src/profileVerification.test.ts:
 (pass) Supabase OAuth profile verification > normalizes one safe app-owned profile verification model [1.00ms]
-(pass) Supabase OAuth profile verification > retries trigger visibility and verifies exactly one matching profile row [1.00ms]
+(pass) Supabase OAuth profile verification > retries trigger visibility and verifies exactly one matching profile row [2.00ms]
 (pass) Supabase OAuth profile verification > returns safe failures for missing, duplicate, and mismatched profile rows
 
 ::endgroup::
@@ -13,11 +13,11 @@ bun test v1.3.13 (bf2e2cec)
 ::group::src/createSupabaseAuthAdapter.test.ts:
 (pass) createSupabaseAuthAdapter > validates required config
 (pass) createSupabaseAuthAdapter > returns an AuthAdapter-compatible object [1.00ms]
-(pass) createSupabaseAuthAdapter > normalizes a successful email and password sign-in response [1.00ms]
-(pass) createSupabaseAuthAdapter > normalizes failed sign-in provider errors
-(pass) createSupabaseAuthAdapter > normalizes a sign-up response with a session [1.00ms]
+(pass) createSupabaseAuthAdapter > normalizes a successful email and password sign-in response [3.00ms]
+(pass) createSupabaseAuthAdapter > normalizes failed sign-in provider errors [1.00ms]
+(pass) createSupabaseAuthAdapter > normalizes a sign-up response with a session
 (pass) createSupabaseAuthAdapter > normalizes a sign-up response with a user only
-(pass) createSupabaseAuthAdapter > requests an email password reset
+(pass) createSupabaseAuthAdapter > requests an email password reset [1.00ms]
 (pass) createSupabaseAuthAdapter > verifies an email OTP and persists the session
 (pass) createSupabaseAuthAdapter > refreshes a stored session [1.00ms]
 (pass) createSupabaseAuthAdapter > returns a missing refresh token error
@@ -39,7 +39,7 @@ bun test v1.3.13 (bf2e2cec)
 (pass) complete OAuth account lifecycle > removes an expired persisted session before returning it
 (pass) complete OAuth account lifecycle > clears an invalid refresh session and still clears local state after remote logout failure [1.00ms]
 (pass) complete OAuth account lifecycle > verifies the generated profile and emits metadata-only correlated lifecycle events [11.00ms]
-(pass) complete OAuth account lifecycle > returns a recoverable profile error while retaining the exchanged session for recovery [2.00ms]
+(pass) complete OAuth account lifecycle > returns a recoverable profile error while retaining the exchanged session for recovery [5.00ms]
 249 |     expect(JSON.stringify({ completed, events })).not.toContain(ACCESS_TOKEN);
 250 |     expect(JSON.stringify({ completed, events })).not.toContain(CALLBACK_CODE);
 251 |   });
@@ -59,8 +59,8 @@ error: ENOENT: no such file or directory, open '/home/runner/work/supabase-auth/
 (pass) canonical OAuth PKCE adapter > requires persistent storage when OAuth is enabled
 (pass) canonical OAuth PKCE adapter > starts with the Supabase client PKCE flow and completes exactly once [1.00ms]
 (pass) canonical OAuth PKCE adapter > rejects disabled providers and unsafe redirects [1.00ms]
-(pass) canonical OAuth PKCE adapter > models browser and provider cancellation without exchanging a code [1.00ms]
-(pass) canonical OAuth PKCE adapter > uses only the Supabase client OAuth APIs and removes the manual legacy surface
+(pass) canonical OAuth PKCE adapter > models browser and provider cancellation without exchanging a code [2.00ms]
+(pass) canonical OAuth PKCE adapter > uses only the Supabase client OAuth APIs and removes the manual legacy surface [1.00ms]
 
 ::endgroup::
 
@@ -70,6 +70,6 @@ error: ENOENT: no such file or directory, open '/home/runner/work/supabase-auth/
  29 pass
  1 fail
  107 expect() calls
-Ran 30 tests across 5 files. [93.00ms]
+Ran 30 tests across 5 files. [108.00ms]
 error: script "test" exited with code 1
 $ bun x tsc --noEmit -p tsconfig.json

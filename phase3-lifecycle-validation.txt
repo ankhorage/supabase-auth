@@ -4,14 +4,14 @@ $ bun test src
 bun test v1.3.13 (bf2e2cec)
 
 ::group::src/profileVerification.test.ts:
-(pass) Supabase OAuth profile verification > normalizes one safe app-owned profile verification model
-(pass) Supabase OAuth profile verification > retries trigger visibility and verifies exactly one matching profile row [2.00ms]
+(pass) Supabase OAuth profile verification > normalizes one safe app-owned profile verification model [1.00ms]
+(pass) Supabase OAuth profile verification > retries trigger visibility and verifies exactly one matching profile row [1.00ms]
 (pass) Supabase OAuth profile verification > returns safe failures for missing, duplicate, and mismatched profile rows
 
 ::endgroup::
 
 ::group::src/createSupabaseAuthAdapter.test.ts:
-(pass) createSupabaseAuthAdapter > validates required config
+(pass) createSupabaseAuthAdapter > validates required config [1.00ms]
 (pass) createSupabaseAuthAdapter > returns an AuthAdapter-compatible object
 (pass) createSupabaseAuthAdapter > normalizes a successful email and password sign-in response [2.00ms]
 (pass) createSupabaseAuthAdapter > normalizes failed sign-in provider errors
@@ -21,7 +21,7 @@ bun test v1.3.13 (bf2e2cec)
 (pass) createSupabaseAuthAdapter > verifies an email OTP and persists the session
 (pass) createSupabaseAuthAdapter > refreshes a stored session [1.00ms]
 (pass) createSupabaseAuthAdapter > returns a missing refresh token error
-(pass) createSupabaseAuthAdapter > reads and removes storage-backed sessions
+(pass) createSupabaseAuthAdapter > reads and removes storage-backed sessions [1.00ms]
 
 ::endgroup::
 
@@ -38,38 +38,23 @@ bun test v1.3.13 (bf2e2cec)
 (pass) complete OAuth account lifecycle > normalizes Google and Apple provider metadata into the canonical AuthUser fields
 (pass) complete OAuth account lifecycle > removes an expired persisted session before returning it
 (pass) complete OAuth account lifecycle > clears an invalid refresh session and still clears local state after remote logout failure
-(pass) complete OAuth account lifecycle > verifies the generated profile and emits metadata-only correlated lifecycle events [9.00ms]
-(pass) complete OAuth account lifecycle > returns a recoverable profile error while retaining the exchanged session for recovery [3.00ms]
-249 |     expect(JSON.stringify({ completed, events })).not.toContain(ACCESS_TOKEN);
-250 |     expect(JSON.stringify({ completed, events })).not.toContain(CALLBACK_CODE);
-251 |   });
-252 | 
-253 |   it('documents one authoritative collision policy without custom account reassignment', () => {
-254 |     const policy = readFileSync(
-                         ^
-error: ENOENT: no such file or directory, open '/home/runner/work/supabase-auth/supabase-auth/docs/oauth-account-lifecycle.md'
-      at <anonymous> (/home/runner/work/supabase-auth/supabase-auth/src/accountLifecycle.test.ts:254:20)
-
-::error file=src/accountLifecycle.test.ts,line=254,col=20,title=error: ENOENT: no such file or directory, open '/home/runner/work/supabase-auth/supabase-auth/docs/oauth-account-lifecycle.md'::%0A      at <anonymous> (/home/runner/work/supabase-auth/supabase-auth/src/accountLifecycle.test.ts:254:20)
-(fail) complete OAuth account lifecycle > documents one authoritative collision policy without custom account reassignment
+(pass) complete OAuth account lifecycle > verifies the generated profile and emits metadata-only correlated lifecycle events [13.00ms]
+(pass) complete OAuth account lifecycle > returns a recoverable profile error while retaining the exchanged session for recovery [2.00ms]
+(pass) complete OAuth account lifecycle > documents one authoritative collision policy without custom account reassignment
 
 ::endgroup::
 
 ::group::src/oauth.test.ts:
-(pass) canonical OAuth PKCE adapter > requires persistent storage when OAuth is enabled
+(pass) canonical OAuth PKCE adapter > requires persistent storage when OAuth is enabled [1.00ms]
 (pass) canonical OAuth PKCE adapter > starts with the Supabase client PKCE flow and completes exactly once [2.00ms]
 (pass) canonical OAuth PKCE adapter > rejects disabled providers and unsafe redirects
-(pass) canonical OAuth PKCE adapter > models browser and provider cancellation without exchanging a code [1.00ms]
+(pass) canonical OAuth PKCE adapter > models browser and provider cancellation without exchanging a code [2.00ms]
 (pass) canonical OAuth PKCE adapter > uses only the Supabase client OAuth APIs and removes the manual legacy surface
 
 ::endgroup::
 
-1 tests failed:
-(fail) complete OAuth account lifecycle > documents one authoritative collision policy without custom account reassignment
-
- 29 pass
- 1 fail
- 107 expect() calls
-Ran 30 tests across 5 files. [80.00ms]
-error: script "test" exited with code 1
+ 30 pass
+ 0 fail
+ 112 expect() calls
+Ran 30 tests across 5 files. [100.00ms]
 $ bun x tsc --noEmit -p tsconfig.json

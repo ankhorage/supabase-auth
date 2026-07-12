@@ -152,7 +152,7 @@ export function createSupabaseAuthAdapter(config: SupabaseAuthConfig): AuthAdapt
           providers: normalizedConfig.oauthProviders,
           persistSession: async (session) => {
             const error = await persistSessionSafely(session);
-            if (error !== null) throw error;
+            if (error !== null) throw new Error(error.message);
           },
           ...(profileVerifier === undefined ? {} : { verifyProfile: profileVerifier }),
           ...(normalizedConfig.onOAuthLifecycleEvent === undefined

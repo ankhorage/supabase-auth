@@ -1,33 +1,25 @@
 $ rm -rf dist tsconfig.tsbuildinfo && bun x tsc -p tsconfig.json
 $ ankhorage-eslint . --max-warnings=0
-
-/home/runner/work/supabase-auth/supabase-auth/src/profileVerification.ts
-  1:1  error  Run autofix to sort these imports!  simple-import-sort/imports
-
-✖ 1 problem (1 error, 0 warnings)
-  1 error and 0 warnings potentially fixable with the `--fix` option.
-
-error: script "lint" exited with code 1
 $ bun test src
 bun test v1.3.13 (bf2e2cec)
 
 ::group::src/createSupabaseAuthAdapter.test.ts:
 (pass) createSupabaseAuthAdapter > validates required config [1.00ms]
 (pass) createSupabaseAuthAdapter > returns an AuthAdapter-compatible object
-(pass) createSupabaseAuthAdapter > normalizes a successful email and password sign-in response [1.00ms]
-(pass) createSupabaseAuthAdapter > normalizes failed sign-in provider errors [1.00ms]
-(pass) createSupabaseAuthAdapter > normalizes a sign-up response with a session
+(pass) createSupabaseAuthAdapter > normalizes a successful email and password sign-in response [2.00ms]
+(pass) createSupabaseAuthAdapter > normalizes failed sign-in provider errors
+(pass) createSupabaseAuthAdapter > normalizes a sign-up response with a session [1.00ms]
 (pass) createSupabaseAuthAdapter > normalizes a sign-up response with a user only
 (pass) createSupabaseAuthAdapter > requests an email password reset [1.00ms]
 (pass) createSupabaseAuthAdapter > verifies an email OTP and persists the session
 (pass) createSupabaseAuthAdapter > refreshes a stored session [1.00ms]
 (pass) createSupabaseAuthAdapter > returns a missing refresh token error
-(pass) createSupabaseAuthAdapter > reads and removes storage-backed sessions
+(pass) createSupabaseAuthAdapter > reads and removes storage-backed sessions [1.00ms]
 
 ::endgroup::
 
 ::group::src/oauthProviderDefinitions.test.ts:
-(pass) Supabase OAuth provider definitions > defines Google and Apple from one registry
+(pass) Supabase OAuth provider definitions > defines Google and Apple from one registry [1.00ms]
 (pass) Supabase OAuth provider definitions > validates required secret fields without echoing values
 (pass) Supabase OAuth provider definitions > materializes official GoTrue Google environment names
 (pass) Supabase OAuth provider definitions > materializes official GoTrue Apple environment names
@@ -37,7 +29,7 @@ bun test v1.3.13 (bf2e2cec)
 
 ::group::src/oauth.test.ts:
 (pass) canonical OAuth PKCE adapter > requires persistent storage when OAuth is enabled
-(pass) canonical OAuth PKCE adapter > starts with the Supabase client PKCE flow and completes exactly once [11.00ms]
+(pass) canonical OAuth PKCE adapter > starts with the Supabase client PKCE flow and completes exactly once [14.00ms]
 (pass) canonical OAuth PKCE adapter > rejects disabled providers and unsafe redirects [1.00ms]
 (pass) canonical OAuth PKCE adapter > models browser and provider cancellation without exchanging a code [2.00ms]
 (pass) canonical OAuth PKCE adapter > uses only the Supabase client OAuth APIs and removes the manual legacy surface [1.00ms]
@@ -47,5 +39,5 @@ bun test v1.3.13 (bf2e2cec)
  21 pass
  0 fail
  63 expect() calls
-Ran 21 tests across 3 files. [83.00ms]
+Ran 21 tests across 3 files. [97.00ms]
 $ bun x tsc --noEmit -p tsconfig.json

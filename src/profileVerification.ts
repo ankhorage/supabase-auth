@@ -4,8 +4,8 @@ import type {
   SupabaseAuthFetch,
   SupabaseAuthProfileField,
   SupabaseAuthProfileVerificationConfig,
-  SupabaseOAuthProfileVerifier,
   SupabaseOAuthProfileVerificationResult,
+  SupabaseOAuthProfileVerifier,
 } from './types.js';
 import { SUPABASE_AUTH_PROFILE_FIELDS } from './types.js';
 

@@ -39,9 +39,7 @@ export interface SupabaseOAuthProfileVerificationInput {
   session: AuthSession;
 }
 
-export type SupabaseOAuthProfileVerificationResult =
-  | { ok: true }
-  | { ok: false; message: string };
+export type SupabaseOAuthProfileVerificationResult = { ok: true } | { ok: false; message: string };
 
 export type SupabaseOAuthProfileVerifier = (
   input: SupabaseOAuthProfileVerificationInput,

@@ -5,10 +5,7 @@ import { describe, expect, it } from 'bun:test';
 
 import { createSupabaseAuthAdapter } from './createSupabaseAuthAdapter.js';
 import { normalizeSupabaseUser } from './session.js';
-import type {
-  SupabaseAuthStorage,
-  SupabaseOAuthLifecycleEvent,
-} from './types.js';
+import type { SupabaseAuthStorage, SupabaseOAuthLifecycleEvent } from './types.js';
 
 const SESSION_STORAGE_KEY = 'ankhorage.supabase-auth.session';
 const ACCESS_TOKEN = 'sentinel-phase3-access-token-do-not-leak';
@@ -104,7 +101,8 @@ describe('complete OAuth account lifecycle', () => {
       url: 'https://example.supabase.co',
       anonKey: 'anon',
       storage: failedLogout.storage,
-      fetch: () => Promise.resolve(jsonResponse({ message: 'provider unavailable' }, { status: 503 })),
+      fetch: () =>
+        Promise.resolve(jsonResponse({ message: 'provider unavailable' }, { status: 503 })),
     });
 
     expect(await logoutAdapter.signOut()).toMatchObject({

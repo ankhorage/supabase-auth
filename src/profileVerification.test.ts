@@ -32,12 +32,12 @@ describe('Supabase OAuth profile verification', () => {
       retryDelayMs: 0,
     });
 
-    expect(() =>
-      normalizeSupabaseAuthProfileVerificationConfig({ table: 'users' }),
-    ).toThrow('not public.users');
-    expect(() =>
-      normalizeSupabaseAuthProfileVerificationConfig({ table: 'Profile-Rows' }),
-    ).toThrow('snake_case');
+    expect(() => normalizeSupabaseAuthProfileVerificationConfig({ table: 'users' })).toThrow(
+      'not public.users',
+    );
+    expect(() => normalizeSupabaseAuthProfileVerificationConfig({ table: 'Profile-Rows' })).toThrow(
+      'snake_case',
+    );
     expect(() =>
       normalizeSupabaseAuthProfileVerificationConfig({
         table: 'profiles',
@@ -47,7 +47,7 @@ describe('Supabase OAuth profile verification', () => {
   });
 
   it('retries trigger visibility and verifies exactly one matching profile row', async () => {
-    const calls: Array<{ url: string; headers: Headers }> = [];
+    const calls: { url: string; headers: Headers }[] = [];
     const responses = [
       jsonResponse([]),
       jsonResponse([
@@ -137,7 +137,7 @@ describe('Supabase OAuth profile verification', () => {
 
 function createFetch(
   responses: Response[],
-  calls: Array<{ url: string; headers: Headers }> = [],
+  calls: { url: string; headers: Headers }[] = [],
 ): typeof fetch {
   return (input, init) => {
     calls.push({

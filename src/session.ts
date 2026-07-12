@@ -120,7 +120,10 @@ function metadataString(
 function isAuthSession(value: unknown): value is AuthSession {
   if (!isRecord(value) || stringValue(value.accessToken) === undefined) return false;
   if (!isRecord(value.user) || stringValue(value.user.id) === undefined) return false;
-  return value.expiresAt === undefined || numberValue(value.expiresAt) !== undefined;
+  return (
+    value.expiresAt === undefined ||
+    (typeof value.expiresAt === 'number' && Number.isFinite(value.expiresAt))
+  );
 }
 
 function stringValue(value: unknown): string | undefined {

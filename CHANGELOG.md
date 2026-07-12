@@ -1,5 +1,11 @@
 # @ankhorage/supabase-auth
 
+## 1.1.0
+
+### Minor Changes
+
+- 45e6069: Complete the OAuth account lifecycle with canonical Google and Apple metadata normalization, expired-session cleanup, local sign-out hardening, optional generated-profile verification, metadata-only lifecycle observation, complete PKCE cleanup, and the documented identity-collision policy.
+
 ## 1.0.0
 
 ### Major Changes

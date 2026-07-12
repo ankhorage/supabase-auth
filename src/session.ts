@@ -72,9 +72,7 @@ function normalizeExpiresAt(
 ): number | undefined {
   const directExpiresAt = numberValue(expiresAt);
   if (directExpiresAt !== undefined)
-    return directExpiresAt < 10_000_000_000
-      ? directExpiresAt * 1000
-      : directExpiresAt;
+    return directExpiresAt < 10_000_000_000 ? directExpiresAt * 1000 : directExpiresAt;
   const ttl = numberValue(expiresIn);
   return ttl === undefined ? undefined : now + ttl * 1000;
 }

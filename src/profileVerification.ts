@@ -20,7 +20,7 @@ const PROFILE_COLUMN_BY_FIELD = {
   phone: 'phone',
 } as const satisfies Record<SupabaseAuthProfileField, string>;
 
-export interface NormalizedSupabaseAuthProfileVerificationConfig {
+interface NormalizedSupabaseAuthProfileVerificationConfig {
   table: string;
   fields: SupabaseAuthProfileField[];
   maxAttempts: number;

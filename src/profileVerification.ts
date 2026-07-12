@@ -20,7 +20,7 @@ const PROFILE_COLUMN_BY_FIELD = {
   phone: 'phone',
 } as const satisfies Record<SupabaseAuthProfileField, string>;
 
-interface NormalizedProfileVerificationConfig {
+export interface NormalizedSupabaseAuthProfileVerificationConfig {
   table: string;
   fields: SupabaseAuthProfileField[];
   maxAttempts: number;
@@ -131,7 +131,7 @@ export async function verifySupabaseOAuthProfile(input: {
 
 export function normalizeSupabaseAuthProfileVerificationConfig(
   config: SupabaseAuthProfileVerificationConfig,
-): NormalizedProfileVerificationConfig {
+): NormalizedSupabaseAuthProfileVerificationConfig {
   const table = config.table.trim();
   if (table === 'users') {
     throw new TypeError(
@@ -165,14 +165,11 @@ export function normalizeSupabaseAuthProfileVerificationConfig(
 
 function createProfileEndpoint(
   baseUrl: string,
-  config: NormalizedProfileVerificationConfig,
+  config: NormalizedSupabaseAuthProfileVerificationConfig,
   userId: string,
 ): string {
   const url = new URL(`${baseUrl.replace(/\/+$/, '')}/rest/v1/${config.table}`);
-  const columns = [
-    'id',
-    ...config.fields.map((field) => PROFILE_COLUMN_BY_FIELD[field]),
-  ];
+  const columns = ['id', ...config.fields.map((field) => PROFILE_COLUMN_BY_FIELD[field])];
   url.searchParams.set('id', `eq.${userId}`);
   url.searchParams.set('select', [...new Set(columns)].join(','));
   url.searchParams.set('limit', '2');

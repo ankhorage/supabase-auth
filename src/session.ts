@@ -31,17 +31,30 @@ export function normalizeSupabaseUser(body: unknown): AuthUser | null {
   if (!isRecord(body)) return null;
   const id = stringValue(body.id);
   if (id === undefined) return null;
-  const user: AuthUser = { id };
-  const email = stringValue(body.email);
-  const phone = stringValue(body.phone);
+
   const metadata = mergeMetadata(
     body.user_metadata,
     body.raw_user_meta_data,
     body.app_metadata,
     body.raw_app_meta_data,
   );
+  const user: AuthUser = { id };
+  const email = stringValue(body.email) ?? metadataString(metadata, ['email']);
+  const phone = stringValue(body.phone) ?? metadataString(metadata, ['phone']);
+  const username = metadataString(metadata, ['username', 'user_name', 'preferred_username']);
+  const displayName = metadataString(metadata, [
+    'displayName',
+    'display_name',
+    'full_name',
+    'name',
+  ]);
+  const avatarUrl = metadataString(metadata, ['avatarUrl', 'avatar_url', 'picture']);
+
   if (email !== undefined) user.email = email;
   if (phone !== undefined) user.phone = phone;
+  if (username !== undefined) user.username = username;
+  if (displayName !== undefined) user.displayName = displayName;
+  if (avatarUrl !== undefined) user.avatarUrl = avatarUrl;
   if (metadata !== undefined) user.metadata = metadata;
   return user;
 }
@@ -62,9 +75,18 @@ export function parseStoredSession(value: string | null): AuthSession | null {
   }
 }
 
+export function isAuthSessionExpired(
+  session: AuthSession | null | undefined,
+  now = Date.now(),
+): boolean {
+  const expiresAt = session?.expiresAt;
+  return typeof expiresAt === 'number' && Number.isFinite(expiresAt) && expiresAt <= now;
+}
+
 function normalizeStoredExpiresAt(value: number): number {
   return value < 10_000_000_000 ? value * 1000 : value;
 }
+
 function normalizeExpiresAt(
   expiresAt: unknown,
   expiresIn: unknown,
@@ -76,22 +98,35 @@ function normalizeExpiresAt(
   const ttl = numberValue(expiresIn);
   return ttl === undefined ? undefined : now + ttl * 1000;
 }
+
 function mergeMetadata(...values: unknown[]): Record<string, unknown> | undefined {
   const metadata: Record<string, unknown> = {};
   for (const value of values) if (isRecord(value)) Object.assign(metadata, value);
   return Object.keys(metadata).length > 0 ? metadata : undefined;
 }
-function isAuthSession(value: unknown): value is AuthSession {
-  return (
-    isRecord(value) &&
-    typeof value.accessToken === 'string' &&
-    isRecord(value.user) &&
-    typeof value.user.id === 'string'
-  );
+
+function metadataString(
+  metadata: Record<string, unknown> | undefined,
+  keys: readonly string[],
+): string | undefined {
+  if (metadata === undefined) return undefined;
+  for (const key of keys) {
+    const value = stringValue(metadata[key]);
+    if (value !== undefined) return value;
+  }
+  return undefined;
 }
+
+function isAuthSession(value: unknown): value is AuthSession {
+  if (!isRecord(value) || stringValue(value.accessToken) === undefined) return false;
+  if (!isRecord(value.user) || stringValue(value.user.id) === undefined) return false;
+  return value.expiresAt === undefined || numberValue(value.expiresAt) !== undefined;
+}
+
 function stringValue(value: unknown): string | undefined {
   return typeof value === 'string' && value.length > 0 ? value : undefined;
 }
+
 function numberValue(value: unknown): number | undefined {
   if (typeof value === 'number' && Number.isFinite(value)) return value;
   if (typeof value === 'string') {
@@ -100,6 +135,7 @@ function numberValue(value: unknown): number | undefined {
   }
   return undefined;
 }
+
 function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }

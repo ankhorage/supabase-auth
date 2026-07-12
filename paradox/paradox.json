@@ -147,7 +147,6 @@
       "dependencies": ["src/types.ts"],
       "exports": [
         "createSupabaseOAuthProfileVerifier",
-        "NormalizedSupabaseAuthProfileVerificationConfig",
         "normalizeSupabaseAuthProfileVerificationConfig",
         "verifySupabaseOAuthProfile"
       ]

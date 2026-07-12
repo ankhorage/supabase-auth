@@ -1,5 +1,20 @@
 sequenceDiagram
+  participant participant_createClient as createClient
+  participant participant_createPkceOnlyStorage as createPkceOnlyStorage
   participant participant_createSupabaseAuthAdapter as createSupabaseAuthAdapter
+  participant participant_createSupabaseOAuthAdapter as createSupabaseOAuthAdapter
+  participant participant_isSupabaseOAuthProviderId as isSupabaseOAuthProviderId
+  participant participant_requireOAuthStorage as requireOAuthStorage
   participant participant_validateConfig as validateConfig
   participant_createSupabaseAuthAdapter->>participant_validateConfig: validateConfig()
+  participant_validateConfig->>participant_isSupabaseOAuthProviderId: isSupabaseOAuthProviderId()
+  participant_isSupabaseOAuthProviderId-->>participant_validateConfig: return
   participant_validateConfig-->>participant_createSupabaseAuthAdapter: return
+  participant_createSupabaseAuthAdapter->>participant_createSupabaseOAuthAdapter: createSupabaseOAuthAdapter()
+  participant_createSupabaseOAuthAdapter->>participant_createClient: createClient()
+  participant_createClient-->>participant_createSupabaseOAuthAdapter: return
+  participant_createSupabaseOAuthAdapter->>participant_createPkceOnlyStorage: createPkceOnlyStorage()
+  participant_createPkceOnlyStorage-->>participant_createSupabaseOAuthAdapter: return
+  participant_createSupabaseOAuthAdapter-->>participant_createSupabaseAuthAdapter: return
+  participant_createSupabaseAuthAdapter->>participant_requireOAuthStorage: requireOAuthStorage()
+  participant_requireOAuthStorage-->>participant_createSupabaseAuthAdapter: return

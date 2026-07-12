@@ -4,7 +4,7 @@
 
 Kind: `function`
 Module: `src/createSupabaseAuthAdapter.ts`
-Source: `src/createSupabaseAuthAdapter.ts:22:1`
+Source: `src/createSupabaseAuthAdapter.ts:25:1`
 
 ### Signatures
 
@@ -68,14 +68,14 @@ Source: `src/types.ts:11:1`
 
 ### Members
 
-| Name           | Kind     | Type                                 | Required | Description |
-| -------------- | -------- | ------------------------------------ | -------- | ----------- |
-| anonKey        | property | `string`                             | yes      |             |
-| fetch          | property | `SupabaseAuthFetch \| undefined`     | no       |             |
-| oauthProviders | property | `AuthOAuthProviderId[] \| undefined` | no       |             |
-| storage        | property | `SupabaseAuthStorage \| undefined`   | no       |             |
-| storageKey     | property | `string \| undefined`                | no       |             |
-| url            | property | `string`                             | yes      |             |
+| Name           | Kind     | Type                                          | Required | Description |
+| -------------- | -------- | --------------------------------------------- | -------- | ----------- |
+| anonKey        | property | `string`                                      | yes      |             |
+| fetch          | property | `typeof fetch \| undefined`                   | no       |             |
+| oauthProviders | property | `readonly AuthOAuthProviderId[] \| undefined` | no       |             |
+| storage        | property | `SupabaseAuthStorage \| undefined`            | no       |             |
+| storageKey     | property | `string \| undefined`                         | no       |             |
+| url            | property | `string`                                      | yes      |             |
 
 ## SupabaseAuthErrorCode
 
@@ -158,7 +158,7 @@ Source: `src/oauthProviderDefinitions.ts:7:1`
 
 Kind: `type`
 Module: `src/types.ts`
-Source: `src/types.ts:32:1`
+Source: `src/types.ts:31:1`
 
 ### Members
 

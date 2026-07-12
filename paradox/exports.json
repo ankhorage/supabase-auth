@@ -8,7 +8,7 @@
     "modulePath": "src/createSupabaseAuthAdapter.ts",
     "sourceLocation": {
       "filePath": "src/createSupabaseAuthAdapter.ts",
-      "line": 22,
+      "line": 25,
       "column": 1
     },
     "exportPaths": ["src/index.ts"],
@@ -189,14 +189,14 @@
       {
         "name": "fetch",
         "kind": "property",
-        "type": "SupabaseAuthFetch | undefined",
+        "type": "typeof fetch | undefined",
         "required": false,
         "description": null
       },
       {
         "name": "oauthProviders",
         "kind": "property",
-        "type": "AuthOAuthProviderId[] | undefined",
+        "type": "readonly AuthOAuthProviderId[] | undefined",
         "required": false,
         "description": null
       },
@@ -471,7 +471,7 @@
     "modulePath": "src/types.ts",
     "sourceLocation": {
       "filePath": "src/types.ts",
-      "line": 32,
+      "line": 31,
       "column": 1
     },
     "exportPaths": ["src/index.ts"],

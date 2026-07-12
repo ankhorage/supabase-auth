@@ -1,19 +1,22 @@
 import type {
   AuthAdapter,
   AuthOAuthProviderId,
-  AuthOAuthRedirect,
   AuthResult,
   AuthSession,
   AuthUser,
   PasswordResetInput,
   SignInInput,
-  SignInWithOAuthInput,
   SignOutInput,
   SignUpInput,
   VerifyOtpInput,
 } from '@ankhorage/contracts/auth';
 
 import { createAuthError, mapNetworkError, mapSupabaseError, readResponseBody } from './errors.js';
+import { createSupabaseOAuthAdapter } from './oauth.js';
+import {
+  isSupabaseOAuthProviderId,
+  type SupabaseOAuthProviderId,
+} from './oauthProviderDefinitions.js';
 import { normalizeSupabaseSession, normalizeSupabaseUser, parseStoredSession } from './session.js';
 import type { SupabaseAuthConfig, SupabaseAuthFetch } from './types.js';
 
@@ -32,11 +35,7 @@ export function createSupabaseAuthAdapter(config: SupabaseAuthConfig): AuthAdapt
     } = {},
   ): Promise<Response> => {
     const url = new URL(`${normalizedConfig.url}/auth/v1/${path}`);
-
-    if (options.redirectTo !== undefined) {
-      url.searchParams.set('redirect_to', options.redirectTo);
-    }
-
+    if (options.redirectTo !== undefined) url.searchParams.set('redirect_to', options.redirectTo);
     return normalizedConfig.fetch(url.toString(), {
       method: 'POST',
       headers: createHeaders(normalizedConfig.anonKey, options.accessToken),
@@ -46,43 +45,26 @@ export function createSupabaseAuthAdapter(config: SupabaseAuthConfig): AuthAdapt
 
   const persistSession = async (session: AuthSession | null): Promise<void> => {
     currentSession = session;
-
-    if (normalizedConfig.storage === undefined) {
-      return;
-    }
-
+    if (normalizedConfig.storage === undefined) return;
     if (session === null) {
       await normalizedConfig.storage.removeItem(normalizedConfig.storageKey);
       return;
     }
-
     await normalizedConfig.storage.setItem(normalizedConfig.storageKey, JSON.stringify(session));
   };
 
   const readStoredSession = async (): Promise<AuthSession | null> => {
-    if (currentSession !== null) {
-      return currentSession;
-    }
-
-    if (normalizedConfig.storage === undefined) {
-      return null;
-    }
-
+    if (currentSession !== null) return currentSession;
+    if (normalizedConfig.storage === undefined) return null;
     const stored = await normalizedConfig.storage.getItem(normalizedConfig.storageKey);
     currentSession = parseStoredSession(stored);
-
     return currentSession;
   };
 
   const handleSessionResponse = async (response: Response): Promise<AuthResult<AuthSession>> => {
     const body = await readResponseBody(response);
-
-    if (!response.ok) {
-      return { ok: false, error: mapSupabaseError(response, body) };
-    }
-
+    if (!response.ok) return { ok: false, error: mapSupabaseError(response, body) };
     const session = normalizeSupabaseSession(body);
-
     if (session === null) {
       return {
         ok: false,
@@ -93,11 +75,23 @@ export function createSupabaseAuthAdapter(config: SupabaseAuthConfig): AuthAdapt
         ),
       };
     }
-
     await persistSession(session);
-
     return { ok: true, data: session };
   };
+
+  const oauthStorage = normalizedConfig.storage;
+  const oauth =
+    normalizedConfig.oauthProviders.length === 0
+      ? undefined
+      : createSupabaseOAuthAdapter({
+          url: normalizedConfig.url,
+          anonKey: normalizedConfig.anonKey,
+          fetch: normalizedConfig.fetch,
+          storage: requireOAuthStorage(oauthStorage),
+          storageKey: normalizedConfig.storageKey,
+          providers: normalizedConfig.oauthProviders,
+          persistSession: async (session) => persistSession(session),
+        });
 
   return {
     capabilities: {
@@ -106,31 +100,18 @@ export function createSupabaseAuthAdapter(config: SupabaseAuthConfig): AuthAdapt
       supportsPasswordReset: true,
       supportsOtp: true,
       supportsSessionRefresh: true,
-      supportsOAuth: normalizedConfig.oauthProviders.length > 0,
-      oauthProviders: normalizedConfig.oauthProviders,
     },
+    ...(oauth === undefined ? {} : { oauth }),
 
     async signIn(input: SignInInput): Promise<AuthResult<AuthSession>> {
       const passwordError = validatePassword(input.password);
-
-      if (passwordError !== null) {
-        return { ok: false, error: passwordError };
-      }
-
+      if (passwordError !== null) return { ok: false, error: passwordError };
       const identifier = identifierBody(input.identifier);
-
-      if (!identifier.ok) {
-        return { ok: false, error: identifier.error };
-      }
-
+      if (!identifier.ok) return { ok: false, error: identifier.error };
       try {
         const response = await request('token?grant_type=password', {
-          body: {
-            ...identifier.data,
-            password: input.password,
-          },
+          body: { ...identifier.data, password: input.password },
         });
-
         return await handleSessionResponse(response);
       } catch (error) {
         return { ok: false, error: mapNetworkError(error) };
@@ -139,17 +120,9 @@ export function createSupabaseAuthAdapter(config: SupabaseAuthConfig): AuthAdapt
 
     async signUp(input: SignUpInput): Promise<AuthResult<AuthSession | AuthUser>> {
       const passwordError = validatePassword(input.password);
-
-      if (passwordError !== null) {
-        return { ok: false, error: passwordError };
-      }
-
+      if (passwordError !== null) return { ok: false, error: passwordError };
       const identifier = identifierBody(input.identifier);
-
-      if (!identifier.ok) {
-        return { ok: false, error: identifier.error };
-      }
-
+      if (!identifier.ok) return { ok: false, error: identifier.error };
       try {
         const response = await request('signup', {
           body: {
@@ -160,24 +133,14 @@ export function createSupabaseAuthAdapter(config: SupabaseAuthConfig): AuthAdapt
           redirectTo: input.redirectTo,
         });
         const body = await readResponseBody(response);
-
-        if (!response.ok) {
-          return { ok: false, error: mapSupabaseError(response, body) };
-        }
-
+        if (!response.ok) return { ok: false, error: mapSupabaseError(response, body) };
         const session = normalizeSupabaseSession(body);
-
         if (session !== null) {
           await persistSession(session);
           return { ok: true, data: session };
         }
-
         const user = normalizeSupabaseUser(isRecord(body) && 'user' in body ? body.user : body);
-
-        if (user !== null) {
-          return { ok: true, data: user };
-        }
-
+        if (user !== null) return { ok: true, data: user };
         return {
           ok: false,
           error: createAuthError(
@@ -193,26 +156,21 @@ export function createSupabaseAuthAdapter(config: SupabaseAuthConfig): AuthAdapt
 
     async signOut(input?: SignOutInput): Promise<AuthResult> {
       const session = await readStoredSession();
-
       if (session?.accessToken !== undefined) {
         try {
           const response = await request('logout', {
             accessToken: session.accessToken,
             body: input?.allDevices === true ? { scope: 'global' } : undefined,
           });
-
           if (!response.ok) {
             const body = await readResponseBody(response);
-
             return { ok: false, error: mapSupabaseError(response, body) };
           }
         } catch (error) {
           return { ok: false, error: mapNetworkError(error) };
         }
       }
-
       await persistSession(null);
-
       return { ok: true };
     },
 
@@ -222,21 +180,16 @@ export function createSupabaseAuthAdapter(config: SupabaseAuthConfig): AuthAdapt
 
     async refreshSession(): Promise<AuthResult<AuthSession | null>> {
       const session = await readStoredSession();
-
       if (session?.refreshToken === undefined) {
         return {
           ok: false,
           error: createAuthError('missing_refresh_token', 'No refresh token is available.'),
         };
       }
-
       try {
         const response = await request('token?grant_type=refresh_token', {
-          body: {
-            refresh_token: session.refreshToken,
-          },
+          body: { refresh_token: session.refreshToken },
         });
-
         return await handleSessionResponse(response);
       } catch (error) {
         return { ok: false, error: mapNetworkError(error) };
@@ -253,30 +206,22 @@ export function createSupabaseAuthAdapter(config: SupabaseAuthConfig): AuthAdapt
           ),
         };
       }
-
       const value = input.identifier.value.trim();
-
       if (value.length === 0) {
         return {
           ok: false,
           error: createAuthError('missing_identifier', 'An auth identifier is required.'),
         };
       }
-
       try {
         const response = await request('recover', {
-          body: {
-            email: value,
-          },
+          body: { email: value },
           redirectTo: input.redirectTo,
         });
-
         if (!response.ok) {
           const body = await readResponseBody(response);
-
           return { ok: false, error: mapSupabaseError(response, body) };
         }
-
         return { ok: true };
       } catch (error) {
         return { ok: false, error: mapNetworkError(error) };
@@ -285,20 +230,14 @@ export function createSupabaseAuthAdapter(config: SupabaseAuthConfig): AuthAdapt
 
     async verifyOtp(input: VerifyOtpInput): Promise<AuthResult<AuthSession>> {
       const token = input.token.trim();
-
       if (token.length === 0) {
         return {
           ok: false,
           error: createAuthError('validation_error', 'An OTP token is required.'),
         };
       }
-
       const identifier = identifierBody(input.identifier);
-
-      if (!identifier.ok) {
-        return { ok: false, error: identifier.error };
-      }
-
+      if (!identifier.ok) return { ok: false, error: identifier.error };
       try {
         const response = await request('verify', {
           body: {
@@ -308,46 +247,9 @@ export function createSupabaseAuthAdapter(config: SupabaseAuthConfig): AuthAdapt
           },
           redirectTo: input.redirectTo,
         });
-
         return await handleSessionResponse(response);
       } catch (error) {
         return { ok: false, error: mapNetworkError(error) };
-      }
-    },
-
-    signInWithOAuth(input: SignInWithOAuthInput): Promise<AuthResult<AuthOAuthRedirect>> {
-      const provider = input.provider.trim();
-
-      if (provider.length === 0) {
-        return Promise.resolve({
-          ok: false,
-          error: createAuthError('unsupported_oauth_provider', 'An OAuth provider is required.'),
-        });
-      }
-
-      if (
-        normalizedConfig.oauthProviderSet !== undefined &&
-        !normalizedConfig.oauthProviderSet.has(provider)
-      ) {
-        return Promise.resolve({
-          ok: false,
-          error: createAuthError(
-            'unsupported_oauth_provider',
-            `OAuth provider "${provider}" is not configured for this adapter.`,
-          ),
-        });
-      }
-
-      try {
-        return Promise.resolve({
-          ok: true,
-          data: {
-            provider,
-            url: createOAuthRedirectUrl(normalizedConfig.url, input),
-          },
-        });
-      } catch (error) {
-        return Promise.resolve({ ok: false, error: mapNetworkError(error) });
       }
     },
   };
@@ -356,69 +258,70 @@ export function createSupabaseAuthAdapter(config: SupabaseAuthConfig): AuthAdapt
 function validateConfig(config: SupabaseAuthConfig): RequiredConfig {
   const url = config.url.trim();
   const anonKey = config.anonKey.trim();
-
-  if (url.length === 0) {
-    throw new TypeError('Supabase Auth URL is required.');
-  }
-
+  if (url.length === 0) throw new TypeError('Supabase Auth URL is required.');
   try {
     new URL(url);
   } catch {
     throw new TypeError('Supabase Auth URL must be a valid URL.');
   }
-
-  if (anonKey.length === 0) {
-    throw new TypeError('Supabase anon key is required.');
-  }
-
-  const fetchImplementation: SupabaseAuthFetch =
-    config.fetch ?? ((input, init) => globalThis.fetch(input, init));
-
-  if (typeof fetchImplementation !== 'function') {
+  if (anonKey.length === 0) throw new TypeError('Supabase anon key is required.');
+  const fetchImplementation = config.fetch ?? globalThis.fetch;
+  if (typeof fetchImplementation !== 'function')
     throw new TypeError('A fetch implementation is required to use Supabase Auth.');
+
+  const oauthProviders: SupabaseOAuthProviderId[] = [];
+  for (const rawProvider of config.oauthProviders ?? []) {
+    const provider: AuthOAuthProviderId = rawProvider.trim();
+    if (!isSupabaseOAuthProviderId(provider)) {
+      throw new TypeError(
+        `Supabase OAuth provider "${provider}" is not supported by the current provider registry.`,
+      );
+    }
+    if (!oauthProviders.includes(provider)) oauthProviders.push(provider);
+  }
+  if (oauthProviders.length > 0 && config.storage === undefined) {
+    throw new TypeError('Supabase OAuth PKCE requires persistent auth storage.');
   }
 
-  const oauthProviders = [
-    ...new Set((config.oauthProviders ?? []).map((provider) => provider.trim())),
-  ].filter((provider) => provider.length > 0);
+  const configuredStorageKey = config.storageKey?.trim();
 
   return {
     url: url.replace(/\/+$/, ''),
     anonKey,
     fetch: fetchImplementation,
     storage: config.storage,
-    storageKey: config.storageKey ?? DEFAULT_STORAGE_KEY,
+    storageKey:
+      configuredStorageKey === undefined || configuredStorageKey.length === 0
+        ? DEFAULT_STORAGE_KEY
+        : configuredStorageKey,
     oauthProviders,
-    oauthProviderSet: oauthProviders.length > 0 ? new Set(oauthProviders) : undefined,
   };
 }
 
-function validatePassword(password: string | undefined) {
-  if (password === undefined || password.length === 0) {
-    return createAuthError('missing_password', 'A password is required.');
+function requireOAuthStorage(
+  storage: SupabaseAuthConfig['storage'],
+): NonNullable<SupabaseAuthConfig['storage']> {
+  if (storage === undefined) {
+    throw new TypeError('Supabase OAuth PKCE requires persistent auth storage.');
   }
+  return storage;
+}
 
-  return null;
+function validatePassword(password: string | undefined) {
+  return password === undefined || password.length === 0
+    ? createAuthError('missing_password', 'A password is required.')
+    : null;
 }
 
 function identifierBody(identifier: SignInInput['identifier']): IdentifierResult {
   const value = identifier.value.trim();
-
-  if (value.length === 0) {
+  if (value.length === 0)
     return {
       ok: false,
       error: createAuthError('missing_identifier', 'An auth identifier is required.'),
     };
-  }
-
-  if (identifier.kind === 'email') {
-    return { ok: true, data: { email: value } };
-  }
-
-  if (identifier.kind === 'phone') {
-    return { ok: true, data: { phone: value } };
-  }
-
+  if (identifier.kind === 'email') return { ok: true, data: { email: value } };
+  if (identifier.kind === 'phone') return { ok: true, data: { phone: value } };
   return {
     ok: false,
     error: createAuthError(
@@ -432,11 +335,7 @@ function metadataBody(
   profile: Record<string, unknown> | undefined,
   metadata: Record<string, unknown> | undefined,
 ): { data?: Record<string, unknown> } {
-  const data = {
-    ...(profile ?? {}),
-    ...(metadata ?? {}),
-  };
-
+  const data = { ...(profile ?? {}), ...(metadata ?? {}) };
   return Object.keys(data).length > 0 ? { data } : {};
 }
 
@@ -445,36 +344,8 @@ function createHeaders(anonKey: string, accessToken?: string): Record<string, st
     apikey: anonKey,
     'Content-Type': 'application/json',
   };
-
-  if (accessToken !== undefined) {
-    headers.Authorization = `Bearer ${accessToken}`;
-  }
-
+  if (accessToken !== undefined) headers.Authorization = `Bearer ${accessToken}`;
   return headers;
-}
-
-function createOAuthRedirectUrl(baseUrl: string, input: SignInWithOAuthInput): string {
-  const url = new URL(`${baseUrl}/auth/v1/authorize`);
-
-  url.searchParams.set('provider', input.provider.trim());
-
-  if (input.redirectTo !== undefined) {
-    url.searchParams.set('redirect_to', input.redirectTo);
-  }
-
-  if (input.scopes !== undefined && input.scopes.length > 0) {
-    url.searchParams.set('scopes', input.scopes.join(' '));
-  }
-
-  if (input.queryParams !== undefined) {
-    for (const [key, value] of Object.entries(input.queryParams)) {
-      if (key !== 'provider' && key !== 'redirect_to' && key !== 'scopes') {
-        url.searchParams.set(key, value);
-      }
-    }
-  }
-
-  return url.toString();
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -487,16 +358,9 @@ interface RequiredConfig {
   fetch: SupabaseAuthFetch;
   storage?: SupabaseAuthConfig['storage'];
   storageKey: string;
-  oauthProviders: AuthOAuthProviderId[];
-  oauthProviderSet?: ReadonlySet<string>;
+  oauthProviders: SupabaseOAuthProviderId[];
 }
 
 type IdentifierResult =
-  | {
-      ok: true;
-      data: { email: string } | { phone: string };
-    }
-  | {
-      ok: false;
-      error: ReturnType<typeof createAuthError>;
-    };
+  | { ok: true; data: { email: string } | { phone: string } }
+  | { ok: false; error: ReturnType<typeof createAuthError> };

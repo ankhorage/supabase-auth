@@ -11,7 +11,7 @@ bun test v1.3.13 (bf2e2cec)
 ::endgroup::
 
 ::group::src/createSupabaseAuthAdapter.test.ts:
-(pass) createSupabaseAuthAdapter > validates required config [1.00ms]
+(pass) createSupabaseAuthAdapter > validates required config
 (pass) createSupabaseAuthAdapter > returns an AuthAdapter-compatible object
 (pass) createSupabaseAuthAdapter > normalizes a successful email and password sign-in response [2.00ms]
 (pass) createSupabaseAuthAdapter > normalizes failed sign-in provider errors
@@ -26,7 +26,7 @@ bun test v1.3.13 (bf2e2cec)
 ::endgroup::
 
 ::group::src/oauthProviderDefinitions.test.ts:
-(pass) Supabase OAuth provider definitions > defines Google and Apple from one registry
+(pass) Supabase OAuth provider definitions > defines Google and Apple from one registry [1.00ms]
 (pass) Supabase OAuth provider definitions > validates required secret fields without echoing values
 (pass) Supabase OAuth provider definitions > materializes official GoTrue Google environment names
 (pass) Supabase OAuth provider definitions > materializes official GoTrue Apple environment names
@@ -37,18 +37,18 @@ bun test v1.3.13 (bf2e2cec)
 ::group::src/accountLifecycle.test.ts:
 (pass) complete OAuth account lifecycle > normalizes Google and Apple provider metadata into the canonical AuthUser fields
 (pass) complete OAuth account lifecycle > removes an expired persisted session before returning it
-(pass) complete OAuth account lifecycle > clears an invalid refresh session and still clears local state after remote logout failure
+(pass) complete OAuth account lifecycle > clears an invalid refresh session and still clears local state after remote logout failure [1.00ms]
 (pass) complete OAuth account lifecycle > verifies the generated profile and emits metadata-only correlated lifecycle events [13.00ms]
-(pass) complete OAuth account lifecycle > returns a recoverable profile error while retaining the exchanged session for recovery [2.00ms]
+(pass) complete OAuth account lifecycle > returns a recoverable profile error while retaining the exchanged session for recovery [3.00ms]
 (pass) complete OAuth account lifecycle > documents one authoritative collision policy without custom account reassignment
 
 ::endgroup::
 
 ::group::src/oauth.test.ts:
-(pass) canonical OAuth PKCE adapter > requires persistent storage when OAuth is enabled [1.00ms]
-(pass) canonical OAuth PKCE adapter > starts with the Supabase client PKCE flow and completes exactly once [2.00ms]
-(pass) canonical OAuth PKCE adapter > rejects disabled providers and unsafe redirects
-(pass) canonical OAuth PKCE adapter > models browser and provider cancellation without exchanging a code [2.00ms]
+(pass) canonical OAuth PKCE adapter > requires persistent storage when OAuth is enabled
+(pass) canonical OAuth PKCE adapter > starts with the Supabase client PKCE flow and completes exactly once [1.00ms]
+(pass) canonical OAuth PKCE adapter > rejects disabled providers and unsafe redirects [1.00ms]
+(pass) canonical OAuth PKCE adapter > models browser and provider cancellation without exchanging a code [4.00ms]
 (pass) canonical OAuth PKCE adapter > uses only the Supabase client OAuth APIs and removes the manual legacy surface
 
 ::endgroup::
@@ -56,5 +56,5 @@ bun test v1.3.13 (bf2e2cec)
  30 pass
  0 fail
  112 expect() calls
-Ran 30 tests across 5 files. [100.00ms]
+Ran 30 tests across 5 files. [105.00ms]
 $ bun x tsc --noEmit -p tsconfig.json

@@ -1,0 +1,741 @@
+import type {
+  AuthOAuthAdapter,
+  AuthOAuthCompletionResult,
+  AuthOAuthError,
+  AuthOAuthErrorCode,
+  AuthOAuthErrorStage,
+  AuthOAuthProviderId,
+  AuthOAuthStartResult,
+  AuthSession,
+  CompleteOAuthAuthorizationInput,
+  StartOAuthAuthorizationInput,
+} from '@ankhorage/contracts/auth';
+import { createClient } from '@supabase/supabase-js';
+
+import {
+  getSupabaseOAuthProviderDefinition,
+  isSupabaseOAuthProviderId,
+  type SupabaseOAuthProviderId,
+} from './oauthProviderDefinitions.js';
+import { normalizeSupabaseClientSession } from './session.js';
+import type { SupabaseAuthFetch, SupabaseAuthStorage } from './types.js';
+
+const ATTEMPT_VERSION = 1;
+const FORBIDDEN_QUERY_PARAMS = new Set([
+  'code_challenge',
+  'code_challenge_method',
+  'provider',
+  'redirect_to',
+  'scopes',
+  'skip_http_redirect',
+]);
+const CALLBACK_PARAMS = new Set(['code', 'error', 'error_code', 'error_description']);
+const DANGEROUS_PROTOCOLS = new Set(['data:', 'file:', 'javascript:']);
+
+interface CreateSupabaseOAuthAdapterInput {
+  url: string;
+  anonKey: string;
+  fetch: SupabaseAuthFetch;
+  storage: SupabaseAuthStorage;
+  storageKey: string;
+  providers: readonly SupabaseOAuthProviderId[];
+  persistSession(session: AuthSession): Promise<void>;
+}
+
+interface StoredOAuthAttempt {
+  version: typeof ATTEMPT_VERSION;
+  id: string;
+  provider: SupabaseOAuthProviderId;
+  redirectUri: string;
+  status: 'pending' | 'completing' | 'completed';
+}
+
+export function createSupabaseOAuthAdapter(
+  input: CreateSupabaseOAuthAdapterInput,
+): AuthOAuthAdapter {
+  const providers = [...new Set(input.providers)];
+  if (providers.length === 0) {
+    throw new TypeError('At least one enabled Supabase OAuth provider is required.');
+  }
+
+  const providerSet = new Set<SupabaseOAuthProviderId>(providers);
+  const oauthStorageKey = `${input.storageKey}.oauth`;
+  const attemptStorageKey = `${oauthStorageKey}.attempt`;
+  const codeVerifierStorageKey = `${oauthStorageKey}-code-verifier`;
+  const client = createClient(input.url, input.anonKey, {
+    auth: {
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+      flowType: 'pkce',
+      persistSession: true,
+      storage: createPkceOnlyStorage(input.storage, codeVerifierStorageKey),
+      storageKey: oauthStorageKey,
+    },
+    global: { fetch: input.fetch },
+  });
+
+  const capabilities = {
+    providers: providers as [SupabaseOAuthProviderId, ...SupabaseOAuthProviderId[]],
+  };
+
+  return {
+    capabilities,
+
+    async startAuthorization(
+      authorizationInput: StartOAuthAuthorizationInput,
+    ): Promise<AuthOAuthStartResult> {
+      const provider = resolveEnabledProvider(authorizationInput.provider, providerSet);
+      if (!provider.ok) return provider.result;
+
+      const redirectUri = normalizeRedirectUri(authorizationInput.redirectUri, provider.provider);
+      if (!redirectUri.ok) return redirectUri.result;
+
+      const queryParams = normalizeQueryParams(authorizationInput.queryParams, provider.provider);
+      if (!queryParams.ok) return queryParams.result;
+
+      let previousAttempt: StoredOAuthAttempt | null;
+      try {
+        previousAttempt = await readAttempt(input.storage, attemptStorageKey);
+      } catch {
+        return oauthStartError(
+          'session_persistence_failed',
+          'Unable to read the persisted OAuth authorization state.',
+          provider.provider,
+          true,
+        );
+      }
+
+      if (previousAttempt !== null && previousAttempt.status !== 'completed') {
+        return oauthStartError(
+          'authorization_failed',
+          'An OAuth authorization attempt is already active.',
+          provider.provider,
+          true,
+        );
+      }
+
+      const definition = getSupabaseOAuthProviderDefinition(provider.provider);
+      const requestedScopes = normalizeScopes(
+        authorizationInput.scopes,
+        definition?.defaultScopes ?? [],
+      );
+
+      try {
+        const { data, error } = await client.auth.signInWithOAuth({
+          provider: provider.provider,
+          options: {
+            redirectTo: redirectUri.value,
+            scopes: requestedScopes.join(' '),
+            queryParams: queryParams.value,
+            skipBrowserRedirect: true,
+          },
+        });
+
+        if (error !== null) {
+          await safeRemove(input.storage, codeVerifierStorageKey);
+          return {
+            ok: false,
+            error: mapSupabaseOAuthError(error, 'start', provider.provider),
+          };
+        }
+
+        if (data.url.trim().length === 0) {
+          await safeRemove(input.storage, codeVerifierStorageKey);
+          return oauthStartError(
+            'authorization_failed',
+            'Supabase Auth did not return an OAuth authorization URL.',
+            provider.provider,
+            true,
+          );
+        }
+
+        const attemptId = createAttemptId();
+        const attempt: StoredOAuthAttempt = {
+          version: ATTEMPT_VERSION,
+          id: attemptId,
+          provider: provider.provider,
+          redirectUri: redirectUri.value,
+          status: 'pending',
+        };
+
+        try {
+          await writeAttempt(input.storage, attemptStorageKey, attempt);
+        } catch {
+          await safeRemove(input.storage, codeVerifierStorageKey);
+          return oauthStartError(
+            'session_persistence_failed',
+            'Unable to persist the OAuth authorization attempt.',
+            provider.provider,
+            true,
+          );
+        }
+
+        return {
+          ok: true,
+          data: {
+            attemptId,
+            provider: provider.provider,
+            authorizationUrl: data.url,
+            redirectUri: redirectUri.value,
+          },
+        };
+      } catch {
+        await safeRemove(input.storage, codeVerifierStorageKey);
+        return oauthStartError(
+          'session_persistence_failed',
+          'Unable to initialize the OAuth PKCE authorization attempt.',
+          provider.provider,
+          true,
+        );
+      }
+    },
+
+    async completeAuthorization(
+      completionInput: CompleteOAuthAuthorizationInput,
+    ): Promise<AuthOAuthCompletionResult> {
+      let attempt: StoredOAuthAttempt | null;
+      try {
+        attempt = await readAttempt(input.storage, attemptStorageKey);
+      } catch {
+        return oauthCompletionError(
+          'session_persistence_failed',
+          'callback',
+          'Unable to read the persisted OAuth authorization attempt.',
+          undefined,
+          true,
+        );
+      }
+
+      if (attempt?.id !== completionInput.attemptId) {
+        return oauthCompletionError(
+          'authorization_attempt_not_found',
+          'callback',
+          'The OAuth authorization attempt was not found.',
+          attempt?.provider,
+          true,
+        );
+      }
+
+      if (attempt.status !== 'pending') {
+        return oauthCompletionError(
+          'callback_already_completed',
+          'callback',
+          'The OAuth authorization callback was already handled.',
+          attempt.provider,
+          false,
+        );
+      }
+
+      if (completionInput.response.type === 'cancelled') {
+        await completeAttempt(input.storage, attemptStorageKey, attempt);
+        await safeRemove(input.storage, codeVerifierStorageKey);
+        return {
+          ok: false,
+          status: 'cancelled',
+          provider: attempt.provider,
+          reason: completionInput.response.reason,
+        };
+      }
+
+      if (completionInput.response.type === 'error') {
+        return oauthCompletionError(
+          'authorization_failed',
+          'transport',
+          'The OAuth authorization transport failed.',
+          attempt.provider,
+          true,
+        );
+      }
+
+      const callback = parseCallback(completionInput.response.url, attempt);
+      if (callback.type === 'error') return callback.result;
+      if (callback.type === 'cancelled') {
+        await completeAttempt(input.storage, attemptStorageKey, attempt);
+        await safeRemove(input.storage, codeVerifierStorageKey);
+        return {
+          ok: false,
+          status: 'cancelled',
+          provider: attempt.provider,
+          reason: 'provider_denied',
+        };
+      }
+
+      try {
+        await writeAttempt(input.storage, attemptStorageKey, {
+          ...attempt,
+          status: 'completing',
+        });
+      } catch {
+        return oauthCompletionError(
+          'session_persistence_failed',
+          'callback',
+          'Unable to lock the OAuth authorization callback for completion.',
+          attempt.provider,
+          true,
+        );
+      }
+
+      let exchange;
+      try {
+        exchange = await client.auth.exchangeCodeForSession(callback.code);
+      } catch {
+        await completeAttempt(input.storage, attemptStorageKey, attempt);
+        return oauthCompletionError(
+          'network_error',
+          'exchange',
+          'Unable to reach Supabase Auth while exchanging the OAuth code.',
+          attempt.provider,
+          true,
+        );
+      }
+
+      if (exchange.error !== null) {
+        await completeAttempt(input.storage, attemptStorageKey, attempt);
+        return {
+          ok: false,
+          status: 'error',
+          error: mapSupabaseOAuthError(exchange.error, 'exchange', attempt.provider),
+        };
+      }
+
+      const session = normalizeSupabaseClientSession(exchange.data.session);
+      if (session === null) {
+        await completeAttempt(input.storage, attemptStorageKey, attempt);
+        return oauthCompletionError(
+          'provider_error',
+          'session',
+          'Supabase Auth returned an invalid OAuth session.',
+          attempt.provider,
+          false,
+        );
+      }
+
+      try {
+        await input.persistSession(session);
+      } catch {
+        await completeAttempt(input.storage, attemptStorageKey, attempt);
+        return oauthCompletionError(
+          'session_persistence_failed',
+          'session',
+          'The OAuth session could not be persisted.',
+          attempt.provider,
+          true,
+        );
+      }
+
+      await completeAttempt(input.storage, attemptStorageKey, attempt);
+      return {
+        ok: true,
+        status: 'authenticated',
+        provider: attempt.provider,
+        session,
+      };
+    },
+  };
+}
+
+function createPkceOnlyStorage(
+  storage: SupabaseAuthStorage,
+  codeVerifierStorageKey: string,
+): SupabaseAuthStorage {
+  return {
+    getItem(key) {
+      return key === codeVerifierStorageKey ? storage.getItem(key) : null;
+    },
+    setItem(key, value) {
+      if (key === codeVerifierStorageKey) return storage.setItem(key, value);
+    },
+    removeItem(key) {
+      if (key === codeVerifierStorageKey) return storage.removeItem(key);
+    },
+  };
+}
+
+function resolveEnabledProvider(
+  requestedProvider: AuthOAuthProviderId,
+  providers: ReadonlySet<SupabaseOAuthProviderId>,
+): { ok: true; provider: SupabaseOAuthProviderId } | { ok: false; result: AuthOAuthStartResult } {
+  const provider = requestedProvider.trim();
+  if (!isSupabaseOAuthProviderId(provider) || !providers.has(provider)) {
+    return {
+      ok: false,
+      result: oauthStartError(
+        'provider_disabled',
+        `OAuth provider "${provider}" is not enabled for this adapter.`,
+        requestedProvider,
+        true,
+      ),
+    };
+  }
+  return { ok: true, provider };
+}
+
+function normalizeRedirectUri(
+  rawRedirectUri: string,
+  provider: SupabaseOAuthProviderId,
+): { ok: true; value: string } | { ok: false; result: AuthOAuthStartResult } {
+  const redirectUri = rawRedirectUri.trim();
+  let url: URL;
+  try {
+    url = new URL(redirectUri);
+  } catch {
+    return {
+      ok: false,
+      result: oauthStartError(
+        'invalid_redirect_uri',
+        'OAuth redirect URI must be an absolute URL or application deep link.',
+        provider,
+        true,
+      ),
+    };
+  }
+
+  if (
+    DANGEROUS_PROTOCOLS.has(url.protocol) ||
+    url.username.length > 0 ||
+    url.password.length > 0 ||
+    url.search.length > 0 ||
+    url.hash.length > 0 ||
+    (url.protocol === 'http:' && !isLocalhost(url.hostname))
+  ) {
+    return {
+      ok: false,
+      result: oauthStartError(
+        'invalid_redirect_uri',
+        'OAuth redirect URI is not a permitted canonical callback URL.',
+        provider,
+        true,
+      ),
+    };
+  }
+
+  return { ok: true, value: url.toString() };
+}
+
+function normalizeQueryParams(
+  queryParams: Readonly<Record<string, string>> | undefined,
+  provider: SupabaseOAuthProviderId,
+): { ok: true; value: Record<string, string> } | { ok: false; result: AuthOAuthStartResult } {
+  const normalized: Record<string, string> = {};
+  for (const [rawKey, rawValue] of Object.entries(queryParams ?? {})) {
+    const key = rawKey.trim();
+    const value = rawValue.trim();
+    if (key.length === 0 || FORBIDDEN_QUERY_PARAMS.has(key)) {
+      return {
+        ok: false,
+        result: oauthStartError(
+          'provider_misconfigured',
+          `OAuth query parameter "${rawKey}" is reserved or invalid.`,
+          provider,
+          true,
+        ),
+      };
+    }
+    normalized[key] = value;
+  }
+  return { ok: true, value: normalized };
+}
+
+function normalizeScopes(
+  scopes: readonly string[] | undefined,
+  defaults: readonly string[],
+): string[] {
+  const requested = scopes === undefined || scopes.length === 0 ? defaults : scopes;
+  return [...new Set(requested.map((scope) => scope.trim()).filter((scope) => scope.length > 0))];
+}
+
+function parseCallback(
+  rawCallbackUrl: string,
+  attempt: StoredOAuthAttempt,
+):
+  | { type: 'code'; code: string }
+  | { type: 'cancelled' }
+  | { type: 'error'; result: AuthOAuthCompletionResult } {
+  let callbackUrl: URL;
+  let redirectUri: URL;
+  try {
+    callbackUrl = new URL(rawCallbackUrl);
+    redirectUri = new URL(attempt.redirectUri);
+  } catch {
+    return invalidCallback(attempt.provider, 'The OAuth callback URL is invalid.');
+  }
+
+  if (!sameCallbackLocation(callbackUrl, redirectUri) || callbackUrl.hash.length > 0) {
+    return invalidCallback(
+      attempt.provider,
+      'The OAuth callback does not match the expected redirect URI.',
+    );
+  }
+
+  for (const key of callbackUrl.searchParams.keys()) {
+    if (!CALLBACK_PARAMS.has(key)) {
+      return invalidCallback(
+        attempt.provider,
+        'The OAuth callback contains unexpected parameters.',
+      );
+    }
+  }
+
+  const codes = callbackUrl.searchParams.getAll('code');
+  const errors = [
+    ...callbackUrl.searchParams.getAll('error'),
+    ...callbackUrl.searchParams.getAll('error_code'),
+  ].filter((value) => value.length > 0);
+
+  if (codes.length > 0 && errors.length > 0) {
+    return invalidCallback(
+      attempt.provider,
+      'The OAuth callback contains both a code and an error.',
+    );
+  }
+
+  if (errors.length > 0) {
+    if (errors.length === 1 && errors[0] === 'access_denied') return { type: 'cancelled' };
+    return {
+      type: 'error',
+      result: oauthCompletionError(
+        'authorization_failed',
+        'callback',
+        'The OAuth provider rejected the authorization request.',
+        attempt.provider,
+        true,
+      ),
+    };
+  }
+
+  const [code] = codes;
+  if (codes.length !== 1 || code === undefined || code.trim().length === 0) {
+    return invalidCallback(
+      attempt.provider,
+      'The OAuth callback does not contain one authorization code.',
+    );
+  }
+
+  return { type: 'code', code };
+}
+
+function invalidCallback(
+  provider: SupabaseOAuthProviderId,
+  message: string,
+): { type: 'error'; result: AuthOAuthCompletionResult } {
+  return {
+    type: 'error',
+    result: oauthCompletionError('invalid_callback', 'callback', message, provider, true),
+  };
+}
+
+function sameCallbackLocation(callbackUrl: URL, redirectUri: URL): boolean {
+  return (
+    callbackUrl.protocol === redirectUri.protocol &&
+    callbackUrl.username === redirectUri.username &&
+    callbackUrl.password === redirectUri.password &&
+    callbackUrl.host === redirectUri.host &&
+    callbackUrl.pathname === redirectUri.pathname
+  );
+}
+
+function isLocalhost(hostname: string): boolean {
+  return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '[::1]';
+}
+
+function createAttemptId(): string {
+  if (typeof globalThis.crypto.randomUUID !== 'function') {
+    throw new TypeError('OAuth PKCE authorization requires crypto.randomUUID().');
+  }
+  return globalThis.crypto.randomUUID();
+}
+
+async function readAttempt(
+  storage: SupabaseAuthStorage,
+  key: string,
+): Promise<StoredOAuthAttempt | null> {
+  const stored = await storage.getItem(key);
+  if (stored === null) return null;
+  try {
+    const parsed: unknown = JSON.parse(stored);
+    return isStoredAttempt(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+async function writeAttempt(
+  storage: SupabaseAuthStorage,
+  key: string,
+  attempt: StoredOAuthAttempt,
+): Promise<void> {
+  await storage.setItem(key, JSON.stringify(attempt));
+}
+
+async function completeAttempt(
+  storage: SupabaseAuthStorage,
+  key: string,
+  attempt: StoredOAuthAttempt,
+): Promise<void> {
+  try {
+    await writeAttempt(storage, key, { ...attempt, status: 'completed' });
+  } catch {
+    // A persisted `completing` state already prevents a duplicate code exchange.
+  }
+}
+
+async function safeRemove(storage: SupabaseAuthStorage, key: string): Promise<void> {
+  try {
+    await storage.removeItem(key);
+  } catch {
+    // Cleanup failure is intentionally not exposed with storage contents or secret values.
+  }
+}
+
+function isStoredAttempt(value: unknown): value is StoredOAuthAttempt {
+  if (!isRecord(value)) return false;
+  return (
+    value.version === ATTEMPT_VERSION &&
+    typeof value.id === 'string' &&
+    isSupabaseOAuthProviderId(typeof value.provider === 'string' ? value.provider : '') &&
+    typeof value.redirectUri === 'string' &&
+    (value.status === 'pending' || value.status === 'completing' || value.status === 'completed')
+  );
+}
+
+function mapSupabaseOAuthError(
+  error: unknown,
+  stage: AuthOAuthErrorStage,
+  provider: SupabaseOAuthProviderId,
+): AuthOAuthError {
+  const code = readString(error, 'code');
+  const name = readString(error, 'name');
+  const message = readString(error, 'message') ?? 'Supabase Auth returned an OAuth error.';
+  const normalized = `${code ?? ''} ${name ?? ''} ${message}`.toLowerCase();
+
+  if (
+    normalized.includes('pkce_code_verifier_not_found') ||
+    normalized.includes('bad_code_verifier')
+  ) {
+    return createOAuthError(
+      'pkce_mismatch',
+      'exchange',
+      'The OAuth PKCE verifier is missing or invalid.',
+      provider,
+      true,
+    );
+  }
+  if (
+    normalized.includes('bad_oauth_state') ||
+    normalized.includes('flow_state_not_found') ||
+    normalized.includes('flow_state_expired')
+  ) {
+    return createOAuthError(
+      'state_mismatch',
+      stage,
+      'The OAuth authorization state is missing, expired, or invalid.',
+      provider,
+      true,
+    );
+  }
+  if (normalized.includes('bad_oauth_callback')) {
+    return createOAuthError(
+      'invalid_callback',
+      'callback',
+      'Supabase Auth rejected the OAuth callback.',
+      provider,
+      true,
+    );
+  }
+  if (normalized.includes('provider_disabled')) {
+    return createOAuthError(
+      'provider_disabled',
+      stage,
+      'The OAuth provider is disabled in Supabase Auth.',
+      provider,
+      true,
+    );
+  }
+  if (normalized.includes('oauth_provider_not_supported')) {
+    return createOAuthError(
+      'provider_misconfigured',
+      stage,
+      'The OAuth provider is not configured in Supabase Auth.',
+      provider,
+      true,
+    );
+  }
+  if (normalized.includes('redirect')) {
+    return createOAuthError(
+      'invalid_redirect_uri',
+      stage,
+      'Supabase Auth rejected the OAuth redirect URI.',
+      provider,
+      true,
+    );
+  }
+  if (
+    normalized.includes('authretryablefetcherror') ||
+    normalized.includes('fetch failed') ||
+    normalized.includes('network')
+  ) {
+    return createOAuthError(
+      'network_error',
+      stage,
+      'Unable to reach Supabase Auth during OAuth authorization.',
+      provider,
+      true,
+    );
+  }
+
+  return createOAuthError(
+    stage === 'start' ? 'authorization_failed' : 'code_exchange_failed',
+    stage,
+    stage === 'start'
+      ? 'Supabase Auth could not start OAuth authorization.'
+      : 'Supabase Auth could not exchange the OAuth authorization code.',
+    provider,
+    true,
+  );
+}
+
+function oauthStartError(
+  code: AuthOAuthErrorCode,
+  message: string,
+  provider: AuthOAuthProviderId | undefined,
+  recoverable: boolean,
+): AuthOAuthStartResult {
+  return {
+    ok: false,
+    error: createOAuthError(code, 'start', message, provider, recoverable),
+  };
+}
+
+function oauthCompletionError(
+  code: AuthOAuthErrorCode,
+  stage: AuthOAuthErrorStage,
+  message: string,
+  provider: AuthOAuthProviderId | undefined,
+  recoverable: boolean,
+): AuthOAuthCompletionResult {
+  return {
+    ok: false,
+    status: 'error',
+    error: createOAuthError(code, stage, message, provider, recoverable),
+  };
+}
+
+function createOAuthError(
+  code: AuthOAuthErrorCode,
+  stage: AuthOAuthErrorStage,
+  message: string,
+  provider: AuthOAuthProviderId | undefined,
+  recoverable: boolean,
+): AuthOAuthError {
+  return provider === undefined
+    ? { code, stage, message, recoverable }
+    : { code, stage, message, provider, recoverable };
+}
+
+function readString(value: unknown, key: string): string | undefined {
+  return isRecord(value) && typeof value[key] === 'string' ? value[key] : undefined;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}

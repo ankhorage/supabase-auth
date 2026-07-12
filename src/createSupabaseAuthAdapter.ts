@@ -62,17 +62,23 @@ export function createSupabaseAuthAdapter(config: SupabaseAuthConfig): AuthAdapt
   };
 
   const persistSession = async (session: AuthSession | null): Promise<void> => {
+    if (normalizedConfig.storage !== undefined) {
+      if (session === null) {
+        await normalizedConfig.storage.removeItem(normalizedConfig.storageKey);
+      } else {
+        await normalizedConfig.storage.setItem(
+          normalizedConfig.storageKey,
+          JSON.stringify(session),
+        );
+      }
+    }
     currentSession = session;
     sessionLoaded = true;
-    if (normalizedConfig.storage === undefined) return;
-    if (session === null) {
-      await normalizedConfig.storage.removeItem(normalizedConfig.storageKey);
-      return;
-    }
-    await normalizedConfig.storage.setItem(normalizedConfig.storageKey, JSON.stringify(session));
   };
 
-  const persistSessionSafely = async (session: AuthSession | null): Promise<AuthAdapterError | null> => {
+  const persistSessionSafely = async (
+    session: AuthSession | null,
+  ): Promise<AuthAdapterError | null> => {
     try {
       await persistSession(session);
       return null;
@@ -381,7 +387,9 @@ function validateConfig(config: SupabaseAuthConfig): RequiredConfig {
     throw new TypeError('Supabase OAuth PKCE requires persistent auth storage.');
   }
   if (config.profileVerification !== undefined && oauthProviders.length === 0) {
-    throw new TypeError('Supabase OAuth profile verification requires at least one OAuth provider.');
+    throw new TypeError(
+      'Supabase OAuth profile verification requires at least one OAuth provider.',
+    );
   }
 
   const configuredStorageKey = config.storageKey?.trim();

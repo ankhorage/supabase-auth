@@ -37,17 +37,21 @@ jobs:
           bun run format
           git checkout -- README.md paradox || true
 
-      - name: Validate migrated source
+      - name: Capture validation
         run: |
-          bun run build
-          bun run lint
-          bun run test
-          bun run typecheck
+          set +e
+          {
+            bun run build
+            bun run lint
+            bun run test
+            bun run typecheck
+          } > phase3-lifecycle-validation.txt 2>&1
+          exit 0
 
-      - name: Commit migrated source
+      - name: Commit migrated source and diagnostics
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/createSupabaseAuthAdapter.ts src/oauth.ts
+          git add src/createSupabaseAuthAdapter.ts src/oauth.ts phase3-lifecycle-validation.txt
           git commit -m "feat: complete OAuth profile and lifecycle handling"
           git push

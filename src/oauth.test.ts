@@ -1,103 +1,217 @@
+import { readFileSync } from 'node:fs';
+
 import { describe, expect, it } from 'bun:test';
 
 import { createSupabaseAuthAdapter } from './createSupabaseAuthAdapter.js';
+import type { SupabaseAuthStorage } from './types.js';
 
-describe('Supabase OAuth sign-in', () => {
-  it('exposes OAuth capabilities from configured providers', () => {
-    const adapter = createSupabaseAuthAdapter({
-      url: 'https://example.supabase.co',
-      anonKey: 'anon-key',
-      oauthProviders: ['google', 'github', 'google', ''],
-    });
+function createMemoryStorage(initial: Record<string, string> = {}) {
+  const values = new Map(Object.entries(initial));
+  const storage: SupabaseAuthStorage = {
+    getItem(key) {
+      return values.get(key) ?? null;
+    },
+    setItem(key, value) {
+      values.set(key, value);
+    },
+    removeItem(key) {
+      values.delete(key);
+    },
+  };
+  return { storage, values };
+}
 
-    expect(adapter.capabilities?.supportsOAuth).toBe(true);
-    expect(adapter.capabilities?.oauthProviders).toEqual(['google', 'github']);
+describe('canonical OAuth PKCE adapter', () => {
+  it('requires persistent storage when OAuth is enabled', () => {
+    expect(() =>
+      createSupabaseAuthAdapter({
+        url: 'https://example.supabase.co',
+        anonKey: 'anon',
+        oauthProviders: ['google'],
+      }),
+    ).toThrow('Supabase OAuth PKCE requires persistent auth storage.');
   });
 
-  it('creates a provider-neutral OAuth redirect result', async () => {
+  it('starts with the Supabase client PKCE flow and completes exactly once', async () => {
+    const { storage, values } = createMemoryStorage();
+    const calls: { url: string; body: unknown }[] = [];
+    const fetcher: typeof fetch = (input, init) => {
+      calls.push({
+        url: input instanceof Request ? input.url : input.toString(),
+        body: typeof init?.body === 'string' ? JSON.parse(init.body) : init?.body,
+      });
+      return new Response(
+        JSON.stringify({
+          access_token: 'access-token',
+          refresh_token: 'refresh-token',
+          expires_in: 3600,
+          token_type: 'bearer',
+          user: {
+            id: 'user-1',
+            email: 'person@example.com',
+            app_metadata: {},
+            user_metadata: {
+              full_name: 'Person',
+              avatar_url: 'https://example.com/avatar.png',
+            },
+            aud: 'authenticated',
+          },
+        }),
+        { status: 200, headers: { 'content-type': 'application/json' } },
+      );
+    };
     const adapter = createSupabaseAuthAdapter({
-      url: 'https://example.supabase.co/',
-      anonKey: 'anon-key',
+      url: 'https://example.supabase.co',
+      anonKey: 'anon',
+      storage,
+      fetch: fetcher,
       oauthProviders: ['google'],
     });
 
-    const result = await adapter.signInWithOAuth?.({
+    const started = await adapter.oauth?.startAuthorization({
       provider: 'google',
-      redirectTo: 'ankhorage://auth/callback',
-      scopes: ['openid', 'email', 'profile'],
-      queryParams: {
-        prompt: 'select_account',
+      redirectUri: 'ankh-app://auth/callback',
+      scopes: ['openid', 'email'],
+      queryParams: { prompt: 'select_account' },
+    });
+    expect(started?.ok).toBe(true);
+    if (started?.ok !== true) throw new Error('OAuth start failed.');
+    expect(started.data.authorizationUrl).toContain('/auth/v1/authorize?');
+    expect(started.data.authorizationUrl).toContain('code_challenge=');
+    expect(started.data.authorizationUrl).toContain('prompt=select_account');
+    expect(calls).toHaveLength(0);
+
+    const completed = await adapter.oauth?.completeAuthorization({
+      attemptId: started.data.attemptId,
+      response: {
+        type: 'callback',
+        url: 'ankh-app://auth/callback?code=opaque-code',
       },
     });
-
-    expect(result?.ok).toBe(true);
-
-    if (result?.ok !== true || result.data === undefined) {
-      throw new Error('Expected OAuth redirect result.');
-    }
-
-    const url = new URL(result.data.url);
-
-    expect(result.data.provider).toBe('google');
-    expect(url.origin).toBe('https://example.supabase.co');
-    expect(url.pathname).toBe('/auth/v1/authorize');
-    expect(url.searchParams.get('provider')).toBe('google');
-    expect(url.searchParams.get('redirect_to')).toBe('ankhorage://auth/callback');
-    expect(url.searchParams.get('scopes')).toBe('openid email profile');
-    expect(url.searchParams.get('prompt')).toBe('select_account');
-  });
-
-  it('rejects OAuth providers that are not configured', async () => {
-    const adapter = createSupabaseAuthAdapter({
-      url: 'https://example.supabase.co',
-      anonKey: 'anon-key',
-      oauthProviders: ['github'],
-    });
-
-    const result = await adapter.signInWithOAuth?.({
+    expect(completed).toMatchObject({
+      ok: true,
+      status: 'authenticated',
       provider: 'google',
-      redirectTo: 'ankhorage://auth/callback',
+      session: {
+        accessToken: 'access-token',
+        refreshToken: 'refresh-token',
+        user: {
+          id: 'user-1',
+          email: 'person@example.com',
+        },
+      },
     });
+    expect(calls).toHaveLength(1);
+    expect(calls[0]?.url).toContain('/auth/v1/token?grant_type=pkce');
+    expect(calls[0]?.body).toMatchObject({ auth_code: 'opaque-code' });
 
-    expect(result?.ok).toBe(false);
+    const replay = await adapter.oauth?.completeAuthorization({
+      attemptId: started.data.attemptId,
+      response: {
+        type: 'callback',
+        url: 'ankh-app://auth/callback?code=opaque-code',
+      },
+    });
+    expect(replay).toMatchObject({
+      ok: false,
+      status: 'error',
+      error: { code: 'callback_already_completed' },
+    });
+    expect(calls).toHaveLength(1);
 
-    if (result?.ok !== false) {
-      throw new Error('Expected OAuth provider validation error.');
-    }
-
-    expect(result.error.code).toBe('unsupported_oauth_provider');
+    const persisted = values.get('ankhorage.supabase-auth.session') ?? '';
+    expect(persisted).toContain('access-token');
+    expect([...values.values()].join('\n')).not.toContain('opaque-code');
+    expect([...values.keys()].some((key) => key.endsWith('-code-verifier'))).toBe(false);
   });
 
-  it('does not allow query params to override reserved OAuth parameters', async () => {
+  it('rejects disabled providers and unsafe redirects', async () => {
+    const { storage } = createMemoryStorage();
     const adapter = createSupabaseAuthAdapter({
       url: 'https://example.supabase.co',
-      anonKey: 'anon-key',
+      anonKey: 'anon',
+      storage,
       oauthProviders: ['google'],
     });
+    expect(
+      await adapter.oauth?.startAuthorization({
+        provider: 'apple',
+        redirectUri: 'ankh-app://auth/callback',
+      }),
+    ).toMatchObject({ ok: false, error: { code: 'provider_disabled' } });
+    expect(
+      await adapter.oauth?.startAuthorization({
+        provider: 'google',
+        redirectUri: 'javascript:alert(1)',
+      }),
+    ).toMatchObject({ ok: false, error: { code: 'invalid_redirect_uri' } });
+  });
 
-    const result = await adapter.signInWithOAuth?.({
-      provider: 'google',
-      redirectTo: 'ankhorage://auth/callback',
-      scopes: ['openid'],
-      queryParams: {
-        provider: 'github',
-        redirect_to: 'https://evil.example.com',
-        scopes: 'admin',
-        prompt: 'consent',
+  it('models browser and provider cancellation without exchanging a code', async () => {
+    const { storage } = createMemoryStorage();
+    let calls = 0;
+    const adapter = createSupabaseAuthAdapter({
+      url: 'https://example.supabase.co',
+      anonKey: 'anon',
+      storage,
+      oauthProviders: ['google'],
+      fetch: () => {
+        calls += 1;
+        return Promise.reject(new Error('unexpected'));
       },
     });
+    const started = await adapter.oauth?.startAuthorization({
+      provider: 'google',
+      redirectUri: 'ankh-app://auth/callback',
+    });
+    if (started?.ok !== true) throw new Error('OAuth start failed.');
+    expect(
+      await adapter.oauth?.completeAuthorization({
+        attemptId: started.data.attemptId,
+        response: { type: 'cancelled', reason: 'browser_dismissed' },
+      }),
+    ).toEqual({
+      ok: false,
+      status: 'cancelled',
+      provider: 'google',
+      reason: 'browser_dismissed',
+    });
+    expect(calls).toBe(0);
 
-    expect(result?.ok).toBe(true);
+    const startedAgain = await adapter.oauth?.startAuthorization({
+      provider: 'google',
+      redirectUri: 'ankh-app://auth/callback',
+    });
+    if (startedAgain?.ok !== true) throw new Error('OAuth restart failed.');
+    expect(
+      await adapter.oauth?.completeAuthorization({
+        attemptId: startedAgain.data.attemptId,
+        response: {
+          type: 'callback',
+          url: 'ankh-app://auth/callback?error=access_denied',
+        },
+      }),
+    ).toEqual({
+      ok: false,
+      status: 'cancelled',
+      provider: 'google',
+      reason: 'provider_denied',
+    });
+    expect(calls).toBe(0);
+  });
 
-    if (result?.ok !== true || result.data === undefined) {
-      throw new Error('Expected OAuth redirect result.');
-    }
+  it('uses only the Supabase client OAuth APIs and removes the manual legacy surface', () => {
+    const adapterSource = readFileSync(
+      new URL('./createSupabaseAuthAdapter.ts', import.meta.url),
+      'utf8',
+    );
+    const oauthSource = readFileSync(new URL('./oauth.ts', import.meta.url), 'utf8');
 
-    const url = new URL(result.data.url);
-
-    expect(url.searchParams.get('provider')).toBe('google');
-    expect(url.searchParams.get('redirect_to')).toBe('ankhorage://auth/callback');
-    expect(url.searchParams.get('scopes')).toBe('openid');
-    expect(url.searchParams.get('prompt')).toBe('consent');
+    expect(adapterSource).not.toContain('/auth/v1/authorize');
+    expect(adapterSource).not.toContain('signInWith' + 'OAuth');
+    expect(adapterSource).not.toContain('completeOAuth' + 'SignIn');
+    expect(adapterSource).not.toContain('supports' + 'OAuth');
+    expect(oauthSource).toContain('client.auth.signInWithOAuth');
+    expect(oauthSource).toContain('client.auth.exchangeCodeForSession');
   });
 });

@@ -14,9 +14,23 @@ export {
   SUPABASE_OAUTH_PROVIDER_IDS,
   validateSupabaseOAuthSecretPayload,
 } from './oauthProviderDefinitions.js';
+export {
+  createSupabaseOAuthProfileVerifier,
+  normalizeSupabaseAuthProfileVerificationConfig,
+  verifySupabaseOAuthProfile,
+} from './profileVerification.js';
 export type {
   SupabaseAuthConfig,
   SupabaseAuthErrorCode,
+  SupabaseAuthProfileField,
+  SupabaseAuthProfileVerificationConfig,
   SupabaseAuthStorage,
+  SupabaseOAuthLifecycleEvent,
+  SupabaseOAuthLifecycleObserver,
+  SupabaseOAuthLifecycleStatus,
+  SupabaseOAuthProfileVerificationInput,
+  SupabaseOAuthProfileVerificationResult,
+  SupabaseOAuthProfileVerifier,
   SupabaseProviderErrorCause,
 } from './types.js';
+export { SUPABASE_AUTH_PROFILE_FIELDS } from './types.js';

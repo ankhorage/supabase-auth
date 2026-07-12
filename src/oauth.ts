@@ -18,7 +18,13 @@ import {
   type SupabaseOAuthProviderId,
 } from './oauthProviderDefinitions.js';
 import { normalizeSupabaseClientSession } from './session.js';
-import type { SupabaseAuthFetch, SupabaseAuthStorage } from './types.js';
+import type {
+  SupabaseAuthFetch,
+  SupabaseAuthStorage,
+  SupabaseOAuthLifecycleEvent,
+  SupabaseOAuthLifecycleObserver,
+  SupabaseOAuthProfileVerifier,
+} from './types.js';
 
 const ATTEMPT_VERSION = 1;
 const FORBIDDEN_QUERY_PARAMS = new Set([
@@ -40,6 +46,8 @@ interface CreateSupabaseOAuthAdapterInput {
   storageKey: string;
   providers: readonly SupabaseOAuthProviderId[];
   persistSession(session: AuthSession): Promise<void>;
+  verifyProfile?: SupabaseOAuthProfileVerifier;
+  onLifecycleEvent?: SupabaseOAuthLifecycleObserver;
 }
 
 interface StoredOAuthAttempt {
@@ -170,6 +178,13 @@ export function createSupabaseOAuthAdapter(
           );
         }
 
+        await emitLifecycleEvent(input.onLifecycleEvent, {
+          correlationId: attemptId,
+          provider: provider.provider,
+          stage: 'start',
+          status: 'started',
+        });
+
         return {
           ok: true,
           data: {
@@ -229,6 +244,12 @@ export function createSupabaseOAuthAdapter(
       if (completionInput.response.type === 'cancelled') {
         await completeAttempt(input.storage, attemptStorageKey, attempt);
         await safeRemove(input.storage, codeVerifierStorageKey);
+        await emitLifecycleEvent(input.onLifecycleEvent, {
+          correlationId: attempt.id,
+          provider: attempt.provider,
+          stage: 'transport',
+          status: 'cancelled',
+        });
         return {
           ok: false,
           status: 'cancelled',
@@ -238,20 +259,35 @@ export function createSupabaseOAuthAdapter(
       }
 
       if (completionInput.response.type === 'error') {
-        return oauthCompletionError(
+        await completeAttempt(input.storage, attemptStorageKey, attempt);
+        await safeRemove(input.storage, codeVerifierStorageKey);
+        const result = oauthCompletionError(
           'authorization_failed',
           'transport',
           'The OAuth authorization transport failed.',
           attempt.provider,
           true,
         );
+        await emitOAuthError(input.onLifecycleEvent, attempt, result);
+        return result;
       }
 
       const callback = parseCallback(completionInput.response.url, attempt);
-      if (callback.type === 'error') return callback.result;
+      if (callback.type === 'error') {
+        await completeAttempt(input.storage, attemptStorageKey, attempt);
+        await safeRemove(input.storage, codeVerifierStorageKey);
+        await emitOAuthError(input.onLifecycleEvent, attempt, callback.result);
+        return callback.result;
+      }
       if (callback.type === 'cancelled') {
         await completeAttempt(input.storage, attemptStorageKey, attempt);
         await safeRemove(input.storage, codeVerifierStorageKey);
+        await emitLifecycleEvent(input.onLifecycleEvent, {
+          correlationId: attempt.id,
+          provider: attempt.provider,
+          stage: 'callback',
+          status: 'cancelled',
+        });
         return {
           ok: false,
           status: 'cancelled',
@@ -280,50 +316,106 @@ export function createSupabaseOAuthAdapter(
         exchange = await client.auth.exchangeCodeForSession(callback.code);
       } catch {
         await completeAttempt(input.storage, attemptStorageKey, attempt);
-        return oauthCompletionError(
+        await safeRemove(input.storage, codeVerifierStorageKey);
+        const result = oauthCompletionError(
           'network_error',
           'exchange',
           'Unable to reach Supabase Auth while exchanging the OAuth code.',
           attempt.provider,
           true,
         );
+        await emitOAuthError(input.onLifecycleEvent, attempt, result);
+        return result;
       }
 
       if (exchange.error !== null) {
         await completeAttempt(input.storage, attemptStorageKey, attempt);
-        return {
+        await safeRemove(input.storage, codeVerifierStorageKey);
+        const result: AuthOAuthCompletionResult = {
           ok: false,
           status: 'error',
           error: mapSupabaseOAuthError(exchange.error, 'exchange', attempt.provider),
         };
+        await emitOAuthError(input.onLifecycleEvent, attempt, result);
+        return result;
       }
 
       const session = normalizeSupabaseClientSession(exchange.data.session);
       if (session === null) {
         await completeAttempt(input.storage, attemptStorageKey, attempt);
-        return oauthCompletionError(
+        await safeRemove(input.storage, codeVerifierStorageKey);
+        const result = oauthCompletionError(
           'provider_error',
           'session',
           'Supabase Auth returned an invalid OAuth session.',
           attempt.provider,
           false,
         );
+        await emitOAuthError(input.onLifecycleEvent, attempt, result);
+        return result;
       }
 
       try {
         await input.persistSession(session);
       } catch {
         await completeAttempt(input.storage, attemptStorageKey, attempt);
-        return oauthCompletionError(
+        await safeRemove(input.storage, codeVerifierStorageKey);
+        const result = oauthCompletionError(
           'session_persistence_failed',
           'session',
           'The OAuth session could not be persisted.',
           attempt.provider,
           true,
         );
+        await emitOAuthError(input.onLifecycleEvent, attempt, result);
+        return result;
+      }
+
+      if (input.verifyProfile !== undefined) {
+        let verification;
+        try {
+          verification = await input.verifyProfile({
+            correlationId: attempt.id,
+            provider: attempt.provider,
+            session,
+          });
+        } catch {
+          verification = {
+            ok: false as const,
+            message: 'The generated public profile could not be verified.',
+          };
+        }
+
+        if (!verification.ok) {
+          await completeAttempt(input.storage, attemptStorageKey, attempt);
+          await safeRemove(input.storage, codeVerifierStorageKey);
+          const result = oauthCompletionError(
+            'profile_creation_failed',
+            'profile',
+            verification.message,
+            attempt.provider,
+            true,
+          );
+          await emitOAuthError(input.onLifecycleEvent, attempt, result);
+          return result;
+        }
+
+        await emitLifecycleEvent(input.onLifecycleEvent, {
+          correlationId: attempt.id,
+          provider: attempt.provider,
+          stage: 'profile',
+          status: 'profile_verified',
+        });
       }
 
       await completeAttempt(input.storage, attemptStorageKey, attempt);
+      await safeRemove(input.storage, codeVerifierStorageKey);
+      await emitLifecycleEvent(input.onLifecycleEvent, {
+        correlationId: attempt.id,
+        provider: attempt.provider,
+        stage: 'session',
+        status: 'authenticated',
+      });
       return {
         ok: true,
         status: 'authenticated',
@@ -332,6 +424,33 @@ export function createSupabaseOAuthAdapter(
       };
     },
   };
+}
+
+async function emitOAuthError(
+  observer: SupabaseOAuthLifecycleObserver | undefined,
+  attempt: StoredOAuthAttempt,
+  result: AuthOAuthCompletionResult,
+): Promise<void> {
+  if (result.ok || result.status !== 'error') return;
+  await emitLifecycleEvent(observer, {
+    correlationId: attempt.id,
+    provider: attempt.provider,
+    stage: result.error.stage,
+    status: 'error',
+    errorCode: result.error.code,
+  });
+}
+
+async function emitLifecycleEvent(
+  observer: SupabaseOAuthLifecycleObserver | undefined,
+  event: SupabaseOAuthLifecycleEvent,
+): Promise<void> {
+  if (observer === undefined) return;
+  try {
+    await observer(event);
+  } catch {
+    // Observability must never change the authentication result.
+  }
 }
 
 function createPkceOnlyStorage(

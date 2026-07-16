@@ -125,6 +125,95 @@ describe('canonical OAuth PKCE adapter', () => {
     expect([...values.keys()].some((key) => key.endsWith('-code-verifier'))).toBe(false);
   });
 
+  it('exchanges OAuth codes with the active default global fetch after adapter creation', async () => {
+    const originalFetch = globalThis.fetch;
+    const { storage } = createMemoryStorage();
+    const staleCalls: { url: string; body: unknown }[] = [];
+    const activeCalls: { url: string; body: unknown }[] = [];
+    const staleFetch: typeof fetch = (input, init) => {
+      staleCalls.push({
+        url: input instanceof Request ? input.url : input.toString(),
+        body: typeof init?.body === 'string' ? (JSON.parse(init.body) as unknown) : init?.body,
+      });
+      return Promise.resolve(
+        new Response(JSON.stringify({ message: 'stale OAuth fetch should not be used' }), {
+          status: 503,
+          headers: { 'content-type': 'application/json' },
+        }),
+      );
+    };
+    const activeFetch: typeof fetch = (input, init) => {
+      activeCalls.push({
+        url: input instanceof Request ? input.url : input.toString(),
+        body: typeof init?.body === 'string' ? (JSON.parse(init.body) as unknown) : init?.body,
+      });
+      return Promise.resolve(
+        new Response(
+          JSON.stringify({
+            access_token: 'default-oauth-access-token',
+            refresh_token: 'default-oauth-refresh-token',
+            expires_in: 3600,
+            token_type: 'bearer',
+            user: {
+              id: 'default-oauth-user',
+              email: 'default-oauth@example.com',
+              app_metadata: {},
+              user_metadata: {},
+              aud: 'authenticated',
+            },
+          }),
+          { status: 200, headers: { 'content-type': 'application/json' } },
+        ),
+      );
+    };
+
+    globalThis.fetch = staleFetch;
+    try {
+      const adapter = createSupabaseAuthAdapter({
+        url: 'https://example.supabase.co',
+        anonKey: 'anon',
+        storage,
+        oauthProviders: ['google'],
+      });
+      const started = await adapter.oauth?.startAuthorization({
+        provider: 'google',
+        redirectUri: 'ankh-app://auth/callback',
+      });
+      expect(started?.ok).toBe(true);
+      if (started?.ok !== true) throw new Error('OAuth start failed.');
+      expect(staleCalls).toHaveLength(0);
+
+      globalThis.fetch = activeFetch;
+      const completed = await adapter.oauth?.completeAuthorization({
+        attemptId: started.data.attemptId,
+        response: {
+          type: 'callback',
+          url: 'ankh-app://auth/callback?code=active-oauth-code',
+        },
+      });
+
+      expect(completed).toMatchObject({
+        ok: true,
+        status: 'authenticated',
+        provider: 'google',
+        session: {
+          accessToken: 'default-oauth-access-token',
+          refreshToken: 'default-oauth-refresh-token',
+          user: {
+            id: 'default-oauth-user',
+            email: 'default-oauth@example.com',
+          },
+        },
+      });
+      expect(staleCalls).toHaveLength(0);
+      expect(activeCalls).toHaveLength(1);
+      expect(activeCalls[0]?.url).toContain('/auth/v1/token?grant_type=pkce');
+      expect(activeCalls[0]?.body).toMatchObject({ auth_code: 'active-oauth-code' });
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
   it('rejects disabled providers and unsafe redirects', async () => {
     const { storage } = createMemoryStorage();
     const adapter = createSupabaseAuthAdapter({

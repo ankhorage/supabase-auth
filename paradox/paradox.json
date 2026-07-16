@@ -12,7 +12,7 @@
     {
       "id": "npm",
       "label": "npm",
-      "value": "v1.0.0",
+      "value": "v1.1.0",
       "color": "cb3837"
     },
     {
@@ -1162,7 +1162,7 @@
       }
     },
     {
-      "name": "requireOAuthStorage",
+      "name": "createDefaultFetch",
       "description": null,
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
@@ -1171,16 +1171,7 @@
       }
     },
     {
-      "name": "validatePassword",
-      "description": null,
-      "sourceLocation": {
-        "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 435,
-        "column": 1
-      }
-    },
-    {
-      "name": "identifierBody",
+      "name": "requireOAuthStorage",
       "description": null,
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
@@ -1189,11 +1180,29 @@
       }
     },
     {
+      "name": "validatePassword",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/createSupabaseAuthAdapter.ts",
+        "line": 450,
+        "column": 1
+      }
+    },
+    {
+      "name": "identifierBody",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/createSupabaseAuthAdapter.ts",
+        "line": 456,
+        "column": 1
+      }
+    },
+    {
       "name": "metadataBody",
       "description": null,
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 459,
+        "line": 474,
         "column": 1
       }
     },
@@ -1202,7 +1211,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 467,
+        "line": 482,
         "column": 1
       }
     },
@@ -1211,7 +1220,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 476,
+        "line": 491,
         "column": 1
       }
     },
@@ -2238,6 +2247,12 @@
         "fromSymbol": "verifyOtp",
         "toSymbol": "mapNetworkError",
         "callExpression": "mapNetworkError",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "validateConfig",
+        "toSymbol": "createDefaultFetch",
+        "callExpression": "createDefaultFetch",
         "sourcePath": "src/createSupabaseAuthAdapter.ts"
       },
       {

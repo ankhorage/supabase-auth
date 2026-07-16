@@ -369,7 +369,7 @@ function validateConfig(config: SupabaseAuthConfig): RequiredConfig {
     throw new TypeError('Supabase Auth URL must be a valid URL.');
   }
   if (anonKey.length === 0) throw new TypeError('Supabase anon key is required.');
-  const fetchImplementation = config.fetch ?? globalThis.fetch;
+  const fetchImplementation: SupabaseAuthFetch = config.fetch ?? createDefaultFetch();
   if (typeof fetchImplementation !== 'function')
     throw new TypeError('A fetch implementation is required to use Supabase Auth.');
 
@@ -421,6 +421,21 @@ function createProfileVerifier(config: RequiredConfig): SupabaseOAuthProfileVeri
     fetch: config.fetch,
     config: config.profileVerification,
   });
+}
+
+function createDefaultFetch(): SupabaseAuthFetch {
+  return Object.assign(
+    (input: Parameters<SupabaseAuthFetch>[0], init?: Parameters<SupabaseAuthFetch>[1]) =>
+      globalThis.fetch(input, init),
+    {
+      preconnect(
+        url: Parameters<SupabaseAuthFetch['preconnect']>[0],
+        options?: Parameters<SupabaseAuthFetch['preconnect']>[1],
+      ): ReturnType<SupabaseAuthFetch['preconnect']> {
+        return globalThis.fetch.preconnect(url, options);
+      },
+    },
+  );
 }
 
 function requireOAuthStorage(

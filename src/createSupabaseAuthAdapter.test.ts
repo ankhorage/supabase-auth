@@ -148,6 +148,70 @@ describe('createSupabaseAuthAdapter', () => {
     }
   });
 
+  it('calls the default global fetch with the global receiver', async () => {
+    const originalFetch = globalThis.fetch;
+    const calls: FetchCall[] = [];
+    let globalReceiverCalls = 0;
+    const receiverSensitiveFetch: typeof fetch = function (
+      this: unknown,
+      input: Parameters<typeof fetch>[0],
+      init?: Parameters<typeof fetch>[1],
+    ) {
+      if (this !== globalThis) throw new TypeError('incorrect fetch receiver');
+      globalReceiverCalls += 1;
+
+      const headers = new Headers(init?.headers);
+      calls.push({
+        url: input instanceof Request ? input.url : input.toString(),
+        body: typeof init?.body === 'string' ? (JSON.parse(init.body) as unknown) : init?.body,
+        headers: Object.fromEntries(headers.entries()),
+      });
+
+      return Promise.resolve(
+        jsonResponse({
+          access_token: 'receiver-access-token',
+          refresh_token: 'receiver-refresh-token',
+          expires_in: 3600,
+          token_type: 'bearer',
+          user: {
+            id: 'receiver-user',
+            email: 'receiver@example.com',
+          },
+        }),
+      );
+    };
+    globalThis.fetch = receiverSensitiveFetch;
+
+    try {
+      const adapter = createSupabaseAuthAdapter({
+        url: 'https://example.supabase.co',
+        anonKey: 'anon',
+      });
+
+      const result = await adapter.signIn({
+        identifier: { kind: 'email', value: 'receiver@example.com' },
+        password: 'password',
+      });
+
+      expect(result).toMatchObject({
+        ok: true,
+        data: {
+          accessToken: 'receiver-access-token',
+          refreshToken: 'receiver-refresh-token',
+          user: {
+            id: 'receiver-user',
+            email: 'receiver@example.com',
+          },
+        },
+      });
+      expect(globalReceiverCalls).toBe(1);
+      expect(calls).toHaveLength(1);
+      expect(calls[0]?.url).toBe('https://example.supabase.co/auth/v1/token?grant_type=password');
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
   it('uses the default global fetch for email and password sign-up', async () => {
     const originalFetch = globalThis.fetch;
     const calls: FetchCall[] = [];

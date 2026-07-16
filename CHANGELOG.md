@@ -1,5 +1,12 @@
 # @ankhorage/supabase-auth
 
+## 1.1.1
+
+### Patch Changes
+
+- 5d60f85: Restore the default Supabase Auth fetch boundary so generated apps use the active runtime
+  global fetch implementation.
+
 ## 1.1.0
 
 ### Minor Changes

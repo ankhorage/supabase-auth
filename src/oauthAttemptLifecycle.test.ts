@@ -2,10 +2,7 @@ import type { AuthOAuthAdapter } from '@ankhorage/contracts/auth';
 import { describe, expect, it } from 'bun:test';
 
 import { createSupabaseOAuthAdapter } from './oauth.js';
-import type {
-  SupabaseAuthStorage,
-  SupabaseOAuthLifecycleEvent,
-} from './types.js';
+import type { SupabaseAuthStorage, SupabaseOAuthLifecycleEvent } from './types.js';
 
 const STORAGE_KEY = 'ankhorage.supabase-auth.session';
 const ATTEMPT_KEY = `${STORAGE_KEY}.oauth.attempt`;
@@ -28,11 +25,13 @@ function createMemoryStorage(initial: Readonly<Record<string, string>> = {}) {
   return { storage, values };
 }
 
-function createHarness(options: {
-  readonly now?: number;
-  readonly attemptLifetimeMs?: number;
-  readonly initial?: Readonly<Record<string, string>>;
-} = {}) {
+function createHarness(
+  options: {
+    readonly now?: number;
+    readonly attemptLifetimeMs?: number;
+    readonly initial?: Readonly<Record<string, string>>;
+  } = {},
+) {
   let currentTime = options.now ?? 1_000;
   const { storage, values } = createMemoryStorage(options.initial);
   const lifecycleEvents: SupabaseOAuthLifecycleEvent[] = [];
@@ -55,14 +54,14 @@ function createHarness(options: {
     adapter,
     values,
     lifecycleEvents,
-    setNow(value: number) {
+    setNow: (value: number) => {
       currentTime = value;
     },
   };
 }
 
 async function startAuthorization(adapter: AuthOAuthAdapter) {
-  const result = await adapter.startAuthorization({
+  const result = await adapter.startAuthorization.call(adapter, {
     provider: 'google',
     redirectUri: REDIRECT_URI,
   });
@@ -74,10 +73,14 @@ function readAttempt(values: ReadonlyMap<string, string>): Record<string, unknow
   const raw = values.get(ATTEMPT_KEY);
   if (raw === undefined) throw new Error('Persisted OAuth attempt is missing.');
   const parsed: unknown = JSON.parse(raw);
-  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+  if (!isRecord(parsed)) {
     throw new Error('Persisted OAuth attempt is invalid.');
   }
-  return parsed as Record<string, unknown>;
+  return parsed;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 describe('expiring OAuth attempt lifecycle', () => {
@@ -102,7 +105,7 @@ describe('expiring OAuth attempt lifecycle', () => {
     await startAuthorization(adapter);
     setNow(14_999);
 
-    const duplicate = await adapter.startAuthorization({
+    const duplicate = await adapter.startAuthorization.call(adapter, {
       provider: 'google',
       redirectUri: REDIRECT_URI,
     });
@@ -190,7 +193,7 @@ describe('expiring OAuth attempt lifecycle', () => {
     const started = await startAuthorization(adapter);
     setNow(41_000);
 
-    const completed = await adapter.completeAuthorization({
+    const completed = await adapter.completeAuthorization.call(adapter, {
       attemptId: started.attemptId,
       response: {
         type: 'callback',
@@ -216,7 +219,7 @@ describe('expiring OAuth attempt lifecycle', () => {
     const attemptBefore = values.get(ATTEMPT_KEY);
     const verifierBefore = values.get(CODE_VERIFIER_KEY);
 
-    const completed = await adapter.completeAuthorization({
+    const completed = await adapter.completeAuthorization.call(adapter, {
       attemptId: 'different-attempt',
       response: {
         type: 'callback',
@@ -237,7 +240,7 @@ describe('expiring OAuth attempt lifecycle', () => {
     const { adapter, values, lifecycleEvents } = createHarness({ now: 60_000 });
     const started = await startAuthorization(adapter);
 
-    const cancelled = await adapter.completeAuthorization({
+    const cancelled = await adapter.completeAuthorization.call(adapter, {
       attemptId: started.attemptId,
       response: { type: 'cancelled', reason: 'browser_dismissed' },
     });

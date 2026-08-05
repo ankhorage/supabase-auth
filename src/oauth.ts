@@ -26,7 +26,8 @@ import type {
   SupabaseOAuthProfileVerifier,
 } from './types.js';
 
-const ATTEMPT_VERSION = 1;
+const ATTEMPT_VERSION = 2;
+const DEFAULT_ATTEMPT_LIFETIME_MS = 10 * 60 * 1000;
 const FORBIDDEN_QUERY_PARAMS = new Set([
   'code_challenge',
   'code_challenge_method',
@@ -48,6 +49,8 @@ interface CreateSupabaseOAuthAdapterInput {
   persistSession(session: AuthSession): Promise<void>;
   verifyProfile?: SupabaseOAuthProfileVerifier;
   onLifecycleEvent?: SupabaseOAuthLifecycleObserver;
+  now?: () => number;
+  attemptLifetimeMs?: number;
 }
 
 interface StoredOAuthAttempt {
@@ -56,7 +59,14 @@ interface StoredOAuthAttempt {
   provider: SupabaseOAuthProviderId;
   redirectUri: string;
   status: 'pending' | 'completing' | 'completed';
+  createdAt: number;
+  expiresAt: number;
 }
+
+type StoredOAuthAttemptReadResult =
+  | { type: 'missing' }
+  | { type: 'invalid' }
+  | { type: 'valid'; attempt: StoredOAuthAttempt };
 
 export function createSupabaseOAuthAdapter(
   input: CreateSupabaseOAuthAdapterInput,
@@ -70,6 +80,8 @@ export function createSupabaseOAuthAdapter(
   const oauthStorageKey = `${input.storageKey}.oauth`;
   const attemptStorageKey = `${oauthStorageKey}.attempt`;
   const codeVerifierStorageKey = `${oauthStorageKey}-code-verifier`;
+  const now = input.now ?? Date.now;
+  const attemptLifetimeMs = normalizeAttemptLifetime(input.attemptLifetimeMs);
   const client = createClient(input.url, input.anonKey, {
     auth: {
       autoRefreshToken: false,
@@ -101,9 +113,9 @@ export function createSupabaseOAuthAdapter(
       const queryParams = normalizeQueryParams(authorizationInput.queryParams, provider.provider);
       if (!queryParams.ok) return queryParams.result;
 
-      let previousAttempt: StoredOAuthAttempt | null;
+      let previousAttemptResult: StoredOAuthAttemptReadResult;
       try {
-        previousAttempt = await readAttempt(input.storage, attemptStorageKey);
+        previousAttemptResult = await readAttempt(input.storage, attemptStorageKey);
       } catch {
         return oauthStartError(
           'session_persistence_failed',
@@ -113,13 +125,22 @@ export function createSupabaseOAuthAdapter(
         );
       }
 
-      if (previousAttempt !== null && previousAttempt.status !== 'completed') {
-        return oauthStartError(
-          'authorization_failed',
-          'An OAuth authorization attempt is already active.',
-          provider.provider,
-          true,
-        );
+      if (previousAttemptResult.type === 'invalid') {
+        await clearOAuthAttemptState(input.storage, attemptStorageKey, codeVerifierStorageKey);
+      }
+
+      if (previousAttemptResult.type === 'valid') {
+        const previousAttempt = previousAttemptResult.attempt;
+        if (previousAttempt.status === 'completed' || isAttemptExpired(previousAttempt, now())) {
+          await clearOAuthAttemptState(input.storage, attemptStorageKey, codeVerifierStorageKey);
+        } else {
+          return oauthStartError(
+            'authorization_failed',
+            'An OAuth authorization attempt is already active.',
+            provider.provider,
+            true,
+          );
+        }
       }
 
       const definition = getSupabaseOAuthProviderDefinition(provider.provider);
@@ -158,12 +179,15 @@ export function createSupabaseOAuthAdapter(
         }
 
         const attemptId = createAttemptId();
+        const createdAt = now();
         const attempt: StoredOAuthAttempt = {
           version: ATTEMPT_VERSION,
           id: attemptId,
           provider: provider.provider,
           redirectUri: redirectUri.value,
           status: 'pending',
+          createdAt,
+          expiresAt: createdAt + attemptLifetimeMs,
         };
 
         try {
@@ -208,9 +232,9 @@ export function createSupabaseOAuthAdapter(
     async completeAuthorization(
       completionInput: CompleteOAuthAuthorizationInput,
     ): Promise<AuthOAuthCompletionResult> {
-      let attempt: StoredOAuthAttempt | null;
+      let attemptResult: StoredOAuthAttemptReadResult;
       try {
-        attempt = await readAttempt(input.storage, attemptStorageKey);
+        attemptResult = await readAttempt(input.storage, attemptStorageKey);
       } catch {
         return oauthCompletionError(
           'session_persistence_failed',
@@ -221,12 +245,35 @@ export function createSupabaseOAuthAdapter(
         );
       }
 
-      if (attempt?.id !== completionInput.attemptId) {
+      if (attemptResult.type !== 'valid') {
+        await clearOAuthAttemptState(input.storage, attemptStorageKey, codeVerifierStorageKey);
+        return oauthCompletionError(
+          'authorization_attempt_not_found',
+          'callback',
+          'The OAuth authorization attempt was not found or is invalid.',
+          undefined,
+          true,
+        );
+      }
+
+      const { attempt } = attemptResult;
+      if (isAttemptExpired(attempt, now())) {
+        await clearOAuthAttemptState(input.storage, attemptStorageKey, codeVerifierStorageKey);
+        return oauthCompletionError(
+          'authorization_attempt_not_found',
+          'callback',
+          'The OAuth authorization attempt expired.',
+          attempt.provider,
+          true,
+        );
+      }
+
+      if (attempt.id !== completionInput.attemptId) {
         return oauthCompletionError(
           'authorization_attempt_not_found',
           'callback',
           'The OAuth authorization attempt was not found.',
-          attempt?.provider,
+          attempt.provider,
           true,
         );
       }
@@ -242,8 +289,7 @@ export function createSupabaseOAuthAdapter(
       }
 
       if (completionInput.response.type === 'cancelled') {
-        await completeAttempt(input.storage, attemptStorageKey, attempt);
-        await safeRemove(input.storage, codeVerifierStorageKey);
+        await finalizeAttempt(input.storage, attemptStorageKey, codeVerifierStorageKey, attempt);
         await emitLifecycleEvent(input.onLifecycleEvent, {
           correlationId: attempt.id,
           provider: attempt.provider,
@@ -259,8 +305,7 @@ export function createSupabaseOAuthAdapter(
       }
 
       if (completionInput.response.type === 'error') {
-        await completeAttempt(input.storage, attemptStorageKey, attempt);
-        await safeRemove(input.storage, codeVerifierStorageKey);
+        await finalizeAttempt(input.storage, attemptStorageKey, codeVerifierStorageKey, attempt);
         const result = oauthCompletionError(
           'authorization_failed',
           'transport',
@@ -274,14 +319,12 @@ export function createSupabaseOAuthAdapter(
 
       const callback = parseCallback(completionInput.response.url, attempt);
       if (callback.type === 'error') {
-        await completeAttempt(input.storage, attemptStorageKey, attempt);
-        await safeRemove(input.storage, codeVerifierStorageKey);
+        await finalizeAttempt(input.storage, attemptStorageKey, codeVerifierStorageKey, attempt);
         await emitOAuthError(input.onLifecycleEvent, attempt, callback.result);
         return callback.result;
       }
       if (callback.type === 'cancelled') {
-        await completeAttempt(input.storage, attemptStorageKey, attempt);
-        await safeRemove(input.storage, codeVerifierStorageKey);
+        await finalizeAttempt(input.storage, attemptStorageKey, codeVerifierStorageKey, attempt);
         await emitLifecycleEvent(input.onLifecycleEvent, {
           correlationId: attempt.id,
           provider: attempt.provider,
@@ -315,8 +358,7 @@ export function createSupabaseOAuthAdapter(
       try {
         exchange = await client.auth.exchangeCodeForSession(callback.code);
       } catch {
-        await completeAttempt(input.storage, attemptStorageKey, attempt);
-        await safeRemove(input.storage, codeVerifierStorageKey);
+        await finalizeAttempt(input.storage, attemptStorageKey, codeVerifierStorageKey, attempt);
         const result = oauthCompletionError(
           'network_error',
           'exchange',
@@ -329,8 +371,7 @@ export function createSupabaseOAuthAdapter(
       }
 
       if (exchange.error !== null) {
-        await completeAttempt(input.storage, attemptStorageKey, attempt);
-        await safeRemove(input.storage, codeVerifierStorageKey);
+        await finalizeAttempt(input.storage, attemptStorageKey, codeVerifierStorageKey, attempt);
         const result: AuthOAuthCompletionResult = {
           ok: false,
           status: 'error',
@@ -342,8 +383,7 @@ export function createSupabaseOAuthAdapter(
 
       const session = normalizeSupabaseClientSession(exchange.data.session);
       if (session === null) {
-        await completeAttempt(input.storage, attemptStorageKey, attempt);
-        await safeRemove(input.storage, codeVerifierStorageKey);
+        await finalizeAttempt(input.storage, attemptStorageKey, codeVerifierStorageKey, attempt);
         const result = oauthCompletionError(
           'provider_error',
           'session',
@@ -358,8 +398,7 @@ export function createSupabaseOAuthAdapter(
       try {
         await input.persistSession(session);
       } catch {
-        await completeAttempt(input.storage, attemptStorageKey, attempt);
-        await safeRemove(input.storage, codeVerifierStorageKey);
+        await finalizeAttempt(input.storage, attemptStorageKey, codeVerifierStorageKey, attempt);
         const result = oauthCompletionError(
           'session_persistence_failed',
           'session',
@@ -387,8 +426,7 @@ export function createSupabaseOAuthAdapter(
         }
 
         if (!verification.ok) {
-          await completeAttempt(input.storage, attemptStorageKey, attempt);
-          await safeRemove(input.storage, codeVerifierStorageKey);
+          await finalizeAttempt(input.storage, attemptStorageKey, codeVerifierStorageKey, attempt);
           const result = oauthCompletionError(
             'profile_creation_failed',
             'profile',
@@ -408,8 +446,7 @@ export function createSupabaseOAuthAdapter(
         });
       }
 
-      await completeAttempt(input.storage, attemptStorageKey, attempt);
-      await safeRemove(input.storage, codeVerifierStorageKey);
+      await finalizeAttempt(input.storage, attemptStorageKey, codeVerifierStorageKey, attempt);
       await emitLifecycleEvent(input.onLifecycleEvent, {
         correlationId: attempt.id,
         provider: attempt.provider,
@@ -667,14 +704,14 @@ function createAttemptId(): string {
 async function readAttempt(
   storage: SupabaseAuthStorage,
   key: string,
-): Promise<StoredOAuthAttempt | null> {
+): Promise<StoredOAuthAttemptReadResult> {
   const stored = await storage.getItem(key);
-  if (stored === null) return null;
+  if (stored === null) return { type: 'missing' };
   try {
     const parsed: unknown = JSON.parse(stored);
-    return isStoredAttempt(parsed) ? parsed : null;
+    return isStoredAttempt(parsed) ? { type: 'valid', attempt: parsed } : { type: 'invalid' };
   } catch {
-    return null;
+    return { type: 'invalid' };
   }
 }
 
@@ -686,16 +723,39 @@ async function writeAttempt(
   await storage.setItem(key, JSON.stringify(attempt));
 }
 
-async function completeAttempt(
+async function finalizeAttempt(
   storage: SupabaseAuthStorage,
-  key: string,
+  attemptKey: string,
+  codeVerifierStorageKey: string,
   attempt: StoredOAuthAttempt,
 ): Promise<void> {
   try {
-    await writeAttempt(storage, key, { ...attempt, status: 'completed' });
+    await writeAttempt(storage, attemptKey, { ...attempt, status: 'completed' });
   } catch {
-    // A persisted `completing` state already prevents a duplicate code exchange.
+    await safeRemove(storage, attemptKey);
   }
+  await safeRemove(storage, codeVerifierStorageKey);
+}
+
+async function clearOAuthAttemptState(
+  storage: SupabaseAuthStorage,
+  attemptKey: string,
+  codeVerifierStorageKey: string,
+): Promise<void> {
+  await safeRemove(storage, attemptKey);
+  await safeRemove(storage, codeVerifierStorageKey);
+}
+
+function isAttemptExpired(attempt: StoredOAuthAttempt, now: number): boolean {
+  return attempt.expiresAt <= now;
+}
+
+function normalizeAttemptLifetime(value: number | undefined): number {
+  const lifetime = value ?? DEFAULT_ATTEMPT_LIFETIME_MS;
+  if (!Number.isSafeInteger(lifetime) || lifetime <= 0) {
+    throw new TypeError('OAuth authorization attempt lifetime must be a positive safe integer.');
+  }
+  return lifetime;
 }
 
 async function safeRemove(storage: SupabaseAuthStorage, key: string): Promise<void> {
@@ -713,7 +773,13 @@ function isStoredAttempt(value: unknown): value is StoredOAuthAttempt {
     typeof value.id === 'string' &&
     isSupabaseOAuthProviderId(typeof value.provider === 'string' ? value.provider : '') &&
     typeof value.redirectUri === 'string' &&
-    (value.status === 'pending' || value.status === 'completing' || value.status === 'completed')
+    (value.status === 'pending' || value.status === 'completing' || value.status === 'completed') &&
+    typeof value.createdAt === 'number' &&
+    Number.isSafeInteger(value.createdAt) &&
+    value.createdAt >= 0 &&
+    typeof value.expiresAt === 'number' &&
+    Number.isSafeInteger(value.expiresAt) &&
+    value.expiresAt > value.createdAt
   );
 }
 

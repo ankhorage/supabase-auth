@@ -1,0 +1,485 @@
+name: Apply auth3 attempt lifecycle
+
+on:
+  push:
+    branches:
+      - agent/auth-3-expiring-oauth-attempts
+
+permissions:
+  contents: write
+
+jobs:
+  apply-and-validate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/auth-3-expiring-oauth-attempts
+          fetch-depth: 0
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.3.13'
+
+      - name: Apply bounded OAuth attempt lifecycle
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          def replace_once(text: str, old: str, new: str, label: str) -> str:
+              count = text.count(old)
+              if count != 1:
+                  raise RuntimeError(f'{label}: expected one match, found {count}')
+              return text.replace(old, new, 1)
+
+          oauth_path = Path('src/oauth.ts')
+          oauth = oauth_path.read_text()
+
+          oauth = replace_once(
+              oauth,
+              "const ATTEMPT_VERSION = 1;\n",
+              "const ATTEMPT_VERSION = 2;\nconst DEFAULT_ATTEMPT_LIFETIME_MS = 10 * 60 * 1000;\n",
+              'attempt version',
+          )
+
+          oauth = replace_once(
+              oauth,
+              """  verifyProfile?: SupabaseOAuthProfileVerifier;
+  onLifecycleEvent?: SupabaseOAuthLifecycleObserver;
+}
+
+interface StoredOAuthAttempt {
+  version: typeof ATTEMPT_VERSION;
+  id: string;
+  provider: SupabaseOAuthProviderId;
+  redirectUri: string;
+  status: 'pending' | 'completing' | 'completed';
+}
+""",
+              """  verifyProfile?: SupabaseOAuthProfileVerifier;
+  onLifecycleEvent?: SupabaseOAuthLifecycleObserver;
+  now?: () => number;
+  attemptLifetimeMs?: number;
+}
+
+interface StoredOAuthAttempt {
+  version: typeof ATTEMPT_VERSION;
+  id: string;
+  provider: SupabaseOAuthProviderId;
+  redirectUri: string;
+  status: 'pending' | 'completing' | 'completed';
+  createdAt: number;
+  expiresAt: number;
+}
+
+type StoredOAuthAttemptReadResult =
+  | { type: 'missing' }
+  | { type: 'invalid' }
+  | { type: 'valid'; attempt: StoredOAuthAttempt };
+""",
+              'attempt interfaces',
+          )
+
+          oauth = replace_once(
+              oauth,
+              """  const attemptStorageKey = `${oauthStorageKey}.attempt`;
+  const codeVerifierStorageKey = `${oauthStorageKey}-code-verifier`;
+  const client = createClient(input.url, input.anonKey, {
+""",
+              """  const attemptStorageKey = `${oauthStorageKey}.attempt`;
+  const codeVerifierStorageKey = `${oauthStorageKey}-code-verifier`;
+  const now = input.now ?? Date.now;
+  const attemptLifetimeMs = normalizeAttemptLifetime(input.attemptLifetimeMs);
+  const client = createClient(input.url, input.anonKey, {
+""",
+              'clock and lifetime',
+          )
+
+          oauth = replace_once(
+              oauth,
+              """      let previousAttempt: StoredOAuthAttempt | null;
+      try {
+        previousAttempt = await readAttempt(input.storage, attemptStorageKey);
+      } catch {
+        return oauthStartError(
+          'session_persistence_failed',
+          'Unable to read the persisted OAuth authorization state.',
+          provider.provider,
+          true,
+        );
+      }
+
+      if (previousAttempt !== null && previousAttempt.status !== 'completed') {
+        return oauthStartError(
+          'authorization_failed',
+          'An OAuth authorization attempt is already active.',
+          provider.provider,
+          true,
+        );
+      }
+""",
+              """      let previousAttemptResult: StoredOAuthAttemptReadResult;
+      try {
+        previousAttemptResult = await readAttempt(input.storage, attemptStorageKey);
+      } catch {
+        return oauthStartError(
+          'session_persistence_failed',
+          'Unable to read the persisted OAuth authorization state.',
+          provider.provider,
+          true,
+        );
+      }
+
+      if (previousAttemptResult.type === 'invalid') {
+        await clearOAuthAttemptState(
+          input.storage,
+          attemptStorageKey,
+          codeVerifierStorageKey,
+        );
+      }
+
+      if (previousAttemptResult.type === 'valid') {
+        const previousAttempt = previousAttemptResult.attempt;
+        if (
+          previousAttempt.status === 'completed' ||
+          isAttemptExpired(previousAttempt, now())
+        ) {
+          await clearOAuthAttemptState(
+            input.storage,
+            attemptStorageKey,
+            codeVerifierStorageKey,
+          );
+        } else {
+          return oauthStartError(
+            'authorization_failed',
+            'An OAuth authorization attempt is already active.',
+            provider.provider,
+            true,
+          );
+        }
+      }
+""",
+              'start recovery',
+          )
+
+          oauth = replace_once(
+              oauth,
+              """        const attemptId = createAttemptId();
+        const attempt: StoredOAuthAttempt = {
+          version: ATTEMPT_VERSION,
+          id: attemptId,
+          provider: provider.provider,
+          redirectUri: redirectUri.value,
+          status: 'pending',
+        };
+""",
+              """        const attemptId = createAttemptId();
+        const createdAt = now();
+        const attempt: StoredOAuthAttempt = {
+          version: ATTEMPT_VERSION,
+          id: attemptId,
+          provider: provider.provider,
+          redirectUri: redirectUri.value,
+          status: 'pending',
+          createdAt,
+          expiresAt: createdAt + attemptLifetimeMs,
+        };
+""",
+              'attempt timestamps',
+          )
+
+          oauth = replace_once(
+              oauth,
+              """      let attempt: StoredOAuthAttempt | null;
+      try {
+        attempt = await readAttempt(input.storage, attemptStorageKey);
+      } catch {
+        return oauthCompletionError(
+          'session_persistence_failed',
+          'callback',
+          'Unable to read the persisted OAuth authorization attempt.',
+          undefined,
+          true,
+        );
+      }
+
+      if (attempt?.id !== completionInput.attemptId) {
+        return oauthCompletionError(
+          'authorization_attempt_not_found',
+          'callback',
+          'The OAuth authorization attempt was not found.',
+          attempt?.provider,
+          true,
+        );
+      }
+
+      if (attempt.status !== 'pending') {
+        return oauthCompletionError(
+          'callback_already_completed',
+          'callback',
+          'The OAuth authorization callback was already handled.',
+          attempt.provider,
+          false,
+        );
+      }
+""",
+              """      let attemptResult: StoredOAuthAttemptReadResult;
+      try {
+        attemptResult = await readAttempt(input.storage, attemptStorageKey);
+      } catch {
+        return oauthCompletionError(
+          'session_persistence_failed',
+          'callback',
+          'Unable to read the persisted OAuth authorization attempt.',
+          undefined,
+          true,
+        );
+      }
+
+      if (attemptResult.type !== 'valid') {
+        await clearOAuthAttemptState(
+          input.storage,
+          attemptStorageKey,
+          codeVerifierStorageKey,
+        );
+        return oauthCompletionError(
+          'authorization_attempt_not_found',
+          'callback',
+          'The OAuth authorization attempt was not found or is invalid.',
+          undefined,
+          true,
+        );
+      }
+
+      const attempt = attemptResult.attempt;
+      if (isAttemptExpired(attempt, now())) {
+        await clearOAuthAttemptState(
+          input.storage,
+          attemptStorageKey,
+          codeVerifierStorageKey,
+        );
+        return oauthCompletionError(
+          'authorization_attempt_not_found',
+          'callback',
+          'The OAuth authorization attempt expired.',
+          attempt.provider,
+          true,
+        );
+      }
+
+      if (attempt.id !== completionInput.attemptId) {
+        return oauthCompletionError(
+          'authorization_attempt_not_found',
+          'callback',
+          'The OAuth authorization attempt was not found.',
+          attempt.provider,
+          true,
+        );
+      }
+
+      if (attempt.status !== 'pending') {
+        return oauthCompletionError(
+          'callback_already_completed',
+          'callback',
+          'The OAuth authorization callback was already handled.',
+          attempt.provider,
+          false,
+        );
+      }
+""",
+              'completion recovery',
+          )
+
+          terminal_pattern = re.compile(
+              r"(?P<indent> +)await completeAttempt\(input\.storage, attemptStorageKey, attempt\);\n"
+              r"(?P=indent)await safeRemove\(input\.storage, codeVerifierStorageKey\);"
+          )
+
+          def terminal_replacement(match: re.Match[str]) -> str:
+              indent = match.group('indent')
+              return (
+                  f"{indent}await finalizeAttempt(\n"
+                  f"{indent}  input.storage,\n"
+                  f"{indent}  attemptStorageKey,\n"
+                  f"{indent}  codeVerifierStorageKey,\n"
+                  f"{indent}  attempt,\n"
+                  f"{indent});"
+              )
+
+          oauth, terminal_count = terminal_pattern.subn(terminal_replacement, oauth)
+          if terminal_count != 10:
+              raise RuntimeError(f'terminal cleanup: expected 10 matches, found {terminal_count}')
+
+          oauth = replace_once(
+              oauth,
+              """async function readAttempt(
+  storage: SupabaseAuthStorage,
+  key: string,
+): Promise<StoredOAuthAttempt | null> {
+  const stored = await storage.getItem(key);
+  if (stored === null) return null;
+  try {
+    const parsed: unknown = JSON.parse(stored);
+    return isStoredAttempt(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+async function writeAttempt(
+  storage: SupabaseAuthStorage,
+  key: string,
+  attempt: StoredOAuthAttempt,
+): Promise<void> {
+  await storage.setItem(key, JSON.stringify(attempt));
+}
+
+async function completeAttempt(
+  storage: SupabaseAuthStorage,
+  key: string,
+  attempt: StoredOAuthAttempt,
+): Promise<void> {
+  try {
+    await writeAttempt(storage, key, { ...attempt, status: 'completed' });
+  } catch {
+    // A persisted `completing` state already prevents a duplicate code exchange.
+  }
+}
+""",
+              """async function readAttempt(
+  storage: SupabaseAuthStorage,
+  key: string,
+): Promise<StoredOAuthAttemptReadResult> {
+  const stored = await storage.getItem(key);
+  if (stored === null) return { type: 'missing' };
+  try {
+    const parsed: unknown = JSON.parse(stored);
+    return isStoredAttempt(parsed)
+      ? { type: 'valid', attempt: parsed }
+      : { type: 'invalid' };
+  } catch {
+    return { type: 'invalid' };
+  }
+}
+
+async function writeAttempt(
+  storage: SupabaseAuthStorage,
+  key: string,
+  attempt: StoredOAuthAttempt,
+): Promise<void> {
+  await storage.setItem(key, JSON.stringify(attempt));
+}
+
+async function finalizeAttempt(
+  storage: SupabaseAuthStorage,
+  attemptKey: string,
+  codeVerifierStorageKey: string,
+  attempt: StoredOAuthAttempt,
+): Promise<void> {
+  try {
+    await writeAttempt(storage, attemptKey, { ...attempt, status: 'completed' });
+  } catch {
+    await safeRemove(storage, attemptKey);
+  }
+  await safeRemove(storage, codeVerifierStorageKey);
+}
+
+async function clearOAuthAttemptState(
+  storage: SupabaseAuthStorage,
+  attemptKey: string,
+  codeVerifierStorageKey: string,
+): Promise<void> {
+  await safeRemove(storage, attemptKey);
+  await safeRemove(storage, codeVerifierStorageKey);
+}
+
+function isAttemptExpired(attempt: StoredOAuthAttempt, now: number): boolean {
+  return attempt.expiresAt <= now;
+}
+
+function normalizeAttemptLifetime(value: number | undefined): number {
+  const lifetime = value ?? DEFAULT_ATTEMPT_LIFETIME_MS;
+  if (!Number.isSafeInteger(lifetime) || lifetime <= 0) {
+    throw new TypeError('OAuth authorization attempt lifetime must be a positive safe integer.');
+  }
+  return lifetime;
+}
+""",
+              'storage lifecycle helpers',
+          )
+
+          oauth = replace_once(
+              oauth,
+              """    typeof value.redirectUri === 'string' &&
+    (value.status === 'pending' || value.status === 'completing' || value.status === 'completed')
+""",
+              """    typeof value.redirectUri === 'string' &&
+    (value.status === 'pending' || value.status === 'completing' || value.status === 'completed') &&
+    typeof value.createdAt === 'number' &&
+    Number.isSafeInteger(value.createdAt) &&
+    value.createdAt >= 0 &&
+    typeof value.expiresAt === 'number' &&
+    Number.isSafeInteger(value.expiresAt) &&
+    value.expiresAt > value.createdAt
+""",
+              'stored attempt validation',
+          )
+
+          oauth_path.write_text(oauth)
+
+          test_path = Path('src/oauthAttemptLifecycle.test.ts')
+          test = test_path.read_text()
+          test = replace_once(
+              test,
+              """  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+    throw new Error('Persisted OAuth attempt is invalid.');
+  }
+  return parsed as Record<string, unknown>;
+}
+
+describe('expiring OAuth attempt lifecycle', () => {
+""",
+              """  if (!isRecord(parsed)) {
+    throw new Error('Persisted OAuth attempt is invalid.');
+  }
+  return parsed;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+describe('expiring OAuth attempt lifecycle', () => {
+""",
+              'test record guard',
+          )
+          test_path.write_text(test)
+          PY
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Apply repository formatting
+        run: |
+          bun run lint:fix
+          bun run format
+
+      - name: Validate package
+        run: |
+          bun run build
+          bun run test
+          npm pack --dry-run
+
+      - name: Commit validated implementation and remove helper workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/apply-auth3-attempt-lifecycle.yml
+          git add -A
+          git commit -m "Add expiring OAuth attempt recovery"
+          git push

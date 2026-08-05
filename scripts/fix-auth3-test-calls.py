@@ -10,4 +10,14 @@ text = text.replace(
     'adapter.completeAuthorization({',
     'adapter.completeAuthorization.call(adapter, {',
 )
+text = text.replace(
+    """    setNow(value: number) {
+      currentTime = value;
+    },
+""",
+    """    setNow: (value: number) => {
+      currentTime = value;
+    },
+""",
+)
 path.write_text(text)

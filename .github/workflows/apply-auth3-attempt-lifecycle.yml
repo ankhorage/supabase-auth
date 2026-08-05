@@ -29,6 +29,7 @@ jobs:
         run: |
           python scripts/apply-auth3-attempt-lifecycle.py
           python scripts/fix-auth3-test-calls.py
+          nl -ba src/oauthAttemptLifecycle.test.ts | sed -n '98,108p;183,193p'
 
       - name: Install dependencies
         run: bun install --frozen-lockfile

@@ -1,5 +1,11 @@
 # @ankhorage/supabase-auth
 
+## 1.1.2
+
+### Patch Changes
+
+- f64d67b: Add bounded, self-healing OAuth attempt persistence with explicit creation and expiry timestamps, stale/corrupt state recovery, and deterministic terminal PKCE cleanup.
+
 ## 1.1.1
 
 ### Patch Changes

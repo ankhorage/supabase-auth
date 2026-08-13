@@ -15,6 +15,10 @@ export {
   validateSupabaseOAuthSecretPayload,
 } from './oauthProviderDefinitions.js';
 export {
+  resolveSupabaseOAuthSetupPlan,
+  SUPABASE_OAUTH_SETUP_CAPABILITIES,
+} from './oauthSetupRequirements.js';
+export {
   createSupabaseOAuthProfileVerifier,
   normalizeSupabaseAuthProfileVerificationConfig,
   verifySupabaseOAuthProfile,

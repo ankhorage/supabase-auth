@@ -1,6 +1,5 @@
-import { describe, expect, it } from 'bun:test';
-
 import type { AppDeployTargetId } from '@ankhorage/contracts/deploy';
+import { describe, expect, it } from 'bun:test';
 
 import {
   resolveSupabaseOAuthSetupPlan,
@@ -35,9 +34,9 @@ describe('Supabase OAuth setup planning', () => {
         expect(fields).toHaveLength(2);
         expect(fields.every((field) => field.target === undefined)).toBe(true);
         expect(callbacks.filter((item) => item.role === 'provider')).toHaveLength(1);
-        expect(
-          callbacks.filter((item) => item.role === 'app').map((item) => item.target),
-        ).toEqual(targets);
+        expect(callbacks.filter((item) => item.role === 'app').map((item) => item.target)).toEqual(
+          targets,
+        );
       });
     }
   }

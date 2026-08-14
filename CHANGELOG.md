@@ -1,5 +1,11 @@
 # @ankhorage/supabase-auth
 
+## 1.2.0
+
+### Minor Changes
+
+- 7a2e61a: Add target- and environment-aware OAuth setup requirement planning for supported Supabase providers.
+
 ## 1.1.2
 
 ### Patch Changes

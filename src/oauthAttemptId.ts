@@ -31,14 +31,31 @@ export function createOAuthAttemptId(
 }
 
 function resolveOAuthAttemptIdRuntime(): OAuthAttemptIdRuntime {
-  const crypto = globalThis.crypto;
+  const cryptoValue: unknown = Reflect.get(globalThis, 'crypto');
+  if (typeof cryptoValue !== 'object' || cryptoValue === null) {
+    return { now: Date.now, random: Math.random };
+  }
+
+  const randomUuidValue: unknown = Reflect.get(cryptoValue, 'randomUUID');
+  const randomValuesValue: unknown = Reflect.get(cryptoValue, 'getRandomValues');
+  const randomUuid =
+    typeof randomUuidValue === 'function'
+      ? () => {
+          const value: unknown = Reflect.apply(randomUuidValue, cryptoValue, []);
+          if (typeof value !== 'string') throw new TypeError('crypto.randomUUID() must return a string.');
+          return value;
+        }
+      : undefined;
+  const fillRandomBytes =
+    typeof randomValuesValue === 'function'
+      ? (bytes: Uint8Array) => {
+          Reflect.apply(randomValuesValue, cryptoValue, [bytes]);
+        }
+      : undefined;
+
   return {
-    ...(typeof crypto?.randomUUID === 'function'
-      ? { randomUuid: () => crypto.randomUUID() }
-      : {}),
-    ...(typeof crypto?.getRandomValues === 'function'
-      ? { fillRandomBytes: (bytes: Uint8Array) => void crypto.getRandomValues(bytes) }
-      : {}),
+    ...(randomUuid === undefined ? {} : { randomUuid }),
+    ...(fillRandomBytes === undefined ? {} : { fillRandomBytes }),
     now: Date.now,
     random: Math.random,
   };

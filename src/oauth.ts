@@ -12,6 +12,7 @@ import type {
 } from '@ankhorage/contracts/auth';
 import { createClient } from '@supabase/supabase-js';
 
+import { createOAuthAttemptId } from './oauthAttemptId.js';
 import {
   getSupabaseOAuthProviderDefinition,
   isSupabaseOAuthProviderId,
@@ -178,7 +179,7 @@ export function createSupabaseOAuthAdapter(
           );
         }
 
-        const attemptId = createAttemptId();
+        const attemptId = createOAuthAttemptId();
         const createdAt = now();
         const attempt: StoredOAuthAttempt = {
           version: ATTEMPT_VERSION,
@@ -692,13 +693,6 @@ function sameCallbackLocation(callbackUrl: URL, redirectUri: URL): boolean {
 
 function isLocalhost(hostname: string): boolean {
   return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '[::1]';
-}
-
-function createAttemptId(): string {
-  if (typeof globalThis.crypto.randomUUID !== 'function') {
-    throw new TypeError('OAuth PKCE authorization requires crypto.randomUUID().');
-  }
-  return globalThis.crypto.randomUUID();
 }
 
 async function readAttempt(

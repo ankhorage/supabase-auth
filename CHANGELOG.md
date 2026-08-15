@@ -1,5 +1,11 @@
 # @ankhorage/supabase-auth
 
+## 1.2.1
+
+### Patch Changes
+
+- 4585160: Allow brokered OAuth attempts to initialize in native runtimes where browser WebCrypto globals are unavailable.
+
 ## 1.2.0
 
 ### Minor Changes

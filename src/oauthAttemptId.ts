@@ -42,7 +42,9 @@ function resolveOAuthAttemptIdRuntime(): OAuthAttemptIdRuntime {
     typeof randomUuidValue === 'function'
       ? () => {
           const value: unknown = Reflect.apply(randomUuidValue, cryptoValue, []);
-          if (typeof value !== 'string') throw new TypeError('crypto.randomUUID() must return a string.');
+          if (typeof value !== 'string') {
+            throw new TypeError('crypto.randomUUID() must return a string.');
+          }
           return value;
         }
       : undefined;

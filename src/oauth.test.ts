@@ -119,9 +119,30 @@ describe('canonical OAuth PKCE adapter', () => {
     });
     expect(calls).toHaveLength(1);
 
+    for (const callbackUrl of [
+      'ankh-app://auth/callback',
+      'ankh-app://auth/callback?code=stale-code',
+      'ankh-app://auth/callback?code=opaque-code&unexpected=value',
+      'ankh-app://auth/callback?code=opaque-code&error_description=invalid',
+    ]) {
+      const unrelated = await adapter.oauth?.completeAuthorization({
+        attemptId: started.data.attemptId,
+        response: { type: 'callback', url: callbackUrl },
+      });
+      expect(unrelated).toMatchObject({
+        ok: false,
+        status: 'error',
+        error: { code: 'invalid_callback' },
+      });
+    }
+    expect(calls).toHaveLength(1);
+
     const persisted = values.get('ankhorage.supabase-auth.session') ?? '';
     expect(persisted).toContain('access-token');
     expect([...values.values()].join('\n')).not.toContain('opaque-code');
+    expect(values.get('ankhorage.supabase-auth.session.oauth.attempt')).toMatch(
+      /"callbackFingerprint":"[0-9a-f]{64}"/u,
+    );
     expect([...values.keys()].some((key) => key.endsWith('-code-verifier'))).toBe(false);
   });
 

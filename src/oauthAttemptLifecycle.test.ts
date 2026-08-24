@@ -90,7 +90,7 @@ describe('expiring OAuth attempt lifecycle', () => {
     const started = await startAuthorization(adapter);
 
     expect(readAttempt(values)).toEqual({
-      version: 2,
+      version: 3,
       id: started.attemptId,
       provider: 'google',
       redirectUri: REDIRECT_URI,
@@ -126,7 +126,7 @@ describe('expiring OAuth attempt lifecycle', () => {
         now: 20_000,
         initial: {
           [ATTEMPT_KEY]: JSON.stringify({
-            version: 2,
+            version: 3,
             id: `expired-${status}`,
             provider: 'google',
             redirectUri: REDIRECT_URI,
@@ -143,7 +143,7 @@ describe('expiring OAuth attempt lifecycle', () => {
 
       expect(restarted.attemptId).not.toBe(`expired-${status}`);
       expect(persisted).toMatchObject({
-        version: 2,
+        version: 3,
         id: restarted.attemptId,
         status: 'pending',
         createdAt: 20_000,
@@ -175,7 +175,7 @@ describe('expiring OAuth attempt lifecycle', () => {
       const restarted = await startAuthorization(adapter);
 
       expect(readAttempt(values)).toMatchObject({
-        version: 2,
+        version: 3,
         id: restarted.attemptId,
         status: 'pending',
         createdAt: 30_000,

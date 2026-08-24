@@ -146,6 +146,92 @@ describe('canonical OAuth PKCE adapter', () => {
     expect([...values.keys()].some((key) => key.endsWith('-code-verifier'))).toBe(false);
   });
 
+  it('correlates native callback replays when Web Crypto is unavailable', async () => {
+    const cryptoDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'crypto');
+    if (!Reflect.deleteProperty(globalThis, 'crypto')) {
+      throw new Error('The test runtime crypto global could not be removed.');
+    }
+
+    try {
+      const { storage, values } = createMemoryStorage();
+      let exchanges = 0;
+      const adapter = createSupabaseAuthAdapter({
+        url: 'https://example.supabase.co',
+        anonKey: 'anon',
+        storage,
+        oauthProviders: ['google'],
+        fetch: () => {
+          exchanges += 1;
+          return Promise.resolve(
+            new Response(
+              JSON.stringify({
+                access_token: 'native-access-token',
+                refresh_token: 'native-refresh-token',
+                expires_in: 3600,
+                token_type: 'bearer',
+                user: {
+                  id: 'native-user',
+                  email: 'native@example.com',
+                  app_metadata: {},
+                  user_metadata: {},
+                  aud: 'authenticated',
+                },
+              }),
+              { status: 200, headers: { 'content-type': 'application/json' } },
+            ),
+          );
+        },
+      });
+      const started = await adapter.oauth?.startAuthorization({
+        provider: 'google',
+        redirectUri: 'ankh-app://auth/callback',
+      });
+      if (started?.ok !== true) throw new Error('OAuth start failed.');
+
+      const callbackUrl = 'ankh-app://auth/callback?code=native-opaque-code';
+      expect(
+        await adapter.oauth?.completeAuthorization({
+          attemptId: started.data.attemptId,
+          response: { type: 'callback', url: callbackUrl },
+        }),
+      ).toMatchObject({ ok: true, status: 'authenticated' });
+      expect(
+        await adapter.oauth?.completeAuthorization({
+          attemptId: started.data.attemptId,
+          response: { type: 'callback', url: callbackUrl },
+        }),
+      ).toMatchObject({
+        ok: false,
+        status: 'error',
+        error: { code: 'callback_already_completed' },
+      });
+      expect(
+        await adapter.oauth?.completeAuthorization({
+          attemptId: started.data.attemptId,
+          response: {
+            type: 'callback',
+            url: 'ankh-app://auth/callback?code=unrelated-native-code',
+          },
+        }),
+      ).toMatchObject({
+        ok: false,
+        status: 'error',
+        error: { code: 'invalid_callback' },
+      });
+      expect(exchanges).toBe(1);
+      expect(values.get('ankhorage.supabase-auth.session.oauth.attempt')).toMatch(
+        /"callbackFingerprint":"[0-9a-f]{64}"/u,
+      );
+      expect([...values.values()].join('\n')).not.toContain('native-opaque-code');
+    } finally {
+      if (cryptoDescriptor === undefined) {
+        Reflect.deleteProperty(globalThis, 'crypto');
+      } else {
+        Object.defineProperty(globalThis, 'crypto', cryptoDescriptor);
+      }
+    }
+  });
+
   it('exchanges OAuth codes with the active default global fetch after adapter creation', async () => {
     const originalFetch = globalThis.fetch;
     const { storage } = createMemoryStorage();

@@ -10,6 +10,8 @@ import type {
   CompleteOAuthAuthorizationInput,
   StartOAuthAuthorizationInput,
 } from '@ankhorage/contracts/auth';
+import { sha256 } from '@noble/hashes/sha2.js';
+import { bytesToHex, utf8ToBytes } from '@noble/hashes/utils.js';
 import { createClient } from '@supabase/supabase-js';
 
 import { createOAuthAttemptId } from './oauthAttemptId.js';
@@ -335,13 +337,13 @@ export function createSupabaseOAuthAdapter(
         };
       }
 
-      const callbackFingerprint = await fingerprintOAuthCallback(attempt.id, callback.code);
+      const callbackFingerprint = fingerprintOAuthCallback(attempt.id, callback.code);
 
       try {
         await writeAttempt(input.storage, attemptStorageKey, {
           ...attempt,
           status: 'completing',
-          ...(callbackFingerprint ? { callbackFingerprint } : {}),
+          callbackFingerprint,
         });
       } catch {
         return oauthCompletionError(
@@ -468,10 +470,10 @@ export function createSupabaseOAuthAdapter(
   };
 }
 
-async function completeOAuthReplay(
+function completeOAuthReplay(
   completionInput: CompleteOAuthAuthorizationInput,
   attempt: StoredOAuthAttempt,
-): Promise<AuthOAuthCompletionResult> {
+): AuthOAuthCompletionResult {
   if (completionInput.response.type !== 'callback') {
     return invalidCallback(
       attempt.provider,
@@ -487,9 +489,8 @@ async function completeOAuthReplay(
     ).result;
   }
 
-  const fingerprint = await fingerprintOAuthCallback(attempt.id, callback.code);
+  const fingerprint = fingerprintOAuthCallback(attempt.id, callback.code);
   if (
-    fingerprint === null ||
     attempt.callbackFingerprint === undefined ||
     !constantTimeEqual(fingerprint, attempt.callbackFingerprint)
   ) {
@@ -778,13 +779,13 @@ async function finalizeAttempt(
   attemptKey: string,
   codeVerifierStorageKey: string,
   attempt: StoredOAuthAttempt,
-  callbackFingerprint?: string | null,
+  callbackFingerprint?: string,
 ): Promise<void> {
   try {
     await writeAttempt(storage, attemptKey, {
       ...attempt,
       status: 'completed',
-      ...(callbackFingerprint ? { callbackFingerprint } : {}),
+      ...(callbackFingerprint === undefined ? {} : { callbackFingerprint }),
     });
   } catch {
     await safeRemove(storage, attemptKey);
@@ -805,21 +806,8 @@ function isAttemptExpired(attempt: StoredOAuthAttempt, now: number): boolean {
   return attempt.expiresAt <= now;
 }
 
-async function fingerprintOAuthCallback(attemptId: string, code: string): Promise<string | null> {
-  const cryptoValue: unknown = Reflect.get(globalThis, 'crypto');
-  if (!isRecord(cryptoValue)) return null;
-  const subtle: unknown = Reflect.get(cryptoValue, 'subtle');
-  if (!isRecord(subtle)) return null;
-  const digestFunction: unknown = Reflect.get(subtle, 'digest');
-  if (typeof digestFunction !== 'function') return null;
-  try {
-    const input = new TextEncoder().encode(`${attemptId}\u0000${code}`);
-    const digest: unknown = await Reflect.apply(digestFunction, subtle, ['SHA-256', input]);
-    if (!(digest instanceof ArrayBuffer)) return null;
-    return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, '0')).join('');
-  } catch {
-    return null;
-  }
+function fingerprintOAuthCallback(attemptId: string, code: string): string {
+  return bytesToHex(sha256(utf8ToBytes(`${attemptId}\u0000${code}`)));
 }
 
 function constantTimeEqual(left: string, right: string): boolean {

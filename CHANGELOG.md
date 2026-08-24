@@ -1,5 +1,12 @@
 # @ankhorage/supabase-auth
 
+## 1.2.2
+
+### Patch Changes
+
+- 0e5d304: Correlate completed OAuth callback replays with a platform-neutral SHA-256 fingerprint, without
+  persisting authorization codes or repeating the code exchange.
+
 ## 1.2.1
 
 ### Patch Changes

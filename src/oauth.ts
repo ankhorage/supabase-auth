@@ -10,6 +10,8 @@ import type {
   CompleteOAuthAuthorizationInput,
   StartOAuthAuthorizationInput,
 } from '@ankhorage/contracts/auth';
+import { sha256 } from '@noble/hashes/sha2.js';
+import { bytesToHex, utf8ToBytes } from '@noble/hashes/utils.js';
 import { createClient } from '@supabase/supabase-js';
 
 import { createOAuthAttemptId } from './oauthAttemptId.js';
@@ -27,7 +29,7 @@ import type {
   SupabaseOAuthProfileVerifier,
 } from './types.js';
 
-const ATTEMPT_VERSION = 2;
+const ATTEMPT_VERSION = 3;
 const DEFAULT_ATTEMPT_LIFETIME_MS = 10 * 60 * 1000;
 const FORBIDDEN_QUERY_PARAMS = new Set([
   'code_challenge',
@@ -62,6 +64,7 @@ interface StoredOAuthAttempt {
   status: 'pending' | 'completing' | 'completed';
   createdAt: number;
   expiresAt: number;
+  callbackFingerprint?: string;
 }
 
 type StoredOAuthAttemptReadResult =
@@ -280,13 +283,7 @@ export function createSupabaseOAuthAdapter(
       }
 
       if (attempt.status !== 'pending') {
-        return oauthCompletionError(
-          'callback_already_completed',
-          'callback',
-          'The OAuth authorization callback was already handled.',
-          attempt.provider,
-          false,
-        );
+        return completeOAuthReplay(completionInput, attempt);
       }
 
       if (completionInput.response.type === 'cancelled') {
@@ -340,10 +337,13 @@ export function createSupabaseOAuthAdapter(
         };
       }
 
+      const callbackFingerprint = fingerprintOAuthCallback(attempt.id, callback.code);
+
       try {
         await writeAttempt(input.storage, attemptStorageKey, {
           ...attempt,
           status: 'completing',
+          callbackFingerprint,
         });
       } catch {
         return oauthCompletionError(
@@ -447,7 +447,13 @@ export function createSupabaseOAuthAdapter(
         });
       }
 
-      await finalizeAttempt(input.storage, attemptStorageKey, codeVerifierStorageKey, attempt);
+      await finalizeAttempt(
+        input.storage,
+        attemptStorageKey,
+        codeVerifierStorageKey,
+        attempt,
+        callbackFingerprint,
+      );
       await emitLifecycleEvent(input.onLifecycleEvent, {
         correlationId: attempt.id,
         provider: attempt.provider,
@@ -462,6 +468,49 @@ export function createSupabaseOAuthAdapter(
       };
     },
   };
+}
+
+function completeOAuthReplay(
+  completionInput: CompleteOAuthAuthorizationInput,
+  attempt: StoredOAuthAttempt,
+): AuthOAuthCompletionResult {
+  if (completionInput.response.type !== 'callback') {
+    return invalidCallback(
+      attempt.provider,
+      'The OAuth response does not match the authorization callback being completed.',
+    ).result;
+  }
+
+  const callback = parseCallback(completionInput.response.url, attempt);
+  if (callback.type !== 'code') {
+    return invalidCallback(
+      attempt.provider,
+      'The OAuth callback does not match the completed authorization callback.',
+    ).result;
+  }
+
+  const fingerprint = fingerprintOAuthCallback(attempt.id, callback.code);
+  if (
+    attempt.callbackFingerprint === undefined ||
+    !constantTimeEqual(fingerprint, attempt.callbackFingerprint)
+  ) {
+    return invalidCallback(
+      attempt.provider,
+      'The OAuth callback does not match the completed authorization callback.',
+    ).result;
+  }
+
+  return callbackAlreadyCompleted(attempt.provider);
+}
+
+function callbackAlreadyCompleted(provider: SupabaseOAuthProviderId): AuthOAuthCompletionResult {
+  return oauthCompletionError(
+    'callback_already_completed',
+    'callback',
+    'The OAuth authorization callback was already handled.',
+    provider,
+    false,
+  );
 }
 
 async function emitOAuthError(
@@ -638,6 +687,14 @@ function parseCallback(
     ...callbackUrl.searchParams.getAll('error'),
     ...callbackUrl.searchParams.getAll('error_code'),
   ].filter((value) => value.length > 0);
+  const errorDescriptions = callbackUrl.searchParams.getAll('error_description');
+
+  if (errorDescriptions.length > 0 && errors.length === 0) {
+    return invalidCallback(
+      attempt.provider,
+      'The OAuth callback contains an error description without an error.',
+    );
+  }
 
   if (codes.length > 0 && errors.length > 0) {
     return invalidCallback(
@@ -722,9 +779,14 @@ async function finalizeAttempt(
   attemptKey: string,
   codeVerifierStorageKey: string,
   attempt: StoredOAuthAttempt,
+  callbackFingerprint?: string,
 ): Promise<void> {
   try {
-    await writeAttempt(storage, attemptKey, { ...attempt, status: 'completed' });
+    await writeAttempt(storage, attemptKey, {
+      ...attempt,
+      status: 'completed',
+      ...(callbackFingerprint === undefined ? {} : { callbackFingerprint }),
+    });
   } catch {
     await safeRemove(storage, attemptKey);
   }
@@ -742,6 +804,19 @@ async function clearOAuthAttemptState(
 
 function isAttemptExpired(attempt: StoredOAuthAttempt, now: number): boolean {
   return attempt.expiresAt <= now;
+}
+
+function fingerprintOAuthCallback(attemptId: string, code: string): string {
+  return bytesToHex(sha256(utf8ToBytes(`${attemptId}\u0000${code}`)));
+}
+
+function constantTimeEqual(left: string, right: string): boolean {
+  if (left.length !== right.length) return false;
+  let difference = 0;
+  for (let index = 0; index < left.length; index += 1) {
+    difference |= left.charCodeAt(index) ^ right.charCodeAt(index);
+  }
+  return difference === 0;
 }
 
 function normalizeAttemptLifetime(value: number | undefined): number {
@@ -773,7 +848,11 @@ function isStoredAttempt(value: unknown): value is StoredOAuthAttempt {
     value.createdAt >= 0 &&
     typeof value.expiresAt === 'number' &&
     Number.isSafeInteger(value.expiresAt) &&
-    value.expiresAt > value.createdAt
+    value.expiresAt > value.createdAt &&
+    (value.callbackFingerprint === undefined ||
+      ((value.status === 'completing' || value.status === 'completed') &&
+        typeof value.callbackFingerprint === 'string' &&
+        /^[0-9a-f]{64}$/u.test(value.callbackFingerprint)))
   );
 }
 

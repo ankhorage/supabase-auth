@@ -1,5 +1,11 @@
 # @ankhorage/supabase-auth
 
+## 1.2.4
+
+### Patch Changes
+
+- 4744118: Allow native runtimes to inject a platform CSPRNG for OAuth PKCE verifier generation.
+
 ## 1.2.3
 
 ### Patch Changes

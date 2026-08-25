@@ -232,6 +232,85 @@ describe('canonical OAuth PKCE adapter', () => {
     expect(exchanges).toBe(1);
   });
 
+  it('rejects a consumed callback after a newer authorization attempt starts', async () => {
+    const { storage, values } = createMemoryStorage();
+    let exchanges = 0;
+    const adapter = createSupabaseAuthAdapter({
+      url: 'https://example.supabase.co',
+      anonKey: 'anon',
+      storage,
+      oauthProviders: ['google'],
+      fetch: () => {
+        exchanges += 1;
+        return Promise.resolve(
+          Response.json({
+            access_token: `cross-attempt-access-${exchanges}`,
+            refresh_token: `cross-attempt-refresh-${exchanges}`,
+            expires_in: 3600,
+            token_type: 'bearer',
+            user: {
+              id: 'cross-attempt-user',
+              email: 'cross-attempt@example.com',
+              app_metadata: {},
+              user_metadata: {},
+              aud: 'authenticated',
+            },
+          }),
+        );
+      },
+    });
+    const first = await adapter.oauth?.startAuthorization({
+      provider: 'google',
+      redirectUri: 'ankh-app://auth/callback',
+    });
+    if (first?.ok !== true) throw new Error('First OAuth start failed.');
+    const consumedCallback = 'ankh-app://auth/callback?code=already-consumed-code';
+    expect(
+      await adapter.oauth?.completeAuthorization({
+        attemptId: first.data.attemptId,
+        response: { type: 'callback', url: consumedCallback },
+      }),
+    ).toMatchObject({ ok: true, status: 'authenticated' });
+
+    const second = await adapter.oauth?.startAuthorization({
+      provider: 'google',
+      redirectUri: 'ankh-app://auth/callback',
+    });
+    if (second?.ok !== true) throw new Error('Second OAuth start failed.');
+    const stale = await adapter.oauth?.completeAuthorization({
+      attemptId: second.data.attemptId,
+      response: { type: 'callback', url: consumedCallback },
+    });
+
+    expect(stale).toMatchObject({
+      ok: false,
+      status: 'error',
+      error: { code: 'invalid_callback' },
+    });
+    expect(exchanges).toBe(1);
+    expect([...values.keys()].some((key) => key.endsWith('.pkce-verifier'))).toBe(false);
+    expect([...values.values()].join('\n')).not.toContain('already-consumed-code');
+    expect(values.get('ankhorage.supabase-auth.session.oauth.consumed-callbacks')).toMatch(
+      /"fingerprint":"[0-9a-f]{64}"/u,
+    );
+
+    const third = await adapter.oauth?.startAuthorization({
+      provider: 'google',
+      redirectUri: 'ankh-app://auth/callback',
+    });
+    if (third?.ok !== true) throw new Error('Third OAuth start failed.');
+    expect(
+      await adapter.oauth?.completeAuthorization({
+        attemptId: third.data.attemptId,
+        response: {
+          type: 'callback',
+          url: 'ankh-app://auth/callback?code=fresh-cross-attempt-code',
+        },
+      }),
+    ).toMatchObject({ ok: true, status: 'authenticated' });
+    expect(exchanges).toBe(2);
+  });
+
   it('uses an injected CSPRNG for matching S256 and exchange values without global crypto', async () => {
     const cryptoDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'crypto');
     const originalCrypto = globalThis.crypto;

@@ -32,6 +32,9 @@ import type {
 
 const ATTEMPT_VERSION = 4;
 const DEFAULT_ATTEMPT_LIFETIME_MS = 10 * 60 * 1000;
+const CONSUMED_CALLBACKS_VERSION = 1;
+const CONSUMED_CALLBACK_RETENTION_MS = 24 * 60 * 60 * 1000;
+const MAX_CONSUMED_CALLBACKS = 32;
 const PKCE_RANDOM_BYTE_COUNT = 32;
 const BASE64_URL_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
 const FORBIDDEN_QUERY_PARAMS = new Set([
@@ -71,6 +74,16 @@ interface StoredOAuthAttempt {
   callbackFingerprint?: string;
 }
 
+interface StoredConsumedOAuthCallback {
+  fingerprint: string;
+  expiresAt: number;
+}
+
+interface StoredConsumedOAuthCallbacks {
+  version: typeof CONSUMED_CALLBACKS_VERSION;
+  callbacks: readonly StoredConsumedOAuthCallback[];
+}
+
 type StoredOAuthAttemptReadResult =
   | { type: 'missing' }
   | { type: 'invalid' }
@@ -87,6 +100,7 @@ export function createSupabaseOAuthAdapter(
   const providerSet = new Set<SupabaseOAuthProviderId>(providers);
   const oauthStorageKey = `${input.storageKey}.oauth`;
   const attemptStorageKey = `${oauthStorageKey}.attempt`;
+  const consumedCallbacksStorageKey = `${oauthStorageKey}.consumed-callbacks`;
   const codeVerifierStorageKey = `${oauthStorageKey}.pkce-verifier`;
   const now = input.now ?? Date.now;
   const attemptLifetimeMs = normalizeAttemptLifetime(input.attemptLifetimeMs);
@@ -313,6 +327,65 @@ export function createSupabaseOAuthAdapter(
         }
 
         const callbackFingerprint = fingerprintOAuthCallback(attempt.id, callback.code);
+        const consumedCallbackFingerprint = fingerprintConsumedOAuthCallback(
+          attempt.redirectUri,
+          callback.code,
+        );
+
+        let consumedCallbacks: readonly StoredConsumedOAuthCallback[];
+        try {
+          consumedCallbacks = await readConsumedCallbacks(
+            input.storage,
+            consumedCallbacksStorageKey,
+            now(),
+          );
+        } catch {
+          await finalizeAttempt(input.storage, attemptStorageKey, codeVerifierStorageKey, attempt);
+          const result = oauthCompletionError(
+            'session_persistence_failed',
+            'callback',
+            'Unable to verify whether the OAuth authorization callback was already consumed.',
+            attempt.provider,
+            true,
+          );
+          await emitOAuthError(input.onLifecycleEvent, attempt, result);
+          return result;
+        }
+
+        if (
+          consumedCallbacks.some((entry) =>
+            constantTimeEqual(entry.fingerprint, consumedCallbackFingerprint),
+          )
+        ) {
+          await finalizeAttempt(input.storage, attemptStorageKey, codeVerifierStorageKey, attempt);
+          const { result } = invalidCallback(
+            attempt.provider,
+            'The OAuth callback was already consumed by an earlier authorization attempt.',
+          );
+          await emitOAuthError(input.onLifecycleEvent, attempt, result);
+          return result;
+        }
+
+        try {
+          await writeConsumedCallbacks(input.storage, consumedCallbacksStorageKey, [
+            ...consumedCallbacks,
+            {
+              fingerprint: consumedCallbackFingerprint,
+              expiresAt: now() + CONSUMED_CALLBACK_RETENTION_MS,
+            },
+          ]);
+        } catch {
+          await finalizeAttempt(input.storage, attemptStorageKey, codeVerifierStorageKey, attempt);
+          const result = oauthCompletionError(
+            'session_persistence_failed',
+            'callback',
+            'Unable to reserve the OAuth authorization callback for one-time completion.',
+            attempt.provider,
+            true,
+          );
+          await emitOAuthError(input.onLifecycleEvent, attempt, result);
+          return result;
+        }
 
         try {
           await writeAttempt(input.storage, attemptStorageKey, {
@@ -878,6 +951,58 @@ function isAttemptExpired(attempt: StoredOAuthAttempt, now: number): boolean {
 
 function fingerprintOAuthCallback(attemptId: string, code: string): string {
   return bytesToHex(sha256(utf8ToBytes(`${attemptId}\u0000${code}`)));
+}
+
+function fingerprintConsumedOAuthCallback(redirectUri: string, code: string): string {
+  return bytesToHex(sha256(utf8ToBytes(`${redirectUri}\u0000${code}`)));
+}
+
+async function readConsumedCallbacks(
+  storage: SupabaseAuthStorage,
+  key: string,
+  currentTime: number,
+): Promise<readonly StoredConsumedOAuthCallback[]> {
+  const stored = await storage.getItem(key);
+  if (stored === null) return [];
+  const parsed: unknown = JSON.parse(stored);
+  if (!isStoredConsumedOAuthCallbacks(parsed)) {
+    throw new TypeError('Persisted consumed OAuth callback state is invalid.');
+  }
+  return parsed.callbacks.filter((entry) => entry.expiresAt > currentTime);
+}
+
+async function writeConsumedCallbacks(
+  storage: SupabaseAuthStorage,
+  key: string,
+  callbacks: readonly StoredConsumedOAuthCallback[],
+): Promise<void> {
+  await storage.setItem(
+    key,
+    JSON.stringify({
+      version: CONSUMED_CALLBACKS_VERSION,
+      callbacks: callbacks.slice(-MAX_CONSUMED_CALLBACKS),
+    } satisfies StoredConsumedOAuthCallbacks),
+  );
+}
+
+function isStoredConsumedOAuthCallbacks(value: unknown): value is StoredConsumedOAuthCallbacks {
+  return (
+    isRecord(value) &&
+    value.version === CONSUMED_CALLBACKS_VERSION &&
+    Array.isArray(value.callbacks) &&
+    value.callbacks.length <= MAX_CONSUMED_CALLBACKS &&
+    value.callbacks.every(isStoredConsumedOAuthCallback)
+  );
+}
+
+function isStoredConsumedOAuthCallback(value: unknown): value is StoredConsumedOAuthCallback {
+  if (!isRecord(value) || typeof value.expiresAt !== 'number') return false;
+  return (
+    typeof value.fingerprint === 'string' &&
+    /^[0-9a-f]{64}$/u.test(value.fingerprint) &&
+    Number.isSafeInteger(value.expiresAt) &&
+    value.expiresAt > 0
+  );
 }
 
 function constantTimeEqual(left: string, right: string): boolean {

@@ -1,5 +1,11 @@
 # @ankhorage/supabase-auth
 
+## 1.2.6
+
+### Patch Changes
+
+- f83b37b: Reject a previously consumed OAuth callback after a newer authorization attempt starts, without performing another PKCE exchange.
+
 ## 1.2.5
 
 ### Patch Changes

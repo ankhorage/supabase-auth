@@ -24,6 +24,18 @@ profile verification, or session restoration.
 
 Reference: [Supabase Identity Linking](https://supabase.com/docs/guides/auth/auth-identity-linking).
 
+## OAuth authorization invariant
+
+Every authorization attempt creates a fresh verifier from 32 cryptographically secure random bytes
+provided by `crypto.getRandomValues`. The adapter Base64URL-encodes the verifier, derives its
+SHA-256 challenge without requiring WebCrypto `subtle`, and sends exactly one `code_challenge` plus
+one `code_challenge_method=s256` to the public Supabase authorization endpoint.
+
+The verifier is stored only through the caller-provided storage abstraction under an adapter-owned
+key. The same value is sent to the public Supabase PKCE token endpoint, then removed on every
+terminal success, error, cancellation, and expiry path. Authorization URLs, challenges, verifiers,
+codes, tokens, and provider credentials are not included in errors or lifecycle events.
+
 ## OAuth completion invariant
 
 A successful OAuth callback has the following ordered lifecycle:

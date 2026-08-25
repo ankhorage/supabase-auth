@@ -1,12 +1,16 @@
-import type { AuthOAuthAdapter } from '@ankhorage/contracts/auth';
+import type { AuthOAuthAdapter, CompleteOAuthAuthorizationInput } from '@ankhorage/contracts/auth';
 import { describe, expect, it } from 'bun:test';
 
 import { createSupabaseOAuthAdapter } from './oauth.js';
-import type { SupabaseAuthStorage, SupabaseOAuthLifecycleEvent } from './types.js';
+import type {
+  SupabaseAuthFetch,
+  SupabaseAuthStorage,
+  SupabaseOAuthLifecycleEvent,
+} from './types.js';
 
 const STORAGE_KEY = 'ankhorage.supabase-auth.session';
 const ATTEMPT_KEY = `${STORAGE_KEY}.oauth.attempt`;
-const CODE_VERIFIER_KEY = `${STORAGE_KEY}.oauth-code-verifier`;
+const CODE_VERIFIER_KEY = `${STORAGE_KEY}.oauth.pkce-verifier`;
 const REDIRECT_URI = 'ankh-app://auth/callback';
 
 function createMemoryStorage(initial: Readonly<Record<string, string>> = {}) {
@@ -30,6 +34,8 @@ function createHarness(
     readonly now?: number;
     readonly attemptLifetimeMs?: number;
     readonly initial?: Readonly<Record<string, string>>;
+    readonly fetch?: SupabaseAuthFetch;
+    readonly persistSession?: () => Promise<void>;
   } = {},
 ) {
   let currentTime = options.now ?? 1_000;
@@ -38,11 +44,11 @@ function createHarness(
   const adapter = createSupabaseOAuthAdapter({
     url: 'https://example.supabase.co',
     anonKey: 'anon',
-    fetch: () => Promise.reject(new Error('Unexpected OAuth network request.')),
+    fetch: options.fetch ?? (() => Promise.reject(new Error('Unexpected OAuth network request.'))),
     storage,
     storageKey: STORAGE_KEY,
     providers: ['google'],
-    persistSession: () => Promise.resolve(),
+    persistSession: options.persistSession ?? (() => Promise.resolve()),
     onLifecycleEvent(event) {
       lifecycleEvents.push(event);
     },
@@ -90,7 +96,7 @@ describe('expiring OAuth attempt lifecycle', () => {
     const started = await startAuthorization(adapter);
 
     expect(readAttempt(values)).toEqual({
-      version: 3,
+      version: 4,
       id: started.attemptId,
       provider: 'google',
       redirectUri: REDIRECT_URI,
@@ -126,7 +132,7 @@ describe('expiring OAuth attempt lifecycle', () => {
         now: 20_000,
         initial: {
           [ATTEMPT_KEY]: JSON.stringify({
-            version: 3,
+            version: 4,
             id: `expired-${status}`,
             provider: 'google',
             redirectUri: REDIRECT_URI,
@@ -143,7 +149,7 @@ describe('expiring OAuth attempt lifecycle', () => {
 
       expect(restarted.attemptId).not.toBe(`expired-${status}`);
       expect(persisted).toMatchObject({
-        version: 3,
+        version: 4,
         id: restarted.attemptId,
         status: 'pending',
         createdAt: 20_000,
@@ -175,7 +181,7 @@ describe('expiring OAuth attempt lifecycle', () => {
       const restarted = await startAuthorization(adapter);
 
       expect(readAttempt(values)).toMatchObject({
-        version: 3,
+        version: 4,
         id: restarted.attemptId,
         status: 'pending',
         createdAt: 30_000,
@@ -209,6 +215,132 @@ describe('expiring OAuth attempt lifecycle', () => {
         recoverable: true,
       },
     });
+    expect(values.has(ATTEMPT_KEY)).toBe(false);
+    expect(values.has(CODE_VERIFIER_KEY)).toBe(false);
+  });
+
+  it('removes the verifier on every terminal OAuth error path', async () => {
+    const validExchangeResponse = () =>
+      Response.json({
+        access_token: 'terminal-access-value',
+        refresh_token: 'terminal-refresh-value',
+        expires_in: 3600,
+        token_type: 'bearer',
+        user: {
+          id: 'terminal-user',
+          email: 'terminal@example.com',
+          app_metadata: {},
+          user_metadata: {},
+          aud: 'authenticated',
+        },
+      });
+    const cases: readonly {
+      readonly input: (attemptId: string) => CompleteOAuthAuthorizationInput;
+      readonly fetch?: SupabaseAuthFetch;
+      readonly persistSession?: () => Promise<void>;
+    }[] = [
+      {
+        input: (attemptId) => ({
+          attemptId,
+          response: { type: 'error', reason: 'transport_failed' },
+        }),
+      },
+      {
+        input: (attemptId) => ({
+          attemptId,
+          response: { type: 'callback', url: `${REDIRECT_URI}?unexpected=value` },
+        }),
+      },
+      {
+        input: (attemptId) => ({
+          attemptId,
+          response: { type: 'callback', url: `${REDIRECT_URI}?code=terminal-code` },
+        }),
+        fetch: () => Promise.reject(new Error('Synthetic network failure.')),
+      },
+      {
+        input: (attemptId) => ({
+          attemptId,
+          response: { type: 'callback', url: `${REDIRECT_URI}?code=terminal-code` },
+        }),
+        fetch: () => Promise.resolve(Response.json({ code: 'bad_code_verifier' }, { status: 400 })),
+      },
+      {
+        input: (attemptId) => ({
+          attemptId,
+          response: { type: 'callback', url: `${REDIRECT_URI}?code=terminal-code` },
+        }),
+        fetch: () => Promise.resolve(Response.json({ user: null })),
+      },
+      {
+        input: (attemptId) => ({
+          attemptId,
+          response: { type: 'callback', url: `${REDIRECT_URI}?code=terminal-code` },
+        }),
+        fetch: () => Promise.resolve(validExchangeResponse()),
+        persistSession: () => Promise.reject(new Error('Synthetic persistence failure.')),
+      },
+    ];
+
+    for (const terminalCase of cases) {
+      const { adapter, values } = createHarness({
+        ...(terminalCase.fetch === undefined ? {} : { fetch: terminalCase.fetch }),
+        ...(terminalCase.persistSession === undefined
+          ? {}
+          : { persistSession: terminalCase.persistSession }),
+      });
+      const started = await startAuthorization(adapter);
+      const completed = await adapter.completeAuthorization.call(
+        adapter,
+        terminalCase.input(started.attemptId),
+      );
+
+      expect(completed.ok).toBe(false);
+      expect(values.has(CODE_VERIFIER_KEY)).toBe(false);
+      expect(readAttempt(values).status).toBe('completed');
+    }
+  });
+
+  it('clears PKCE state when the callback lock cannot be persisted', async () => {
+    const { storage: memoryStorage, values } = createMemoryStorage();
+    let attemptWrites = 0;
+    let exchanges = 0;
+    const storage: SupabaseAuthStorage = {
+      getItem: (key) => memoryStorage.getItem(key),
+      setItem(key, value) {
+        if (key === ATTEMPT_KEY) {
+          attemptWrites += 1;
+          if (attemptWrites === 2) throw new Error('Synthetic callback lock failure.');
+        }
+        return memoryStorage.setItem(key, value);
+      },
+      removeItem: (key) => memoryStorage.removeItem(key),
+    };
+    const adapter = createSupabaseOAuthAdapter({
+      url: 'https://example.supabase.co',
+      anonKey: 'anon',
+      fetch: () => {
+        exchanges += 1;
+        return Promise.reject(new Error('Unexpected OAuth network request.'));
+      },
+      storage,
+      storageKey: STORAGE_KEY,
+      providers: ['google'],
+      persistSession: () => Promise.resolve(),
+    });
+    const started = await startAuthorization(adapter);
+
+    const completed = await adapter.completeAuthorization.call(adapter, {
+      attemptId: started.attemptId,
+      response: { type: 'callback', url: `${REDIRECT_URI}?code=terminal-code` },
+    });
+
+    expect(completed).toMatchObject({
+      ok: false,
+      status: 'error',
+      error: { code: 'session_persistence_failed' },
+    });
+    expect(exchanges).toBe(0);
     expect(values.has(ATTEMPT_KEY)).toBe(false);
     expect(values.has(CODE_VERIFIER_KEY)).toBe(false);
   });

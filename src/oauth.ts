@@ -11,16 +11,16 @@ import type {
   StartOAuthAuthorizationInput,
 } from '@ankhorage/contracts/auth';
 import { sha256 } from '@noble/hashes/sha2.js';
-import { bytesToHex, utf8ToBytes } from '@noble/hashes/utils.js';
-import { createClient } from '@supabase/supabase-js';
+import { bytesToHex, randomBytes, utf8ToBytes } from '@noble/hashes/utils.js';
 
+import { readResponseBody } from './errors.js';
 import { createOAuthAttemptId } from './oauthAttemptId.js';
 import {
   getSupabaseOAuthProviderDefinition,
   isSupabaseOAuthProviderId,
   type SupabaseOAuthProviderId,
 } from './oauthProviderDefinitions.js';
-import { normalizeSupabaseClientSession } from './session.js';
+import { normalizeSupabaseSession } from './session.js';
 import type {
   SupabaseAuthFetch,
   SupabaseAuthStorage,
@@ -29,8 +29,10 @@ import type {
   SupabaseOAuthProfileVerifier,
 } from './types.js';
 
-const ATTEMPT_VERSION = 3;
+const ATTEMPT_VERSION = 4;
 const DEFAULT_ATTEMPT_LIFETIME_MS = 10 * 60 * 1000;
+const PKCE_RANDOM_BYTE_COUNT = 32;
+const BASE64_URL_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
 const FORBIDDEN_QUERY_PARAMS = new Set([
   'code_challenge',
   'code_challenge_method',
@@ -83,20 +85,9 @@ export function createSupabaseOAuthAdapter(
   const providerSet = new Set<SupabaseOAuthProviderId>(providers);
   const oauthStorageKey = `${input.storageKey}.oauth`;
   const attemptStorageKey = `${oauthStorageKey}.attempt`;
-  const codeVerifierStorageKey = `${oauthStorageKey}-code-verifier`;
+  const codeVerifierStorageKey = `${oauthStorageKey}.pkce-verifier`;
   const now = input.now ?? Date.now;
   const attemptLifetimeMs = normalizeAttemptLifetime(input.attemptLifetimeMs);
-  const client = createClient(input.url, input.anonKey, {
-    auth: {
-      autoRefreshToken: false,
-      detectSessionInUrl: false,
-      flowType: 'pkce',
-      persistSession: true,
-      storage: createPkceOnlyStorage(input.storage, codeVerifierStorageKey),
-      storageKey: oauthStorageKey,
-    },
-    global: { fetch: input.fetch },
-  });
 
   const capabilities = {
     providers: providers as [SupabaseOAuthProviderId, ...SupabaseOAuthProviderId[]],
@@ -154,34 +145,7 @@ export function createSupabaseOAuthAdapter(
       );
 
       try {
-        const { data, error } = await client.auth.signInWithOAuth({
-          provider: provider.provider,
-          options: {
-            redirectTo: redirectUri.value,
-            scopes: requestedScopes.join(' '),
-            queryParams: queryParams.value,
-            skipBrowserRedirect: true,
-          },
-        });
-
-        if (error !== null) {
-          await safeRemove(input.storage, codeVerifierStorageKey);
-          return {
-            ok: false,
-            error: mapSupabaseOAuthError(error, 'start', provider.provider),
-          };
-        }
-
-        if (data.url.trim().length === 0) {
-          await safeRemove(input.storage, codeVerifierStorageKey);
-          return oauthStartError(
-            'authorization_failed',
-            'Supabase Auth did not return an OAuth authorization URL.',
-            provider.provider,
-            true,
-          );
-        }
-
+        const { challenge, verifier } = createPkcePair();
         const attemptId = createOAuthAttemptId();
         const createdAt = now();
         const attempt: StoredOAuthAttempt = {
@@ -194,17 +158,16 @@ export function createSupabaseOAuthAdapter(
           expiresAt: createdAt + attemptLifetimeMs,
         };
 
-        try {
-          await writeAttempt(input.storage, attemptStorageKey, attempt);
-        } catch {
-          await safeRemove(input.storage, codeVerifierStorageKey);
-          return oauthStartError(
-            'session_persistence_failed',
-            'Unable to persist the OAuth authorization attempt.',
-            provider.provider,
-            true,
-          );
-        }
+        await input.storage.setItem(codeVerifierStorageKey, verifier);
+        await writeAttempt(input.storage, attemptStorageKey, attempt);
+        const authorizationUrl = createAuthorizationUrl({
+          baseUrl: input.url,
+          challenge,
+          provider: provider.provider,
+          queryParams: queryParams.value,
+          redirectUri: redirectUri.value,
+          scopes: requestedScopes,
+        });
 
         await emitLifecycleEvent(input.onLifecycleEvent, {
           correlationId: attemptId,
@@ -218,12 +181,12 @@ export function createSupabaseOAuthAdapter(
           data: {
             attemptId,
             provider: provider.provider,
-            authorizationUrl: data.url,
+            authorizationUrl,
             redirectUri: redirectUri.value,
           },
         };
       } catch {
-        await safeRemove(input.storage, codeVerifierStorageKey);
+        await clearOAuthAttemptState(input.storage, attemptStorageKey, codeVerifierStorageKey);
         return oauthStartError(
           'session_persistence_failed',
           'Unable to initialize the OAuth PKCE authorization attempt.',
@@ -240,6 +203,7 @@ export function createSupabaseOAuthAdapter(
       try {
         attemptResult = await readAttempt(input.storage, attemptStorageKey);
       } catch {
+        await clearOAuthAttemptState(input.storage, attemptStorageKey, codeVerifierStorageKey);
         return oauthCompletionError(
           'session_persistence_failed',
           'callback',
@@ -346,6 +310,7 @@ export function createSupabaseOAuthAdapter(
           callbackFingerprint,
         });
       } catch {
+        await clearOAuthAttemptState(input.storage, attemptStorageKey, codeVerifierStorageKey);
         return oauthCompletionError(
           'session_persistence_failed',
           'callback',
@@ -355,9 +320,44 @@ export function createSupabaseOAuthAdapter(
         );
       }
 
-      let exchange;
+      let codeVerifier: string | null;
       try {
-        exchange = await client.auth.exchangeCodeForSession(callback.code);
+        codeVerifier = await input.storage.getItem(codeVerifierStorageKey);
+      } catch {
+        await finalizeAttempt(input.storage, attemptStorageKey, codeVerifierStorageKey, attempt);
+        const result = oauthCompletionError(
+          'session_persistence_failed',
+          'exchange',
+          'The OAuth PKCE verifier could not be read.',
+          attempt.provider,
+          true,
+        );
+        await emitOAuthError(input.onLifecycleEvent, attempt, result);
+        return result;
+      }
+
+      if (codeVerifier === null || codeVerifier.length === 0) {
+        await finalizeAttempt(input.storage, attemptStorageKey, codeVerifierStorageKey, attempt);
+        const result = oauthCompletionError(
+          'pkce_mismatch',
+          'exchange',
+          'The OAuth PKCE verifier is missing or invalid.',
+          attempt.provider,
+          true,
+        );
+        await emitOAuthError(input.onLifecycleEvent, attempt, result);
+        return result;
+      }
+
+      let exchangeResponse: Response;
+      try {
+        exchangeResponse = await exchangeAuthorizationCode({
+          anonKey: input.anonKey,
+          baseUrl: input.url,
+          code: callback.code,
+          fetch: input.fetch,
+          verifier: codeVerifier,
+        });
       } catch {
         await finalizeAttempt(input.storage, attemptStorageKey, codeVerifierStorageKey, attempt);
         const result = oauthCompletionError(
@@ -371,18 +371,19 @@ export function createSupabaseOAuthAdapter(
         return result;
       }
 
-      if (exchange.error !== null) {
+      const exchangeBody = await readResponseBody(exchangeResponse);
+      if (!exchangeResponse.ok) {
         await finalizeAttempt(input.storage, attemptStorageKey, codeVerifierStorageKey, attempt);
         const result: AuthOAuthCompletionResult = {
           ok: false,
           status: 'error',
-          error: mapSupabaseOAuthError(exchange.error, 'exchange', attempt.provider),
+          error: mapSupabaseOAuthError(exchangeBody, 'exchange', attempt.provider),
         };
         await emitOAuthError(input.onLifecycleEvent, attempt, result);
         return result;
       }
 
-      const session = normalizeSupabaseClientSession(exchange.data.session);
+      const session = normalizeSupabaseSession(exchangeBody);
       if (session === null) {
         await finalizeAttempt(input.storage, attemptStorageKey, codeVerifierStorageKey, attempt);
         const result = oauthCompletionError(
@@ -540,23 +541,6 @@ async function emitLifecycleEvent(
   }
 }
 
-function createPkceOnlyStorage(
-  storage: SupabaseAuthStorage,
-  codeVerifierStorageKey: string,
-): SupabaseAuthStorage {
-  return {
-    getItem(key) {
-      return key === codeVerifierStorageKey ? storage.getItem(key) : null;
-    },
-    setItem(key, value) {
-      if (key === codeVerifierStorageKey) return storage.setItem(key, value);
-    },
-    removeItem(key) {
-      if (key === codeVerifierStorageKey) return storage.removeItem(key);
-    },
-  };
-}
-
 function resolveEnabledProvider(
   requestedProvider: AuthOAuthProviderId,
   providers: ReadonlySet<SupabaseOAuthProviderId>,
@@ -648,6 +632,65 @@ function normalizeScopes(
 ): string[] {
   const requested = scopes === undefined || scopes.length === 0 ? defaults : scopes;
   return [...new Set(requested.map((scope) => scope.trim()).filter((scope) => scope.length > 0))];
+}
+
+function createPkcePair(): { challenge: string; verifier: string } {
+  const verifier = bytesToBase64Url(randomBytes(PKCE_RANDOM_BYTE_COUNT));
+  const challenge = bytesToBase64Url(sha256(utf8ToBytes(verifier)));
+  return { challenge, verifier };
+}
+
+function bytesToBase64Url(bytes: Uint8Array): string {
+  let encoded = '';
+  for (let index = 0; index < bytes.length; index += 3) {
+    const first = bytes[index] ?? 0;
+    const second = bytes[index + 1];
+    const third = bytes[index + 2];
+    encoded += BASE64_URL_ALPHABET[first >> 2] ?? '';
+    encoded += BASE64_URL_ALPHABET[((first & 0b11) << 4) | ((second ?? 0) >> 4)] ?? '';
+    if (second !== undefined) {
+      encoded += BASE64_URL_ALPHABET[((second & 0b1111) << 2) | ((third ?? 0) >> 6)] ?? '';
+    }
+    if (third !== undefined) encoded += BASE64_URL_ALPHABET[third & 0b11_1111] ?? '';
+  }
+  return encoded;
+}
+
+function createAuthorizationUrl(input: {
+  baseUrl: string;
+  challenge: string;
+  provider: SupabaseOAuthProviderId;
+  queryParams: Readonly<Record<string, string>>;
+  redirectUri: string;
+  scopes: readonly string[];
+}): string {
+  const url = new URL(`${input.baseUrl.replace(/\/+$/u, '')}/auth/v1/authorize`);
+  url.searchParams.set('provider', input.provider);
+  url.searchParams.set('redirect_to', input.redirectUri);
+  if (input.scopes.length > 0) url.searchParams.set('scopes', input.scopes.join(' '));
+  url.searchParams.set('code_challenge', input.challenge);
+  url.searchParams.set('code_challenge_method', 's256');
+  for (const [key, value] of Object.entries(input.queryParams)) url.searchParams.set(key, value);
+  return url.toString();
+}
+
+function exchangeAuthorizationCode(input: {
+  anonKey: string;
+  baseUrl: string;
+  code: string;
+  fetch: SupabaseAuthFetch;
+  verifier: string;
+}): Promise<Response> {
+  const url = `${input.baseUrl.replace(/\/+$/u, '')}/auth/v1/token?grant_type=pkce`;
+  return input.fetch(url, {
+    method: 'POST',
+    headers: {
+      apikey: input.anonKey,
+      Authorization: `Bearer ${input.anonKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ auth_code: input.code, code_verifier: input.verifier }),
+  });
 }
 
 function parseCallback(

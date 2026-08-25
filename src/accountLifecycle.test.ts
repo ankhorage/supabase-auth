@@ -190,7 +190,7 @@ describe('complete OAuth account lifecycle', () => {
     expect(serializedEvents).not.toContain(CALLBACK_CODE);
     expect(serializedEvents).not.toContain('auth/callback');
     expect(values.get(SESSION_STORAGE_KEY)).toContain(ACCESS_TOKEN);
-    expect([...values.keys()].some((key) => key.endsWith('-code-verifier'))).toBe(false);
+    expect([...values.keys()].some((key) => key.endsWith('.pkce-verifier'))).toBe(false);
     expect([...values.values()].join('\n')).not.toContain(CALLBACK_CODE);
   });
 
@@ -238,7 +238,7 @@ describe('complete OAuth account lifecycle', () => {
       },
     });
     expect(values.get(SESSION_STORAGE_KEY)).toContain(ACCESS_TOKEN);
-    expect([...values.keys()].some((key) => key.endsWith('-code-verifier'))).toBe(false);
+    expect([...values.keys()].some((key) => key.endsWith('.pkce-verifier'))).toBe(false);
     expect(events.map((event) => event.status)).toEqual(['started', 'error']);
     expect(events[1]).toMatchObject({
       correlationId: started.data.attemptId,

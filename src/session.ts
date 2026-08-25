@@ -1,5 +1,4 @@
 import type { AuthSession, AuthUser } from '@ankhorage/contracts/auth';
-import type { Session as SupabaseSession } from '@supabase/supabase-js';
 
 export function normalizeSupabaseSession(body: unknown, now = Date.now()): AuthSession | null {
   if (!isRecord(body)) return null;
@@ -14,17 +13,6 @@ export function normalizeSupabaseSession(body: unknown, now = Date.now()): AuthS
   if (tokenType !== undefined) session.tokenType = tokenType;
   if (expiresAt !== undefined) session.expiresAt = expiresAt;
   return session;
-}
-
-export function normalizeSupabaseClientSession(session: SupabaseSession): AuthSession | null {
-  return normalizeSupabaseSession({
-    access_token: session.access_token,
-    refresh_token: session.refresh_token,
-    expires_at: session.expires_at,
-    expires_in: session.expires_in,
-    token_type: session.token_type,
-    user: session.user,
-  });
 }
 
 export function normalizeSupabaseUser(body: unknown): AuthUser | null {

@@ -1,5 +1,7 @@
 import { readFileSync } from 'node:fs';
 
+import { sha256 } from '@noble/hashes/sha2.js';
+import { utf8ToBytes } from '@noble/hashes/utils.js';
 import { describe, expect, it } from 'bun:test';
 
 import { createSupabaseAuthAdapter } from './createSupabaseAuthAdapter.js';
@@ -21,6 +23,10 @@ function createMemoryStorage(initial: Record<string, string> = {}) {
   return { storage, values };
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
 describe('canonical OAuth PKCE adapter', () => {
   it('requires persistent storage when OAuth is enabled', () => {
     expect(() =>
@@ -32,13 +38,15 @@ describe('canonical OAuth PKCE adapter', () => {
     ).toThrow('Supabase OAuth PKCE requires persistent auth storage.');
   });
 
-  it('starts with the Supabase client PKCE flow and completes exactly once', async () => {
+  it('starts with one canonical S256 PKCE flow and completes exactly once', async () => {
     const { storage, values } = createMemoryStorage();
-    const calls: { url: string; body: unknown }[] = [];
+    const calls: { url: string; hasExpectedCode: boolean; hasVerifier: boolean }[] = [];
     const fetcher: typeof fetch = (input, init) => {
+      const body: unknown = typeof init?.body === 'string' ? JSON.parse(init.body) : undefined;
       calls.push({
         url: input instanceof Request ? input.url : input.toString(),
-        body: typeof init?.body === 'string' ? JSON.parse(init.body) : init?.body,
+        hasExpectedCode: isRecord(body) && body.auth_code === 'opaque-code',
+        hasVerifier: isRecord(body) && typeof body.code_verifier === 'string',
       });
       return new Response(
         JSON.stringify({
@@ -76,9 +84,12 @@ describe('canonical OAuth PKCE adapter', () => {
     });
     expect(started?.ok).toBe(true);
     if (started?.ok !== true) throw new Error('OAuth start failed.');
-    expect(started.data.authorizationUrl).toContain('/auth/v1/authorize?');
-    expect(started.data.authorizationUrl).toContain('code_challenge=');
-    expect(started.data.authorizationUrl).toContain('prompt=select_account');
+    const authorizationUrl = new URL(started.data.authorizationUrl);
+    expect(authorizationUrl.pathname).toBe('/auth/v1/authorize');
+    expect(authorizationUrl.searchParams.getAll('code_challenge').length).toBe(1);
+    expect(authorizationUrl.searchParams.getAll('code_challenge_method').length).toBe(1);
+    expect(authorizationUrl.searchParams.get('code_challenge_method')).toBe('s256');
+    expect(authorizationUrl.searchParams.get('prompt')).toBe('select_account');
     expect(calls).toHaveLength(0);
 
     const completed = await adapter.oauth?.completeAuthorization({
@@ -103,7 +114,8 @@ describe('canonical OAuth PKCE adapter', () => {
     });
     expect(calls).toHaveLength(1);
     expect(calls[0]?.url).toContain('/auth/v1/token?grant_type=pkce');
-    expect(calls[0]?.body).toMatchObject({ auth_code: 'opaque-code' });
+    expect(calls[0]?.hasExpectedCode).toBe(true);
+    expect(calls[0]?.hasVerifier).toBe(true);
 
     const replay = await adapter.oauth?.completeAuthorization({
       attemptId: started.data.attemptId,
@@ -143,25 +155,44 @@ describe('canonical OAuth PKCE adapter', () => {
     expect(values.get('ankhorage.supabase-auth.session.oauth.attempt')).toMatch(
       /"callbackFingerprint":"[0-9a-f]{64}"/u,
     );
-    expect([...values.keys()].some((key) => key.endsWith('-code-verifier'))).toBe(false);
+    expect([...values.keys()].some((key) => key.endsWith('.pkce-verifier'))).toBe(false);
   });
 
-  it('correlates native callback replays when Web Crypto is unavailable', async () => {
+  it('uses CSPRNG-backed S256 and the matching exchange verifier without crypto.subtle', async () => {
     const cryptoDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'crypto');
-    if (!Reflect.deleteProperty(globalThis, 'crypto')) {
-      throw new Error('The test runtime crypto global could not be removed.');
-    }
+    const originalCrypto = globalThis.crypto;
+    let randomValueCalls = 0;
+    const cryptoWithoutSubtle: Pick<Crypto, 'getRandomValues'> = {
+      getRandomValues(array) {
+        randomValueCalls += 1;
+        return originalCrypto.getRandomValues(array);
+      },
+    };
+    Object.defineProperty(globalThis, 'crypto', {
+      configurable: true,
+      value: cryptoWithoutSubtle,
+    });
 
     try {
       const { storage, values } = createMemoryStorage();
       let exchanges = 0;
+      let exchangeUsedMatchingVerifier = false;
+      let authorizationChallenge: string | null = null;
       const adapter = createSupabaseAuthAdapter({
         url: 'https://example.supabase.co',
         anonKey: 'anon',
         storage,
         oauthProviders: ['google'],
-        fetch: () => {
+        fetch: (_input, init) => {
           exchanges += 1;
+          const body: unknown = typeof init?.body === 'string' ? JSON.parse(init.body) : undefined;
+          const verifier = isRecord(body) ? body.code_verifier : undefined;
+          if (typeof verifier === 'string' && authorizationChallenge !== null) {
+            const expectedChallenge = Buffer.from(sha256(utf8ToBytes(verifier))).toString(
+              'base64url',
+            );
+            exchangeUsedMatchingVerifier = expectedChallenge === authorizationChallenge;
+          }
           return Promise.resolve(
             new Response(
               JSON.stringify({
@@ -187,6 +218,15 @@ describe('canonical OAuth PKCE adapter', () => {
         redirectUri: 'ankh-app://auth/callback',
       });
       if (started?.ok !== true) throw new Error('OAuth start failed.');
+      const authorizationUrl = new URL(started.data.authorizationUrl);
+      const challenges = authorizationUrl.searchParams.getAll('code_challenge');
+      const methods = authorizationUrl.searchParams.getAll('code_challenge_method');
+      authorizationChallenge = challenges[0] ?? null;
+      expect(challenges.length).toBe(1);
+      expect(methods.length).toBe(1);
+      expect(methods[0]).toBe('s256');
+      expect(authorizationChallenge !== null && authorizationChallenge.length > 0).toBe(true);
+      expect(randomValueCalls > 0).toBe(true);
 
       const callbackUrl = 'ankh-app://auth/callback?code=native-opaque-code';
       expect(
@@ -219,10 +259,12 @@ describe('canonical OAuth PKCE adapter', () => {
         error: { code: 'invalid_callback' },
       });
       expect(exchanges).toBe(1);
+      expect(exchangeUsedMatchingVerifier).toBe(true);
       expect(values.get('ankhorage.supabase-auth.session.oauth.attempt')).toMatch(
         /"callbackFingerprint":"[0-9a-f]{64}"/u,
       );
       expect([...values.values()].join('\n')).not.toContain('native-opaque-code');
+      expect([...values.keys()].some((key) => key.endsWith('.pkce-verifier'))).toBe(false);
     } finally {
       if (cryptoDescriptor === undefined) {
         Reflect.deleteProperty(globalThis, 'crypto');
@@ -232,15 +274,67 @@ describe('canonical OAuth PKCE adapter', () => {
     }
   });
 
+  it('redacts every PKCE and OAuth value from terminal exchange errors', async () => {
+    const { storage, values } = createMemoryStorage();
+    let exchangedVerifier = '';
+    const callbackCode = 'redaction-callback-value';
+    const returnedToken = 'redaction-returned-value';
+    const adapter = createSupabaseAuthAdapter({
+      url: 'https://example.supabase.co',
+      anonKey: 'anon',
+      storage,
+      oauthProviders: ['google'],
+      fetch: (_input, init) => {
+        const body: unknown = typeof init?.body === 'string' ? JSON.parse(init.body) : undefined;
+        const verifier = isRecord(body) ? body.code_verifier : undefined;
+        if (typeof verifier === 'string') exchangedVerifier = verifier;
+        return Promise.resolve(
+          Response.json(
+            {
+              message: `${exchangedVerifier} ${callbackCode} ${returnedToken}`,
+            },
+            { status: 400 },
+          ),
+        );
+      },
+    });
+    const started = await adapter.oauth?.startAuthorization({
+      provider: 'google',
+      redirectUri: 'ankh-app://auth/callback',
+    });
+    if (started?.ok !== true) throw new Error('OAuth start failed.');
+    const challenge = new URL(started.data.authorizationUrl).searchParams.get('code_challenge');
+    const completed = await adapter.oauth?.completeAuthorization({
+      attemptId: started.data.attemptId,
+      response: {
+        type: 'callback',
+        url: `ankh-app://auth/callback?code=${callbackCode}`,
+      },
+    });
+
+    const serializedResult = JSON.stringify(completed);
+    const sensitiveValues = [
+      exchangedVerifier,
+      challenge ?? '',
+      started.data.authorizationUrl,
+      callbackCode,
+      returnedToken,
+    ];
+    expect(
+      sensitiveValues.every((value) => value.length > 0 && !serializedResult.includes(value)),
+    ).toBe(true);
+    expect(completed?.ok === false && completed.status === 'error').toBe(true);
+    expect([...values.keys()].some((key) => key.endsWith('.pkce-verifier'))).toBe(false);
+  });
+
   it('exchanges OAuth codes with the active default global fetch after adapter creation', async () => {
     const originalFetch = globalThis.fetch;
     const { storage } = createMemoryStorage();
-    const staleCalls: { url: string; body: unknown }[] = [];
-    const activeCalls: { url: string; body: unknown }[] = [];
-    const staleFetch: typeof fetch = (input, init) => {
+    const staleCalls: { url: string }[] = [];
+    const activeCalls: { url: string; hasExpectedCode: boolean; hasVerifier: boolean }[] = [];
+    const staleFetch: typeof fetch = (input) => {
       staleCalls.push({
         url: input instanceof Request ? input.url : input.toString(),
-        body: typeof init?.body === 'string' ? (JSON.parse(init.body) as unknown) : init?.body,
       });
       return Promise.resolve(
         new Response(JSON.stringify({ message: 'stale OAuth fetch should not be used' }), {
@@ -250,9 +344,11 @@ describe('canonical OAuth PKCE adapter', () => {
       );
     };
     const activeFetch: typeof fetch = (input, init) => {
+      const body: unknown = typeof init?.body === 'string' ? JSON.parse(init.body) : undefined;
       activeCalls.push({
         url: input instanceof Request ? input.url : input.toString(),
-        body: typeof init?.body === 'string' ? (JSON.parse(init.body) as unknown) : init?.body,
+        hasExpectedCode: isRecord(body) && body.auth_code === 'active-oauth-code',
+        hasVerifier: isRecord(body) && typeof body.code_verifier === 'string',
       });
       return Promise.resolve(
         new Response(
@@ -315,7 +411,8 @@ describe('canonical OAuth PKCE adapter', () => {
       expect(staleCalls).toHaveLength(0);
       expect(activeCalls).toHaveLength(1);
       expect(activeCalls[0]?.url).toContain('/auth/v1/token?grant_type=pkce');
-      expect(activeCalls[0]?.body).toMatchObject({ auth_code: 'active-oauth-code' });
+      expect(activeCalls[0]?.hasExpectedCode).toBe(true);
+      expect(activeCalls[0]?.hasVerifier).toBe(true);
     } finally {
       globalThis.fetch = originalFetch;
     }
@@ -396,18 +493,23 @@ describe('canonical OAuth PKCE adapter', () => {
     expect(calls).toBe(0);
   });
 
-  it('uses only the Supabase client OAuth APIs and removes the manual legacy surface', () => {
+  it('uses only public Supabase HTTP contracts without private auth-js coupling', () => {
     const adapterSource = readFileSync(
       new URL('./createSupabaseAuthAdapter.ts', import.meta.url),
       'utf8',
     );
     const oauthSource = readFileSync(new URL('./oauth.ts', import.meta.url), 'utf8');
 
-    expect(adapterSource).not.toContain('/auth/v1/authorize');
     expect(adapterSource).not.toContain('signInWith' + 'OAuth');
     expect(adapterSource).not.toContain('completeOAuth' + 'SignIn');
     expect(adapterSource).not.toContain('supports' + 'OAuth');
-    expect(oauthSource).toContain('client.auth.signInWithOAuth');
-    expect(oauthSource).toContain('client.auth.exchangeCodeForSession');
+    expect(oauthSource).not.toContain('@supabase/auth-js');
+    expect(oauthSource).not.toContain('@supabase/supabase-js');
+    expect(oauthSource).not.toContain('crypto.subtle');
+    expect(oauthSource).not.toContain('Math.random');
+    expect(oauthSource).not.toContain('oauth-code-verifier');
+    expect(oauthSource).toContain('/auth/v1/authorize');
+    expect(oauthSource).toContain('/auth/v1/token?grant_type=pkce');
+    expect(oauthSource).toContain('randomBytes(PKCE_RANDOM_BYTE_COUNT)');
   });
 });

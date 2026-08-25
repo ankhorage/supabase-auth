@@ -32,6 +32,7 @@ import type {
   SupabaseAuthConfig,
   SupabaseAuthFetch,
   SupabaseAuthProfileVerificationConfig,
+  SupabaseAuthRandomBytes,
   SupabaseAuthStorage,
   SupabaseOAuthLifecycleObserver,
   SupabaseOAuthProfileVerifier,
@@ -150,6 +151,7 @@ export function createSupabaseAuthAdapter(config: SupabaseAuthConfig): AuthAdapt
           storage: requireOAuthStorage(oauthStorage),
           storageKey: normalizedConfig.storageKey,
           providers: normalizedConfig.oauthProviders,
+          randomBytes: normalizedConfig.oauthRandomBytes,
           persistSession: async (session) => {
             const error = await persistSessionSafely(session);
             if (error !== null) throw new Error(error.message);
@@ -408,6 +410,7 @@ function validateConfig(config: SupabaseAuthConfig): RequiredConfig {
         ? DEFAULT_STORAGE_KEY
         : configuredStorageKey,
     oauthProviders,
+    oauthRandomBytes: config.oauthRandomBytes,
     profileVerification,
     onOAuthLifecycleEvent: config.onOAuthLifecycleEvent,
   };
@@ -499,6 +502,7 @@ interface RequiredConfig {
   storage?: SupabaseAuthStorage;
   storageKey: string;
   oauthProviders: SupabaseOAuthProviderId[];
+  oauthRandomBytes?: SupabaseAuthRandomBytes;
   profileVerification?: SupabaseAuthProfileVerificationConfig;
   onOAuthLifecycleEvent?: SupabaseOAuthLifecycleObserver;
 }

@@ -7,6 +7,9 @@ import type {
 
 export type SupabaseAuthFetch = typeof fetch;
 
+/** Returns cryptographically secure random bytes for OAuth PKCE verifier generation. */
+export type SupabaseAuthRandomBytes = (length: number) => Uint8Array;
+
 export interface SupabaseAuthStorage {
   getItem(key: string): string | Promise<string | null> | null;
   setItem(key: string, value: string): void | Promise<void>;
@@ -75,6 +78,7 @@ export interface SupabaseAuthConfig {
   storage?: SupabaseAuthStorage;
   storageKey?: string;
   oauthProviders?: readonly AuthOAuthProviderId[];
+  oauthRandomBytes?: SupabaseAuthRandomBytes;
   profileVerification?: SupabaseAuthProfileVerificationConfig;
   onOAuthLifecycleEvent?: SupabaseOAuthLifecycleObserver;
 }

@@ -11,7 +11,7 @@ import type {
   StartOAuthAuthorizationInput,
 } from '@ankhorage/contracts/auth';
 import { sha256 } from '@noble/hashes/sha2.js';
-import { bytesToHex, randomBytes, utf8ToBytes } from '@noble/hashes/utils.js';
+import { bytesToHex, isBytes, randomBytes, utf8ToBytes } from '@noble/hashes/utils.js';
 
 import { readResponseBody } from './errors.js';
 import { createOAuthAttemptId } from './oauthAttemptId.js';
@@ -23,6 +23,7 @@ import {
 import { normalizeSupabaseSession } from './session.js';
 import type {
   SupabaseAuthFetch,
+  SupabaseAuthRandomBytes,
   SupabaseAuthStorage,
   SupabaseOAuthLifecycleEvent,
   SupabaseOAuthLifecycleObserver,
@@ -51,6 +52,7 @@ interface CreateSupabaseOAuthAdapterInput {
   storage: SupabaseAuthStorage;
   storageKey: string;
   providers: readonly SupabaseOAuthProviderId[];
+  randomBytes?: SupabaseAuthRandomBytes;
   persistSession(session: AuthSession): Promise<void>;
   verifyProfile?: SupabaseOAuthProfileVerifier;
   onLifecycleEvent?: SupabaseOAuthLifecycleObserver;
@@ -145,7 +147,7 @@ export function createSupabaseOAuthAdapter(
       );
 
       try {
-        const { challenge, verifier } = createPkcePair();
+        const { challenge, verifier } = createPkcePair(input.randomBytes ?? randomBytes);
         const attemptId = createOAuthAttemptId();
         const createdAt = now();
         const attempt: StoredOAuthAttempt = {
@@ -634,8 +636,15 @@ function normalizeScopes(
   return [...new Set(requested.map((scope) => scope.trim()).filter((scope) => scope.length > 0))];
 }
 
-function createPkcePair(): { challenge: string; verifier: string } {
-  const verifier = bytesToBase64Url(randomBytes(PKCE_RANDOM_BYTE_COUNT));
+function createPkcePair(generateRandomBytes: SupabaseAuthRandomBytes): {
+  challenge: string;
+  verifier: string;
+} {
+  const randomValue = generateRandomBytes(PKCE_RANDOM_BYTE_COUNT);
+  if (!isBytes(randomValue) || randomValue.length !== PKCE_RANDOM_BYTE_COUNT) {
+    throw new TypeError('OAuth random byte source returned an invalid value.');
+  }
+  const verifier = bytesToBase64Url(randomValue);
   const challenge = bytesToBase64Url(sha256(utf8ToBytes(verifier)));
   return { challenge, verifier };
 }

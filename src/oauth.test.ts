@@ -158,6 +158,80 @@ describe('canonical OAuth PKCE adapter', () => {
     expect([...values.keys()].some((key) => key.endsWith('.pkce-verifier'))).toBe(false);
   });
 
+  it('serializes concurrent exact replay and mismatched callback completion', async () => {
+    const { storage } = createMemoryStorage();
+    let exchanges = 0;
+    let releaseExchange: (() => void) | undefined;
+    let reportExchangeStarted: (() => void) | undefined;
+    const exchangeGate = new Promise<void>((resolve) => {
+      releaseExchange = resolve;
+    });
+    const exchangeStarted = new Promise<void>((resolve) => {
+      reportExchangeStarted = resolve;
+    });
+    const adapter = createSupabaseAuthAdapter({
+      url: 'https://example.supabase.co',
+      anonKey: 'anon',
+      storage,
+      oauthProviders: ['google'],
+      async fetch() {
+        exchanges += 1;
+        reportExchangeStarted?.();
+        await exchangeGate;
+        return Response.json({
+          access_token: 'concurrent-access-token',
+          refresh_token: 'concurrent-refresh-token',
+          expires_in: 3600,
+          token_type: 'bearer',
+          user: {
+            id: 'concurrent-user',
+            email: 'concurrent@example.com',
+            app_metadata: {},
+            user_metadata: {},
+            aud: 'authenticated',
+          },
+        });
+      },
+    });
+    const started = await adapter.oauth?.startAuthorization({
+      provider: 'google',
+      redirectUri: 'ankh-app://auth/callback',
+    });
+    if (started?.ok !== true) throw new Error('OAuth start failed.');
+
+    const exactCallback = {
+      attemptId: started.data.attemptId,
+      response: {
+        type: 'callback' as const,
+        url: 'ankh-app://auth/callback?code=concurrent-code',
+      },
+    };
+    const firstCompletion = adapter.oauth?.completeAuthorization(exactCallback);
+    const exactReplay = adapter.oauth?.completeAuthorization(exactCallback);
+    const mismatch = adapter.oauth?.completeAuthorization({
+      attemptId: started.data.attemptId,
+      response: {
+        type: 'callback',
+        url: 'ankh-app://auth/callback?code=concurrent-mismatch',
+      },
+    });
+
+    await exchangeStarted;
+    releaseExchange?.();
+    expect(await firstCompletion).toMatchObject({ ok: true, status: 'authenticated' });
+    expect(await exactReplay).toMatchObject({
+      ok: false,
+      status: 'error',
+      error: { code: 'callback_already_completed' },
+    });
+    expect(await mismatch).toMatchObject({
+      ok: false,
+      status: 'error',
+      error: { code: 'invalid_callback' },
+    });
+    expect(exchanges).toBe(1);
+  });
+
   it('uses an injected CSPRNG for matching S256 and exchange values without global crypto', async () => {
     const cryptoDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'crypto');
     const originalCrypto = globalThis.crypto;

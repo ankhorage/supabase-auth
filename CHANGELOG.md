@@ -1,5 +1,11 @@
 # @ankhorage/supabase-auth
 
+## 1.2.3
+
+### Patch Changes
+
+- 8ca5a40: Generate CSPRNG-backed OAuth PKCE S256 challenges without requiring WebCrypto `subtle`.
+
 ## 1.2.2
 
 ### Patch Changes

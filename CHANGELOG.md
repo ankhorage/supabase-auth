@@ -1,5 +1,11 @@
 # @ankhorage/supabase-auth
 
+## 1.2.5
+
+### Patch Changes
+
+- 444c6ff: Serialize concurrent OAuth callback completion so native transports cannot exchange one authorization code more than once.
+
 ## 1.2.4
 
 ### Patch Changes

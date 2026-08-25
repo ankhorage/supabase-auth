@@ -28,6 +28,7 @@ export type {
   SupabaseAuthErrorCode,
   SupabaseAuthProfileField,
   SupabaseAuthProfileVerificationConfig,
+  SupabaseAuthRandomBytes,
   SupabaseAuthStorage,
   SupabaseOAuthLifecycleEvent,
   SupabaseOAuthLifecycleObserver,

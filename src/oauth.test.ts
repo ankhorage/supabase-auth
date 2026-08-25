@@ -158,19 +158,13 @@ describe('canonical OAuth PKCE adapter', () => {
     expect([...values.keys()].some((key) => key.endsWith('.pkce-verifier'))).toBe(false);
   });
 
-  it('uses CSPRNG-backed S256 and the matching exchange verifier without crypto.subtle', async () => {
+  it('uses an injected CSPRNG for matching S256 and exchange values without global crypto', async () => {
     const cryptoDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'crypto');
     const originalCrypto = globalThis.crypto;
     let randomValueCalls = 0;
-    const cryptoWithoutSubtle: Pick<Crypto, 'getRandomValues'> = {
-      getRandomValues(array) {
-        randomValueCalls += 1;
-        return originalCrypto.getRandomValues(array);
-      },
-    };
     Object.defineProperty(globalThis, 'crypto', {
       configurable: true,
-      value: cryptoWithoutSubtle,
+      value: undefined,
     });
 
     try {
@@ -183,6 +177,10 @@ describe('canonical OAuth PKCE adapter', () => {
         anonKey: 'anon',
         storage,
         oauthProviders: ['google'],
+        oauthRandomBytes(length) {
+          randomValueCalls += 1;
+          return originalCrypto.getRandomValues(new Uint8Array(length));
+        },
         fetch: (_input, init) => {
           exchanges += 1;
           const body: unknown = typeof init?.body === 'string' ? JSON.parse(init.body) : undefined;
@@ -272,6 +270,28 @@ describe('canonical OAuth PKCE adapter', () => {
         Object.defineProperty(globalThis, 'crypto', cryptoDescriptor);
       }
     }
+  });
+
+  it('rejects an invalid injected random byte result without persisting PKCE state', async () => {
+    const { storage, values } = createMemoryStorage();
+    const adapter = createSupabaseAuthAdapter({
+      url: 'https://example.supabase.co',
+      anonKey: 'anon',
+      storage,
+      oauthProviders: ['google'],
+      oauthRandomBytes: () => new Uint8Array(31),
+    });
+
+    expect(
+      await adapter.oauth?.startAuthorization({
+        provider: 'google',
+        redirectUri: 'ankh-app://auth/callback',
+      }),
+    ).toMatchObject({
+      ok: false,
+      error: { code: 'session_persistence_failed' },
+    });
+    expect([...values.keys()].some((key) => key.includes('.oauth'))).toBe(false);
   });
 
   it('redacts every PKCE and OAuth value from terminal exchange errors', async () => {
@@ -510,6 +530,6 @@ describe('canonical OAuth PKCE adapter', () => {
     expect(oauthSource).not.toContain('oauth-code-verifier');
     expect(oauthSource).toContain('/auth/v1/authorize');
     expect(oauthSource).toContain('/auth/v1/token?grant_type=pkce');
-    expect(oauthSource).toContain('randomBytes(PKCE_RANDOM_BYTE_COUNT)');
+    expect(oauthSource).toContain('createPkcePair(input.randomBytes ?? randomBytes)');
   });
 });

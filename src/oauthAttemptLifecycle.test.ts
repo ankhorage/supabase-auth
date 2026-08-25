@@ -11,7 +11,9 @@ import type {
 const STORAGE_KEY = 'ankhorage.supabase-auth.session';
 const ATTEMPT_KEY = `${STORAGE_KEY}.oauth.attempt`;
 const CODE_VERIFIER_KEY = `${STORAGE_KEY}.oauth.pkce-verifier`;
+const CONSUMED_CALLBACKS_KEY = `${STORAGE_KEY}.oauth.consumed-callbacks`;
 const REDIRECT_URI = 'ankh-app://auth/callback';
+const CONSUMED_CALLBACK_RETENTION_MS = 24 * 60 * 60 * 1000;
 
 function createMemoryStorage(initial: Readonly<Record<string, string>> = {}) {
   const values = new Map(Object.entries(initial));
@@ -83,6 +85,32 @@ function readAttempt(values: ReadonlyMap<string, string>): Record<string, unknow
     throw new Error('Persisted OAuth attempt is invalid.');
   }
   return parsed;
+}
+
+function readConsumedCallbacks(values: ReadonlyMap<string, string>): readonly unknown[] {
+  const raw = values.get(CONSUMED_CALLBACKS_KEY);
+  if (raw === undefined) throw new Error('Persisted consumed callback ledger is missing.');
+  const parsed: unknown = JSON.parse(raw);
+  if (!isRecord(parsed) || !Array.isArray(parsed.callbacks)) {
+    throw new Error('Persisted consumed callback ledger is invalid.');
+  }
+  return parsed.callbacks;
+}
+
+function validExchangeResponse(index = 1): Response {
+  return Response.json({
+    access_token: `lifecycle-access-${index}`,
+    refresh_token: `lifecycle-refresh-${index}`,
+    expires_in: 3600,
+    token_type: 'bearer',
+    user: {
+      id: `lifecycle-user-${index}`,
+      email: `lifecycle-${index}@example.com`,
+      app_metadata: {},
+      user_metadata: {},
+      aud: 'authenticated',
+    },
+  });
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -343,6 +371,117 @@ describe('expiring OAuth attempt lifecycle', () => {
     expect(exchanges).toBe(0);
     expect(values.has(ATTEMPT_KEY)).toBe(false);
     expect(values.has(CODE_VERIFIER_KEY)).toBe(false);
+  });
+
+  it('fails closed when the consumed callback ledger cannot be read, parsed, or reserved', async () => {
+    for (const failure of ['read', 'invalid', 'write'] as const) {
+      const { storage: memoryStorage, values } = createMemoryStorage(
+        failure === 'invalid' ? { [CONSUMED_CALLBACKS_KEY]: '{invalid-json' } : {},
+      );
+      let exchanges = 0;
+      const storage: SupabaseAuthStorage = {
+        getItem(key) {
+          if (failure === 'read' && key === CONSUMED_CALLBACKS_KEY) {
+            throw new Error('Synthetic consumed callback ledger read failure.');
+          }
+          return memoryStorage.getItem(key);
+        },
+        setItem(key, value) {
+          if (failure === 'write' && key === CONSUMED_CALLBACKS_KEY) {
+            throw new Error('Synthetic consumed callback ledger write failure.');
+          }
+          return memoryStorage.setItem(key, value);
+        },
+        removeItem: (key) => memoryStorage.removeItem(key),
+      };
+      const adapter = createSupabaseOAuthAdapter({
+        url: 'https://example.supabase.co',
+        anonKey: 'anon',
+        fetch: () => {
+          exchanges += 1;
+          return Promise.resolve(validExchangeResponse());
+        },
+        storage,
+        storageKey: STORAGE_KEY,
+        providers: ['google'],
+        persistSession: () => Promise.resolve(),
+      });
+      const started = await startAuthorization(adapter);
+
+      const completed = await adapter.completeAuthorization.call(adapter, {
+        attemptId: started.attemptId,
+        response: { type: 'callback', url: `${REDIRECT_URI}?code=fail-closed-${failure}` },
+      });
+
+      expect(completed).toMatchObject({
+        ok: false,
+        status: 'error',
+        error: { code: 'session_persistence_failed' },
+      });
+      expect(exchanges).toBe(0);
+      expect(values.has(CODE_VERIFIER_KEY)).toBe(false);
+      expect(readAttempt(values).status).toBe('completed');
+      expect(JSON.stringify(completed)).not.toContain(`fail-closed-${failure}`);
+    }
+  });
+
+  it('expires consumed callback fingerprints after 24 hours', async () => {
+    let exchanges = 0;
+    const { adapter, values, setNow } = createHarness({
+      now: 10_000,
+      fetch: () => Promise.resolve(validExchangeResponse(++exchanges)),
+    });
+    const first = await startAuthorization(adapter);
+    expect(
+      await adapter.completeAuthorization.call(adapter, {
+        attemptId: first.attemptId,
+        response: { type: 'callback', url: `${REDIRECT_URI}?code=expiring-ledger-code` },
+      }),
+    ).toMatchObject({ ok: true, status: 'authenticated' });
+    const initialLedger = readConsumedCallbacks(values);
+    expect(initialLedger).toHaveLength(1);
+    expect(initialLedger[0]).toMatchObject({
+      expiresAt: 10_000 + CONSUMED_CALLBACK_RETENTION_MS,
+    });
+
+    setNow(10_000 + CONSUMED_CALLBACK_RETENTION_MS);
+    const second = await startAuthorization(adapter);
+    expect(
+      await adapter.completeAuthorization.call(adapter, {
+        attemptId: second.attemptId,
+        response: { type: 'callback', url: `${REDIRECT_URI}?code=fresh-after-retention` },
+      }),
+    ).toMatchObject({ ok: true, status: 'authenticated' });
+
+    const prunedLedger = readConsumedCallbacks(values);
+    expect(prunedLedger).toHaveLength(1);
+    expect(prunedLedger).not.toEqual(initialLedger);
+    expect(values.get(CONSUMED_CALLBACKS_KEY)).not.toContain('expiring-ledger-code');
+    expect(values.get(CONSUMED_CALLBACKS_KEY)).not.toContain('fresh-after-retention');
+    expect(exchanges).toBe(2);
+  });
+
+  it('retains at most 32 valid consumed callback fingerprints', async () => {
+    let exchanges = 0;
+    const { adapter, values } = createHarness({
+      fetch: () => Promise.resolve(validExchangeResponse(++exchanges)),
+    });
+
+    for (let index = 0; index < 40; index += 1) {
+      const started = await startAuthorization(adapter);
+      expect(
+        await adapter.completeAuthorization.call(adapter, {
+          attemptId: started.attemptId,
+          response: { type: 'callback', url: `${REDIRECT_URI}?code=bounded-${index}` },
+        }),
+      ).toMatchObject({ ok: true, status: 'authenticated' });
+    }
+
+    const callbacks = readConsumedCallbacks(values);
+    expect(callbacks).toHaveLength(32);
+    expect(new Set(callbacks.map((entry) => JSON.stringify(entry))).size).toBe(32);
+    expect(values.get(CONSUMED_CALLBACKS_KEY)).not.toContain('bounded-');
+    expect(exchanges).toBe(40);
   });
 
   it('does not clear a different valid attempt for a mismatched callback id', async () => {

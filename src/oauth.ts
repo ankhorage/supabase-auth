@@ -90,6 +90,7 @@ export function createSupabaseOAuthAdapter(
   const codeVerifierStorageKey = `${oauthStorageKey}.pkce-verifier`;
   const now = input.now ?? Date.now;
   const attemptLifetimeMs = normalizeAttemptLifetime(input.attemptLifetimeMs);
+  let activeCompletion: Promise<void> | null = null;
 
   const capabilities = {
     providers: providers as [SupabaseOAuthProviderId, ...SupabaseOAuthProviderId[]],
@@ -201,240 +202,87 @@ export function createSupabaseOAuthAdapter(
     async completeAuthorization(
       completionInput: CompleteOAuthAuthorizationInput,
     ): Promise<AuthOAuthCompletionResult> {
-      let attemptResult: StoredOAuthAttemptReadResult;
-      try {
-        attemptResult = await readAttempt(input.storage, attemptStorageKey);
-      } catch {
-        await clearOAuthAttemptState(input.storage, attemptStorageKey, codeVerifierStorageKey);
-        return oauthCompletionError(
-          'session_persistence_failed',
-          'callback',
-          'Unable to read the persisted OAuth authorization attempt.',
-          undefined,
-          true,
-        );
-      }
-
-      if (attemptResult.type !== 'valid') {
-        await clearOAuthAttemptState(input.storage, attemptStorageKey, codeVerifierStorageKey);
-        return oauthCompletionError(
-          'authorization_attempt_not_found',
-          'callback',
-          'The OAuth authorization attempt was not found or is invalid.',
-          undefined,
-          true,
-        );
-      }
-
-      const { attempt } = attemptResult;
-      if (isAttemptExpired(attempt, now())) {
-        await clearOAuthAttemptState(input.storage, attemptStorageKey, codeVerifierStorageKey);
-        return oauthCompletionError(
-          'authorization_attempt_not_found',
-          'callback',
-          'The OAuth authorization attempt expired.',
-          attempt.provider,
-          true,
-        );
-      }
-
-      if (attempt.id !== completionInput.attemptId) {
-        return oauthCompletionError(
-          'authorization_attempt_not_found',
-          'callback',
-          'The OAuth authorization attempt was not found.',
-          attempt.provider,
-          true,
-        );
-      }
-
-      if (attempt.status !== 'pending') {
-        return completeOAuthReplay(completionInput, attempt);
-      }
-
-      if (completionInput.response.type === 'cancelled') {
-        await finalizeAttempt(input.storage, attemptStorageKey, codeVerifierStorageKey, attempt);
-        await emitLifecycleEvent(input.onLifecycleEvent, {
-          correlationId: attempt.id,
-          provider: attempt.provider,
-          stage: 'transport',
-          status: 'cancelled',
-        });
-        return {
-          ok: false,
-          status: 'cancelled',
-          provider: attempt.provider,
-          reason: completionInput.response.reason,
-        };
-      }
-
-      if (completionInput.response.type === 'error') {
-        await finalizeAttempt(input.storage, attemptStorageKey, codeVerifierStorageKey, attempt);
-        const result = oauthCompletionError(
-          'authorization_failed',
-          'transport',
-          'The OAuth authorization transport failed.',
-          attempt.provider,
-          true,
-        );
-        await emitOAuthError(input.onLifecycleEvent, attempt, result);
-        return result;
-      }
-
-      const callback = parseCallback(completionInput.response.url, attempt);
-      if (callback.type === 'error') {
-        await finalizeAttempt(input.storage, attemptStorageKey, codeVerifierStorageKey, attempt);
-        await emitOAuthError(input.onLifecycleEvent, attempt, callback.result);
-        return callback.result;
-      }
-      if (callback.type === 'cancelled') {
-        await finalizeAttempt(input.storage, attemptStorageKey, codeVerifierStorageKey, attempt);
-        await emitLifecycleEvent(input.onLifecycleEvent, {
-          correlationId: attempt.id,
-          provider: attempt.provider,
-          stage: 'callback',
-          status: 'cancelled',
-        });
-        return {
-          ok: false,
-          status: 'cancelled',
-          provider: attempt.provider,
-          reason: 'provider_denied',
-        };
-      }
-
-      const callbackFingerprint = fingerprintOAuthCallback(attempt.id, callback.code);
+      while (activeCompletion) await activeCompletion;
+      let releaseCompletion: (() => void) | undefined;
+      const completionLock = new Promise<void>((resolve) => {
+        releaseCompletion = resolve;
+      });
+      activeCompletion = completionLock;
 
       try {
-        await writeAttempt(input.storage, attemptStorageKey, {
-          ...attempt,
-          status: 'completing',
-          callbackFingerprint,
-        });
-      } catch {
-        await clearOAuthAttemptState(input.storage, attemptStorageKey, codeVerifierStorageKey);
-        return oauthCompletionError(
-          'session_persistence_failed',
-          'callback',
-          'Unable to lock the OAuth authorization callback for completion.',
-          attempt.provider,
-          true,
-        );
-      }
-
-      let codeVerifier: string | null;
-      try {
-        codeVerifier = await input.storage.getItem(codeVerifierStorageKey);
-      } catch {
-        await finalizeAttempt(input.storage, attemptStorageKey, codeVerifierStorageKey, attempt);
-        const result = oauthCompletionError(
-          'session_persistence_failed',
-          'exchange',
-          'The OAuth PKCE verifier could not be read.',
-          attempt.provider,
-          true,
-        );
-        await emitOAuthError(input.onLifecycleEvent, attempt, result);
-        return result;
-      }
-
-      if (codeVerifier === null || codeVerifier.length === 0) {
-        await finalizeAttempt(input.storage, attemptStorageKey, codeVerifierStorageKey, attempt);
-        const result = oauthCompletionError(
-          'pkce_mismatch',
-          'exchange',
-          'The OAuth PKCE verifier is missing or invalid.',
-          attempt.provider,
-          true,
-        );
-        await emitOAuthError(input.onLifecycleEvent, attempt, result);
-        return result;
-      }
-
-      let exchangeResponse: Response;
-      try {
-        exchangeResponse = await exchangeAuthorizationCode({
-          anonKey: input.anonKey,
-          baseUrl: input.url,
-          code: callback.code,
-          fetch: input.fetch,
-          verifier: codeVerifier,
-        });
-      } catch {
-        await finalizeAttempt(input.storage, attemptStorageKey, codeVerifierStorageKey, attempt);
-        const result = oauthCompletionError(
-          'network_error',
-          'exchange',
-          'Unable to reach Supabase Auth while exchanging the OAuth code.',
-          attempt.provider,
-          true,
-        );
-        await emitOAuthError(input.onLifecycleEvent, attempt, result);
-        return result;
-      }
-
-      const exchangeBody = await readResponseBody(exchangeResponse);
-      if (!exchangeResponse.ok) {
-        await finalizeAttempt(input.storage, attemptStorageKey, codeVerifierStorageKey, attempt);
-        const result: AuthOAuthCompletionResult = {
-          ok: false,
-          status: 'error',
-          error: mapSupabaseOAuthError(exchangeBody, 'exchange', attempt.provider),
-        };
-        await emitOAuthError(input.onLifecycleEvent, attempt, result);
-        return result;
-      }
-
-      const session = normalizeSupabaseSession(exchangeBody);
-      if (session === null) {
-        await finalizeAttempt(input.storage, attemptStorageKey, codeVerifierStorageKey, attempt);
-        const result = oauthCompletionError(
-          'provider_error',
-          'session',
-          'Supabase Auth returned an invalid OAuth session.',
-          attempt.provider,
-          false,
-        );
-        await emitOAuthError(input.onLifecycleEvent, attempt, result);
-        return result;
-      }
-
-      try {
-        await input.persistSession(session);
-      } catch {
-        await finalizeAttempt(input.storage, attemptStorageKey, codeVerifierStorageKey, attempt);
-        const result = oauthCompletionError(
-          'session_persistence_failed',
-          'session',
-          'The OAuth session could not be persisted.',
-          attempt.provider,
-          true,
-        );
-        await emitOAuthError(input.onLifecycleEvent, attempt, result);
-        return result;
-      }
-
-      if (input.verifyProfile !== undefined) {
-        let verification;
+        let attemptResult: StoredOAuthAttemptReadResult;
         try {
-          verification = await input.verifyProfile({
+          attemptResult = await readAttempt(input.storage, attemptStorageKey);
+        } catch {
+          await clearOAuthAttemptState(input.storage, attemptStorageKey, codeVerifierStorageKey);
+          return oauthCompletionError(
+            'session_persistence_failed',
+            'callback',
+            'Unable to read the persisted OAuth authorization attempt.',
+            undefined,
+            true,
+          );
+        }
+
+        if (attemptResult.type !== 'valid') {
+          await clearOAuthAttemptState(input.storage, attemptStorageKey, codeVerifierStorageKey);
+          return oauthCompletionError(
+            'authorization_attempt_not_found',
+            'callback',
+            'The OAuth authorization attempt was not found or is invalid.',
+            undefined,
+            true,
+          );
+        }
+
+        const { attempt } = attemptResult;
+        if (isAttemptExpired(attempt, now())) {
+          await clearOAuthAttemptState(input.storage, attemptStorageKey, codeVerifierStorageKey);
+          return oauthCompletionError(
+            'authorization_attempt_not_found',
+            'callback',
+            'The OAuth authorization attempt expired.',
+            attempt.provider,
+            true,
+          );
+        }
+
+        if (attempt.id !== completionInput.attemptId) {
+          return oauthCompletionError(
+            'authorization_attempt_not_found',
+            'callback',
+            'The OAuth authorization attempt was not found.',
+            attempt.provider,
+            true,
+          );
+        }
+
+        if (attempt.status !== 'pending') {
+          return completeOAuthReplay(completionInput, attempt);
+        }
+
+        if (completionInput.response.type === 'cancelled') {
+          await finalizeAttempt(input.storage, attemptStorageKey, codeVerifierStorageKey, attempt);
+          await emitLifecycleEvent(input.onLifecycleEvent, {
             correlationId: attempt.id,
             provider: attempt.provider,
-            session,
+            stage: 'transport',
+            status: 'cancelled',
           });
-        } catch {
-          verification = {
-            ok: false as const,
-            message: 'The generated public profile could not be verified.',
+          return {
+            ok: false,
+            status: 'cancelled',
+            provider: attempt.provider,
+            reason: completionInput.response.reason,
           };
         }
 
-        if (!verification.ok) {
+        if (completionInput.response.type === 'error') {
           await finalizeAttempt(input.storage, attemptStorageKey, codeVerifierStorageKey, attempt);
           const result = oauthCompletionError(
-            'profile_creation_failed',
-            'profile',
-            verification.message,
+            'authorization_failed',
+            'transport',
+            'The OAuth authorization transport failed.',
             attempt.provider,
             true,
           );
@@ -442,33 +290,203 @@ export function createSupabaseOAuthAdapter(
           return result;
         }
 
+        const callback = parseCallback(completionInput.response.url, attempt);
+        if (callback.type === 'error') {
+          await finalizeAttempt(input.storage, attemptStorageKey, codeVerifierStorageKey, attempt);
+          await emitOAuthError(input.onLifecycleEvent, attempt, callback.result);
+          return callback.result;
+        }
+        if (callback.type === 'cancelled') {
+          await finalizeAttempt(input.storage, attemptStorageKey, codeVerifierStorageKey, attempt);
+          await emitLifecycleEvent(input.onLifecycleEvent, {
+            correlationId: attempt.id,
+            provider: attempt.provider,
+            stage: 'callback',
+            status: 'cancelled',
+          });
+          return {
+            ok: false,
+            status: 'cancelled',
+            provider: attempt.provider,
+            reason: 'provider_denied',
+          };
+        }
+
+        const callbackFingerprint = fingerprintOAuthCallback(attempt.id, callback.code);
+
+        try {
+          await writeAttempt(input.storage, attemptStorageKey, {
+            ...attempt,
+            status: 'completing',
+            callbackFingerprint,
+          });
+        } catch {
+          await clearOAuthAttemptState(input.storage, attemptStorageKey, codeVerifierStorageKey);
+          return oauthCompletionError(
+            'session_persistence_failed',
+            'callback',
+            'Unable to lock the OAuth authorization callback for completion.',
+            attempt.provider,
+            true,
+          );
+        }
+
+        let codeVerifier: string | null;
+        try {
+          codeVerifier = await input.storage.getItem(codeVerifierStorageKey);
+        } catch {
+          await finalizeAttempt(input.storage, attemptStorageKey, codeVerifierStorageKey, attempt);
+          const result = oauthCompletionError(
+            'session_persistence_failed',
+            'exchange',
+            'The OAuth PKCE verifier could not be read.',
+            attempt.provider,
+            true,
+          );
+          await emitOAuthError(input.onLifecycleEvent, attempt, result);
+          return result;
+        }
+
+        if (codeVerifier === null || codeVerifier.length === 0) {
+          await finalizeAttempt(input.storage, attemptStorageKey, codeVerifierStorageKey, attempt);
+          const result = oauthCompletionError(
+            'pkce_mismatch',
+            'exchange',
+            'The OAuth PKCE verifier is missing or invalid.',
+            attempt.provider,
+            true,
+          );
+          await emitOAuthError(input.onLifecycleEvent, attempt, result);
+          return result;
+        }
+
+        let exchangeResponse: Response;
+        try {
+          exchangeResponse = await exchangeAuthorizationCode({
+            anonKey: input.anonKey,
+            baseUrl: input.url,
+            code: callback.code,
+            fetch: input.fetch,
+            verifier: codeVerifier,
+          });
+        } catch {
+          await finalizeAttempt(input.storage, attemptStorageKey, codeVerifierStorageKey, attempt);
+          const result = oauthCompletionError(
+            'network_error',
+            'exchange',
+            'Unable to reach Supabase Auth while exchanging the OAuth code.',
+            attempt.provider,
+            true,
+          );
+          await emitOAuthError(input.onLifecycleEvent, attempt, result);
+          return result;
+        }
+
+        const exchangeBody = await readResponseBody(exchangeResponse);
+        if (!exchangeResponse.ok) {
+          await finalizeAttempt(input.storage, attemptStorageKey, codeVerifierStorageKey, attempt);
+          const result: AuthOAuthCompletionResult = {
+            ok: false,
+            status: 'error',
+            error: mapSupabaseOAuthError(exchangeBody, 'exchange', attempt.provider),
+          };
+          await emitOAuthError(input.onLifecycleEvent, attempt, result);
+          return result;
+        }
+
+        const session = normalizeSupabaseSession(exchangeBody);
+        if (session === null) {
+          await finalizeAttempt(input.storage, attemptStorageKey, codeVerifierStorageKey, attempt);
+          const result = oauthCompletionError(
+            'provider_error',
+            'session',
+            'Supabase Auth returned an invalid OAuth session.',
+            attempt.provider,
+            false,
+          );
+          await emitOAuthError(input.onLifecycleEvent, attempt, result);
+          return result;
+        }
+
+        try {
+          await input.persistSession(session);
+        } catch {
+          await finalizeAttempt(input.storage, attemptStorageKey, codeVerifierStorageKey, attempt);
+          const result = oauthCompletionError(
+            'session_persistence_failed',
+            'session',
+            'The OAuth session could not be persisted.',
+            attempt.provider,
+            true,
+          );
+          await emitOAuthError(input.onLifecycleEvent, attempt, result);
+          return result;
+        }
+
+        if (input.verifyProfile !== undefined) {
+          let verification;
+          try {
+            verification = await input.verifyProfile({
+              correlationId: attempt.id,
+              provider: attempt.provider,
+              session,
+            });
+          } catch {
+            verification = {
+              ok: false as const,
+              message: 'The generated public profile could not be verified.',
+            };
+          }
+
+          if (!verification.ok) {
+            await finalizeAttempt(
+              input.storage,
+              attemptStorageKey,
+              codeVerifierStorageKey,
+              attempt,
+            );
+            const result = oauthCompletionError(
+              'profile_creation_failed',
+              'profile',
+              verification.message,
+              attempt.provider,
+              true,
+            );
+            await emitOAuthError(input.onLifecycleEvent, attempt, result);
+            return result;
+          }
+
+          await emitLifecycleEvent(input.onLifecycleEvent, {
+            correlationId: attempt.id,
+            provider: attempt.provider,
+            stage: 'profile',
+            status: 'profile_verified',
+          });
+        }
+
+        await finalizeAttempt(
+          input.storage,
+          attemptStorageKey,
+          codeVerifierStorageKey,
+          attempt,
+          callbackFingerprint,
+        );
         await emitLifecycleEvent(input.onLifecycleEvent, {
           correlationId: attempt.id,
           provider: attempt.provider,
-          stage: 'profile',
-          status: 'profile_verified',
+          stage: 'session',
+          status: 'authenticated',
         });
+        return {
+          ok: true,
+          status: 'authenticated',
+          provider: attempt.provider,
+          session,
+        };
+      } finally {
+        if (activeCompletion === completionLock) activeCompletion = null;
+        releaseCompletion?.();
       }
-
-      await finalizeAttempt(
-        input.storage,
-        attemptStorageKey,
-        codeVerifierStorageKey,
-        attempt,
-        callbackFingerprint,
-      );
-      await emitLifecycleEvent(input.onLifecycleEvent, {
-        correlationId: attempt.id,
-        provider: attempt.provider,
-        stage: 'session',
-        status: 'authenticated',
-      });
-      return {
-        ok: true,
-        status: 'authenticated',
-        provider: attempt.provider,
-        session,
-      };
     },
   };
 }

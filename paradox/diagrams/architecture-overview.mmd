@@ -2,13 +2,33 @@ graph TD
   package__ankhorage_supabase_auth["SUPABASE AUTH"]
   entrypoint_src_index_ts["src/index.ts"]
   package__ankhorage_supabase_auth --> entrypoint_src_index_ts
+  module_src_authConfiguration_ts["src/authConfiguration.ts"]
+  package__ankhorage_supabase_auth -.-> module_src_authConfiguration_ts
+  module_src_authConfiguration_ts --> module_src_oauthProviderDefinitions_ts
+  module_src_authConfiguration_ts --> module_src_profileVerification_ts
+  module_src_authConfiguration_ts --> module_src_types_ts
+  module_src_authPasswordOperations_ts["src/authPasswordOperations.ts"]
+  package__ankhorage_supabase_auth -.-> module_src_authPasswordOperations_ts
+  module_src_authPasswordOperations_ts --> module_src_authSessionContext_ts
+  module_src_authPasswordOperations_ts --> module_src_errors_ts
+  module_src_authPasswordOperations_ts --> module_src_session_ts
+  module_src_authSessionContext_ts["src/authSessionContext.ts"]
+  package__ankhorage_supabase_auth -.-> module_src_authSessionContext_ts
+  module_src_authSessionContext_ts --> module_src_authConfiguration_ts
+  module_src_authSessionContext_ts --> module_src_errors_ts
+  module_src_authSessionContext_ts --> module_src_session_ts
+  module_src_authSessionOperations_ts["src/authSessionOperations.ts"]
+  package__ankhorage_supabase_auth -.-> module_src_authSessionOperations_ts
+  module_src_authSessionOperations_ts --> module_src_authSessionContext_ts
+  module_src_authSessionOperations_ts --> module_src_errors_ts
   module_src_createSupabaseAuthAdapter_ts["src/createSupabaseAuthAdapter.ts"]
   package__ankhorage_supabase_auth -.-> module_src_createSupabaseAuthAdapter_ts
-  module_src_createSupabaseAuthAdapter_ts --> module_src_errors_ts
+  module_src_createSupabaseAuthAdapter_ts --> module_src_authConfiguration_ts
+  module_src_createSupabaseAuthAdapter_ts --> module_src_authPasswordOperations_ts
+  module_src_createSupabaseAuthAdapter_ts --> module_src_authSessionContext_ts
+  module_src_createSupabaseAuthAdapter_ts --> module_src_authSessionOperations_ts
   module_src_createSupabaseAuthAdapter_ts --> module_src_oauth_ts
-  module_src_createSupabaseAuthAdapter_ts --> module_src_oauthProviderDefinitions_ts
   module_src_createSupabaseAuthAdapter_ts --> module_src_profileVerification_ts
-  module_src_createSupabaseAuthAdapter_ts --> module_src_session_ts
   module_src_createSupabaseAuthAdapter_ts --> module_src_types_ts
   module_src_errors_ts["src/errors.ts"]
   package__ankhorage_supabase_auth -.-> module_src_errors_ts
@@ -16,11 +36,85 @@ graph TD
   module_src_index_ts["src/index.ts"]
   module_src_oauth_ts["src/oauth.ts"]
   package__ankhorage_supabase_auth -.-> module_src_oauth_ts
-  module_src_oauth_ts --> module_src_oauthProviderDefinitions_ts
-  module_src_oauth_ts --> module_src_session_ts
-  module_src_oauth_ts --> module_src_types_ts
+  module_src_oauth_ts --> module_src_oauthComplete_ts
+  module_src_oauth_ts --> module_src_oauthRuntime_ts
+  module_src_oauth_ts --> module_src_oauthStart_ts
+  module_src_oauth_ts --> module_src_oauthTypes_ts
+  module_src_oauthAttemptId_ts["src/oauthAttemptId.ts"]
+  package__ankhorage_supabase_auth -.-> module_src_oauthAttemptId_ts
+  module_src_oauthCallback_ts["src/oauthCallback.ts"]
+  package__ankhorage_supabase_auth -.-> module_src_oauthCallback_ts
+  module_src_oauthCallback_ts --> module_src_oauthErrors_ts
+  module_src_oauthCallback_ts --> module_src_oauthProviderDefinitions_ts
+  module_src_oauthCallback_ts --> module_src_oauthStorage_ts
+  module_src_oauthCallback_ts --> module_src_oauthTypes_ts
+  module_src_oauthComplete_ts["src/oauthComplete.ts"]
+  package__ankhorage_supabase_auth -.-> module_src_oauthComplete_ts
+  module_src_oauthComplete_ts --> module_src_oauthCallback_ts
+  module_src_oauthComplete_ts --> module_src_oauthCompletionState_ts
+  module_src_oauthComplete_ts --> module_src_oauthErrors_ts
+  module_src_oauthComplete_ts --> module_src_oauthExchange_ts
+  module_src_oauthComplete_ts --> module_src_oauthLifecycle_ts
+  module_src_oauthComplete_ts --> module_src_oauthRuntime_ts
+  module_src_oauthComplete_ts --> module_src_oauthStorage_ts
+  module_src_oauthComplete_ts --> module_src_oauthTypes_ts
+  module_src_oauthCompletionState_ts["src/oauthCompletionState.ts"]
+  package__ankhorage_supabase_auth -.-> module_src_oauthCompletionState_ts
+  module_src_oauthCompletionState_ts --> module_src_oauthLifecycle_ts
+  module_src_oauthCompletionState_ts --> module_src_oauthRuntime_ts
+  module_src_oauthCompletionState_ts --> module_src_oauthStorage_ts
+  module_src_oauthCompletionState_ts --> module_src_oauthTypes_ts
+  module_src_oauthErrors_ts["src/oauthErrors.ts"]
+  package__ankhorage_supabase_auth -.-> module_src_oauthErrors_ts
+  module_src_oauthErrors_ts --> module_src_oauthProviderDefinitions_ts
+  module_src_oauthExchange_ts["src/oauthExchange.ts"]
+  package__ankhorage_supabase_auth -.-> module_src_oauthExchange_ts
+  module_src_oauthExchange_ts --> module_src_errors_ts
+  module_src_oauthExchange_ts --> module_src_oauthCompletionState_ts
+  module_src_oauthExchange_ts --> module_src_oauthErrors_ts
+  module_src_oauthExchange_ts --> module_src_oauthLifecycle_ts
+  module_src_oauthExchange_ts --> module_src_oauthRuntime_ts
+  module_src_oauthExchange_ts --> module_src_oauthStartSupport_ts
+  module_src_oauthExchange_ts --> module_src_oauthTypes_ts
+  module_src_oauthExchange_ts --> module_src_session_ts
+  module_src_oauthLifecycle_ts["src/oauthLifecycle.ts"]
+  package__ankhorage_supabase_auth -.-> module_src_oauthLifecycle_ts
+  module_src_oauthLifecycle_ts --> module_src_oauthTypes_ts
+  module_src_oauthLifecycle_ts --> module_src_types_ts
   module_src_oauthProviderDefinitions_ts["src/oauthProviderDefinitions.ts"]
   package__ankhorage_supabase_auth -.-> module_src_oauthProviderDefinitions_ts
+  module_src_oauthRuntime_ts["src/oauthRuntime.ts"]
+  package__ankhorage_supabase_auth -.-> module_src_oauthRuntime_ts
+  module_src_oauthRuntime_ts --> module_src_oauthProviderDefinitions_ts
+  module_src_oauthRuntime_ts --> module_src_oauthStorage_ts
+  module_src_oauthRuntime_ts --> module_src_oauthTypes_ts
+  module_src_oauthSetupRequirements_ts["src/oauthSetupRequirements.ts"]
+  package__ankhorage_supabase_auth -.-> module_src_oauthSetupRequirements_ts
+  module_src_oauthSetupRequirements_ts --> module_src_oauthProviderDefinitions_ts
+  module_src_oauthStart_ts["src/oauthStart.ts"]
+  package__ankhorage_supabase_auth -.-> module_src_oauthStart_ts
+  module_src_oauthStart_ts --> module_src_oauthAttemptId_ts
+  module_src_oauthStart_ts --> module_src_oauthErrors_ts
+  module_src_oauthStart_ts --> module_src_oauthLifecycle_ts
+  module_src_oauthStart_ts --> module_src_oauthProviderDefinitions_ts
+  module_src_oauthStart_ts --> module_src_oauthRuntime_ts
+  module_src_oauthStart_ts --> module_src_oauthStartSupport_ts
+  module_src_oauthStart_ts --> module_src_oauthStorage_ts
+  module_src_oauthStart_ts --> module_src_oauthTypes_ts
+  module_src_oauthStartSupport_ts["src/oauthStartSupport.ts"]
+  package__ankhorage_supabase_auth -.-> module_src_oauthStartSupport_ts
+  module_src_oauthStartSupport_ts --> module_src_oauthErrors_ts
+  module_src_oauthStartSupport_ts --> module_src_oauthProviderDefinitions_ts
+  module_src_oauthStartSupport_ts --> module_src_types_ts
+  module_src_oauthStorage_ts["src/oauthStorage.ts"]
+  package__ankhorage_supabase_auth -.-> module_src_oauthStorage_ts
+  module_src_oauthStorage_ts --> module_src_oauthProviderDefinitions_ts
+  module_src_oauthStorage_ts --> module_src_oauthTypes_ts
+  module_src_oauthStorage_ts --> module_src_types_ts
+  module_src_oauthTypes_ts["src/oauthTypes.ts"]
+  package__ankhorage_supabase_auth -.-> module_src_oauthTypes_ts
+  module_src_oauthTypes_ts --> module_src_oauthProviderDefinitions_ts
+  module_src_oauthTypes_ts --> module_src_types_ts
   module_src_profileVerification_ts["src/profileVerification.ts"]
   package__ankhorage_supabase_auth -.-> module_src_profileVerification_ts
   module_src_profileVerification_ts --> module_src_types_ts

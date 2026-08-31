@@ -1,0 +1,8 @@
+sequenceDiagram
+  participant participant_getSupabaseOAuthProviderDefinition as getSupabaseOAuthProviderDefinition
+  participant participant_isSupabaseOAuthProviderId as isSupabaseOAuthProviderId
+  participant participant_resolveSupabaseOAuthSetupPlan as resolveSupabaseOAuthSetupPlan
+  participant_resolveSupabaseOAuthSetupPlan->>participant_getSupabaseOAuthProviderDefinition: getSupabaseOAuthProviderDefinition()
+  participant_getSupabaseOAuthProviderDefinition->>participant_isSupabaseOAuthProviderId: isSupabaseOAuthProviderId()
+  participant_isSupabaseOAuthProviderId-->>participant_getSupabaseOAuthProviderDefinition: return
+  participant_getSupabaseOAuthProviderDefinition-->>participant_resolveSupabaseOAuthSetupPlan: return

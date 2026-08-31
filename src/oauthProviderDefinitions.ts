@@ -62,6 +62,16 @@ export const SUPABASE_OAUTH_PROVIDER_DEFINITIONS = {
   },
 } as const satisfies Record<SupabaseOAuthProviderId, SupabaseOAuthProviderDefinition>;
 
+const SUPABASE_OAUTH_PROVIDER_DEFINITION_MAP = new Map<
+  SupabaseOAuthProviderId,
+  SupabaseOAuthProviderDefinition
+>(
+  Object.entries(SUPABASE_OAUTH_PROVIDER_DEFINITIONS) as [
+    SupabaseOAuthProviderId,
+    SupabaseOAuthProviderDefinition,
+  ][],
+);
+
 export function isSupabaseOAuthProviderId(
   provider: AuthOAuthProviderId,
 ): provider is SupabaseOAuthProviderId {
@@ -71,7 +81,9 @@ export function isSupabaseOAuthProviderId(
 export function getSupabaseOAuthProviderDefinition(
   provider: AuthOAuthProviderId,
 ): SupabaseOAuthProviderDefinition | null {
-  return isSupabaseOAuthProviderId(provider) ? SUPABASE_OAUTH_PROVIDER_DEFINITIONS[provider] : null;
+  return isSupabaseOAuthProviderId(provider)
+    ? (SUPABASE_OAUTH_PROVIDER_DEFINITION_MAP.get(provider) ?? null)
+    : null;
 }
 
 export function validateSupabaseOAuthSecretPayload(
@@ -93,7 +105,10 @@ export function validateSupabaseOAuthSecretPayload(
   const { clientSecret } = payload;
   const missingFields = definition.secretFields
     .map((field) => field.name)
-    .filter((field) => typeof payload[field] !== 'string' || payload[field].trim().length === 0);
+    .filter((field) => {
+      const value: unknown = Reflect.get(payload, field);
+      return typeof value !== 'string' || value.trim().length === 0;
+    });
 
   if (
     missingFields.length > 0 ||

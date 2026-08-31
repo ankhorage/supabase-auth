@@ -8,7 +8,7 @@
     "modulePath": "src/createSupabaseAuthAdapter.ts",
     "sourceLocation": {
       "filePath": "src/createSupabaseAuthAdapter.ts",
-      "line": 42,
+      "line": 23,
       "column": 1
     },
     "exportPaths": ["src/index.ts"],
@@ -40,7 +40,7 @@
     "modulePath": "src/profileVerification.ts",
     "sourceLocation": {
       "filePath": "src/profileVerification.ts",
-      "line": 30,
+      "line": 33,
       "column": 1
     },
     "exportPaths": ["src/index.ts"],
@@ -72,7 +72,7 @@
     "modulePath": "src/oauthProviderDefinitions.ts",
     "sourceLocation": {
       "filePath": "src/oauthProviderDefinitions.ts",
-      "line": 71,
+      "line": 81,
       "column": 1
     },
     "exportPaths": ["src/index.ts"],
@@ -104,7 +104,7 @@
     "modulePath": "src/oauthProviderDefinitions.ts",
     "sourceLocation": {
       "filePath": "src/oauthProviderDefinitions.ts",
-      "line": 65,
+      "line": 75,
       "column": 1
     },
     "exportPaths": ["src/index.ts"],
@@ -136,7 +136,7 @@
     "modulePath": "src/oauthProviderDefinitions.ts",
     "sourceLocation": {
       "filePath": "src/oauthProviderDefinitions.ts",
-      "line": 122,
+      "line": 137,
       "column": 1
     },
     "exportPaths": ["src/index.ts"],
@@ -168,7 +168,7 @@
     "modulePath": "src/profileVerification.ts",
     "sourceLocation": {
       "filePath": "src/profileVerification.ts",
-      "line": 132,
+      "line": 130,
       "column": 1
     },
     "exportPaths": ["src/index.ts"],
@@ -192,6 +192,38 @@
     "structuredRows": []
   },
   {
+    "name": "resolveSupabaseOAuthSetupPlan",
+    "description": null,
+    "isReadme": false,
+    "examples": [],
+    "kind": "function",
+    "modulePath": "src/oauthSetupRequirements.ts",
+    "sourceLocation": {
+      "filePath": "src/oauthSetupRequirements.ts",
+      "line": 21,
+      "column": 1
+    },
+    "exportPaths": ["src/index.ts"],
+    "relatedSymbols": [],
+    "signatures": [
+      {
+        "label": "(input: { readonly provider: AuthOAuthProviderId; readonly transport: AuthOAuthTransportId; readonly environment: AuthOAuthSetupPlan[\"environment\"]; readonly targets: AuthOAuthSetupPlan[\"targets\"]; }) => AuthOAuthSetupPlan | null",
+        "parameters": [
+          {
+            "name": "input",
+            "type": "{ readonly provider: AuthOAuthProviderId; readonly transport: AuthOAuthTransportId; readonly environment: AuthOAuthSetupPlan[\"environment\"]; readonly targets: AuthOAuthSetupPlan[\"targets\"]; }",
+            "required": true,
+            "description": null
+          }
+        ],
+        "returnType": "AuthOAuthSetupPlan | null",
+        "returnDescription": null
+      }
+    ],
+    "members": [],
+    "structuredRows": []
+  },
+  {
     "name": "SUPABASE_AUTH_PROFILE_FIELDS",
     "description": null,
     "isReadme": false,
@@ -200,7 +232,7 @@
     "modulePath": "src/types.ts",
     "sourceLocation": {
       "filePath": "src/types.ts",
-      "line": 16,
+      "line": 19,
       "column": 14
     },
     "exportPaths": ["src/index.ts"],
@@ -246,6 +278,24 @@
     "structuredRows": []
   },
   {
+    "name": "SUPABASE_OAUTH_SETUP_CAPABILITIES",
+    "description": null,
+    "isReadme": false,
+    "examples": [],
+    "kind": "value",
+    "modulePath": "src/oauthSetupRequirements.ts",
+    "sourceLocation": {
+      "filePath": "src/oauthSetupRequirements.ts",
+      "line": 16,
+      "column": 14
+    },
+    "exportPaths": ["src/index.ts"],
+    "relatedSymbols": [],
+    "signatures": [],
+    "members": [],
+    "structuredRows": []
+  },
+  {
     "name": "SupabaseAuthConfig",
     "description": null,
     "isReadme": false,
@@ -254,12 +304,13 @@
     "modulePath": "src/types.ts",
     "sourceLocation": {
       "filePath": "src/types.ts",
-      "line": 71,
+      "line": 70,
       "column": 1
     },
     "exportPaths": ["src/index.ts"],
     "relatedSymbols": [
       "SupabaseAuthProfileVerificationConfig",
+      "SupabaseAuthRandomBytes",
       "SupabaseAuthStorage",
       "SupabaseOAuthLifecycleObserver"
     ],
@@ -283,6 +334,13 @@
         "name": "oauthProviders",
         "kind": "property",
         "type": "readonly AuthOAuthProviderId[] | undefined",
+        "required": false,
+        "description": null
+      },
+      {
+        "name": "oauthRandomBytes",
+        "kind": "property",
+        "type": "SupabaseAuthRandomBytes | undefined",
         "required": false,
         "description": null
       },
@@ -351,7 +409,7 @@
     "modulePath": "src/types.ts",
     "sourceLocation": {
       "filePath": "src/types.ts",
-      "line": 23,
+      "line": 26,
       "column": 1
     },
     "exportPaths": ["src/index.ts"],
@@ -369,7 +427,7 @@
     "modulePath": "src/types.ts",
     "sourceLocation": {
       "filePath": "src/types.ts",
-      "line": 25,
+      "line": 28,
       "column": 1
     },
     "exportPaths": ["src/index.ts"],
@@ -408,6 +466,24 @@
     "structuredRows": []
   },
   {
+    "name": "SupabaseAuthRandomBytes",
+    "description": null,
+    "isReadme": false,
+    "examples": [],
+    "kind": "unknown",
+    "modulePath": "src/types.ts",
+    "sourceLocation": {
+      "filePath": "src/types.ts",
+      "line": 11,
+      "column": 1
+    },
+    "exportPaths": ["src/index.ts"],
+    "relatedSymbols": [],
+    "signatures": [],
+    "members": [],
+    "structuredRows": []
+  },
+  {
     "name": "SupabaseAuthStorage",
     "description": null,
     "isReadme": false,
@@ -416,7 +492,7 @@
     "modulePath": "src/types.ts",
     "sourceLocation": {
       "filePath": "src/types.ts",
-      "line": 10,
+      "line": 13,
       "column": 1
     },
     "exportPaths": ["src/index.ts"],
@@ -456,7 +532,7 @@
     "modulePath": "src/types.ts",
     "sourceLocation": {
       "filePath": "src/types.ts",
-      "line": 55,
+      "line": 54,
       "column": 1
     },
     "exportPaths": ["src/index.ts"],
@@ -510,7 +586,7 @@
     "modulePath": "src/types.ts",
     "sourceLocation": {
       "filePath": "src/types.ts",
-      "line": 67,
+      "line": 66,
       "column": 1
     },
     "exportPaths": ["src/index.ts"],
@@ -528,7 +604,7 @@
     "modulePath": "src/types.ts",
     "sourceLocation": {
       "filePath": "src/types.ts",
-      "line": 48,
+      "line": 51,
       "column": 1
     },
     "exportPaths": ["src/index.ts"],
@@ -546,7 +622,7 @@
     "modulePath": "src/types.ts",
     "sourceLocation": {
       "filePath": "src/types.ts",
-      "line": 36,
+      "line": 39,
       "column": 1
     },
     "exportPaths": ["src/index.ts"],
@@ -586,7 +662,7 @@
     "modulePath": "src/types.ts",
     "sourceLocation": {
       "filePath": "src/types.ts",
-      "line": 42,
+      "line": 45,
       "column": 1
     },
     "exportPaths": ["src/index.ts"],
@@ -604,7 +680,7 @@
     "modulePath": "src/types.ts",
     "sourceLocation": {
       "filePath": "src/types.ts",
-      "line": 44,
+      "line": 47,
       "column": 1
     },
     "exportPaths": ["src/index.ts"],
@@ -835,7 +911,7 @@
     "modulePath": "src/oauthProviderDefinitions.ts",
     "sourceLocation": {
       "filePath": "src/oauthProviderDefinitions.ts",
-      "line": 77,
+      "line": 89,
       "column": 1
     },
     "exportPaths": ["src/index.ts"],
@@ -873,7 +949,7 @@
     "modulePath": "src/profileVerification.ts",
     "sourceLocation": {
       "filePath": "src/profileVerification.ts",
-      "line": 49,
+      "line": 52,
       "column": 1
     },
     "exportPaths": ["src/index.ts"],

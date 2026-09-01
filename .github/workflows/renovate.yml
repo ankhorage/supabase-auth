@@ -8,8 +8,7 @@ on:
       - synchronize
 
 permissions:
-  actions: write
-  contents: write
+  contents: read
   pull-requests: read
 
 jobs:
@@ -18,4 +17,8 @@ jobs:
       github.actor == 'renovate[bot]' &&
       github.event.pull_request.head.repo.full_name == github.repository &&
       startsWith(github.event.pull_request.head.ref, 'renovate/')
-    uses: ankhorage/renovate/.github/workflows/changeset.yml@ae2cde4673bb58c6659bc5a7bd16739fb6f0db5e
+    uses: ankhorage/renovate/.github/workflows/changeset.yml@1721d245371e879301d7a2e5299d1c5790d97459
+    with:
+      renovate_sync_client_id: ${{ vars.ANKHORAGE_RENOVATE_SYNC_CLIENT_ID }}
+    secrets:
+      renovate_sync_private_key: ${{ secrets.ANKHORAGE_RENOVATE_SYNC_PRIVATE_KEY }}

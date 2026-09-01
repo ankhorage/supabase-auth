@@ -22,31 +22,15 @@ export function mapSupabaseError(response: Response, body: unknown): AuthAdapter
     body,
   };
 
-  if (
-    response.status === 401 &&
-    (normalizedMessage.includes('jwt') ||
-      normalizedMessage.includes('session') ||
-      normalizedMessage.includes('token'))
-  ) {
+  if (isExpiredAccessSession(response.status, normalizedMessage)) {
     return createAuthError('session_expired', 'The auth session expired.', cause);
   }
 
-  if (
-    normalizedMessage.includes('invalid login credentials') ||
-    normalizedMessage.includes('invalid credentials') ||
-    normalizedMessage.includes('invalid_credentials') ||
-    normalizedMessage.includes('invalid_grant')
-  ) {
+  if (isInvalidCredentialMessage(normalizedMessage)) {
     return createAuthError('invalid_credentials', 'Invalid credentials.', cause);
   }
 
-  if (
-    (normalizedMessage.includes('refresh token') || normalizedMessage.includes('refresh_token')) &&
-    (normalizedMessage.includes('invalid') ||
-      normalizedMessage.includes('expired') ||
-      normalizedMessage.includes('not found') ||
-      normalizedMessage.includes('not_found'))
-  ) {
+  if (isExpiredRefreshSession(normalizedMessage)) {
     return createAuthError('session_expired', 'The auth session expired.', cause);
   }
 
@@ -59,6 +43,31 @@ export function mapSupabaseError(response: Response, body: unknown): AuthAdapter
   }
 
   return createAuthError('provider_error', message || 'Supabase Auth returned an error.', cause);
+}
+
+function isExpiredAccessSession(status: number, message: string): boolean {
+  return status === 401 && includesAny(message, 'jwt', 'session', 'token');
+}
+
+function isInvalidCredentialMessage(message: string): boolean {
+  return includesAny(
+    message,
+    'invalid login credentials',
+    'invalid credentials',
+    'invalid_credentials',
+    'invalid_grant',
+  );
+}
+
+function isExpiredRefreshSession(message: string): boolean {
+  return (
+    includesAny(message, 'refresh token', 'refresh_token') &&
+    includesAny(message, 'invalid', 'expired', 'not found', 'not_found')
+  );
+}
+
+function includesAny(value: string, ...needles: readonly string[]): boolean {
+  return needles.some((needle) => value.includes(needle));
 }
 
 export async function readResponseBody(response: Response): Promise<unknown> {

@@ -99,7 +99,7 @@ function metadataString(
 ): string | undefined {
   if (metadata === undefined) return undefined;
   for (const key of keys) {
-    const value = stringValue(metadata[key]);
+    const value = stringValue(Reflect.get(metadata, key));
     if (value !== undefined) return value;
   }
   return undefined;

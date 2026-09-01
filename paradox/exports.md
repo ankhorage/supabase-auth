@@ -4,7 +4,7 @@
 
 Kind: `function`
 Module: `src/createSupabaseAuthAdapter.ts`
-Source: `src/createSupabaseAuthAdapter.ts:42:1`
+Source: `src/createSupabaseAuthAdapter.ts:23:1`
 
 ### Signatures
 
@@ -16,7 +16,7 @@ Source: `src/createSupabaseAuthAdapter.ts:42:1`
 
 Kind: `function`
 Module: `src/profileVerification.ts`
-Source: `src/profileVerification.ts:30:1`
+Source: `src/profileVerification.ts:33:1`
 
 ### Signatures
 
@@ -28,7 +28,7 @@ Source: `src/profileVerification.ts:30:1`
 
 Kind: `function`
 Module: `src/oauthProviderDefinitions.ts`
-Source: `src/oauthProviderDefinitions.ts:71:1`
+Source: `src/oauthProviderDefinitions.ts:81:1`
 
 ### Signatures
 
@@ -40,7 +40,7 @@ Source: `src/oauthProviderDefinitions.ts:71:1`
 
 Kind: `function`
 Module: `src/oauthProviderDefinitions.ts`
-Source: `src/oauthProviderDefinitions.ts:65:1`
+Source: `src/oauthProviderDefinitions.ts:75:1`
 
 ### Signatures
 
@@ -52,7 +52,7 @@ Source: `src/oauthProviderDefinitions.ts:65:1`
 
 Kind: `function`
 Module: `src/oauthProviderDefinitions.ts`
-Source: `src/oauthProviderDefinitions.ts:122:1`
+Source: `src/oauthProviderDefinitions.ts:137:1`
 
 ### Signatures
 
@@ -64,7 +64,7 @@ Source: `src/oauthProviderDefinitions.ts:122:1`
 
 Kind: `function`
 Module: `src/profileVerification.ts`
-Source: `src/profileVerification.ts:132:1`
+Source: `src/profileVerification.ts:130:1`
 
 ### Signatures
 
@@ -72,11 +72,23 @@ Source: `src/profileVerification.ts:132:1`
   - config: `SupabaseAuthProfileVerificationConfig`
   - returns: `NormalizedSupabaseAuthProfileVerificationConfig`
 
+## resolveSupabaseOAuthSetupPlan
+
+Kind: `function`
+Module: `src/oauthSetupRequirements.ts`
+Source: `src/oauthSetupRequirements.ts:21:1`
+
+### Signatures
+
+- `(input: { readonly provider: AuthOAuthProviderId; readonly transport: AuthOAuthTransportId; readonly environment: AuthOAuthSetupPlan["environment"]; readonly targets: AuthOAuthSetupPlan["targets"]; }) => AuthOAuthSetupPlan | null`
+  - input: `{ readonly provider: AuthOAuthProviderId; readonly transport: AuthOAuthTransportId; readonly environment: AuthOAuthSetupPlan["environment"]; readonly targets: AuthOAuthSetupPlan["targets"]; }`
+  - returns: `AuthOAuthSetupPlan | null`
+
 ## SUPABASE_AUTH_PROFILE_FIELDS
 
 Kind: `value`
 Module: `src/types.ts`
-Source: `src/types.ts:16:14`
+Source: `src/types.ts:19:14`
 
 ## SUPABASE_OAUTH_PROVIDER_DEFINITIONS
 
@@ -90,11 +102,17 @@ Kind: `value`
 Module: `src/oauthProviderDefinitions.ts`
 Source: `src/oauthProviderDefinitions.ts:4:14`
 
+## SUPABASE_OAUTH_SETUP_CAPABILITIES
+
+Kind: `value`
+Module: `src/oauthSetupRequirements.ts`
+Source: `src/oauthSetupRequirements.ts:16:14`
+
 ## SupabaseAuthConfig
 
 Kind: `type`
 Module: `src/types.ts`
-Source: `src/types.ts:71:1`
+Source: `src/types.ts:70:1`
 
 ### Members
 
@@ -103,6 +121,7 @@ Source: `src/types.ts:71:1`
 | anonKey               | property | `string`                                             | yes      |             |
 | fetch                 | property | `typeof fetch \| undefined`                          | no       |             |
 | oauthProviders        | property | `readonly AuthOAuthProviderId[] \| undefined`        | no       |             |
+| oauthRandomBytes      | property | `SupabaseAuthRandomBytes \| undefined`               | no       |             |
 | onOAuthLifecycleEvent | property | `SupabaseOAuthLifecycleObserver \| undefined`        | no       |             |
 | profileVerification   | property | `SupabaseAuthProfileVerificationConfig \| undefined` | no       |             |
 | storage               | property | `SupabaseAuthStorage \| undefined`                   | no       |             |
@@ -119,13 +138,13 @@ Source: `src/types.ts:82:1`
 
 Kind: `unknown`
 Module: `src/types.ts`
-Source: `src/types.ts:23:1`
+Source: `src/types.ts:26:1`
 
 ## SupabaseAuthProfileVerificationConfig
 
 Kind: `type`
 Module: `src/types.ts`
-Source: `src/types.ts:25:1`
+Source: `src/types.ts:28:1`
 
 ### Members
 
@@ -136,11 +155,17 @@ Source: `src/types.ts:25:1`
 | retryDelayMs | property | `number \| undefined`                                                                        | no       |             |
 | table        | property | `string`                                                                                     | yes      |             |
 
+## SupabaseAuthRandomBytes
+
+Kind: `unknown`
+Module: `src/types.ts`
+Source: `src/types.ts:11:1`
+
 ## SupabaseAuthStorage
 
 Kind: `type`
 Module: `src/types.ts`
-Source: `src/types.ts:10:1`
+Source: `src/types.ts:13:1`
 
 ### Members
 
@@ -154,7 +179,7 @@ Source: `src/types.ts:10:1`
 
 Kind: `type`
 Module: `src/types.ts`
-Source: `src/types.ts:55:1`
+Source: `src/types.ts:54:1`
 
 ### Members
 
@@ -170,19 +195,19 @@ Source: `src/types.ts:55:1`
 
 Kind: `unknown`
 Module: `src/types.ts`
-Source: `src/types.ts:67:1`
+Source: `src/types.ts:66:1`
 
 ## SupabaseOAuthLifecycleStatus
 
 Kind: `unknown`
 Module: `src/types.ts`
-Source: `src/types.ts:48:1`
+Source: `src/types.ts:51:1`
 
 ## SupabaseOAuthProfileVerificationInput
 
 Kind: `type`
 Module: `src/types.ts`
-Source: `src/types.ts:36:1`
+Source: `src/types.ts:39:1`
 
 ### Members
 
@@ -196,13 +221,13 @@ Source: `src/types.ts:36:1`
 
 Kind: `unknown`
 Module: `src/types.ts`
-Source: `src/types.ts:42:1`
+Source: `src/types.ts:45:1`
 
 ## SupabaseOAuthProfileVerifier
 
 Kind: `unknown`
 Module: `src/types.ts`
-Source: `src/types.ts:44:1`
+Source: `src/types.ts:47:1`
 
 ## SupabaseOAuthProviderDefinition
 
@@ -278,7 +303,7 @@ Source: `src/types.ts:94:1`
 
 Kind: `function`
 Module: `src/oauthProviderDefinitions.ts`
-Source: `src/oauthProviderDefinitions.ts:77:1`
+Source: `src/oauthProviderDefinitions.ts:89:1`
 
 ### Signatures
 
@@ -291,7 +316,7 @@ Source: `src/oauthProviderDefinitions.ts:77:1`
 
 Kind: `function`
 Module: `src/profileVerification.ts`
-Source: `src/profileVerification.ts:49:1`
+Source: `src/profileVerification.ts:52:1`
 
 ### Signatures
 

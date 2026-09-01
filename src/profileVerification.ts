@@ -19,6 +19,9 @@ const PROFILE_COLUMN_BY_FIELD = {
   username: 'username',
   phone: 'phone',
 } as const satisfies Record<SupabaseAuthProfileField, string>;
+const PROFILE_COLUMN_MAP = new Map<SupabaseAuthProfileField, string>(
+  Object.entries(PROFILE_COLUMN_BY_FIELD) as [SupabaseAuthProfileField, string][],
+);
 
 interface NormalizedSupabaseAuthProfileVerificationConfig {
   table: string;
@@ -55,78 +58,73 @@ export async function verifySupabaseOAuthProfile(input: {
 }): Promise<SupabaseOAuthProfileVerificationResult> {
   const config = normalizeSupabaseAuthProfileVerificationConfig(input.config);
   const endpoint = createProfileEndpoint(input.url, config, input.session.user.id);
-
   for (let attempt = 1; attempt <= config.maxAttempts; attempt += 1) {
-    let response: Response;
-    try {
-      response = await input.fetch(endpoint, {
-        method: 'GET',
-        headers: {
-          Accept: 'application/json',
-          apikey: input.anonKey,
-          Authorization: `Bearer ${input.session.accessToken}`,
-        },
-      });
-    } catch {
-      if (attempt < config.maxAttempts) {
-        await delay(config.retryDelayMs);
-        continue;
-      }
-      return {
-        ok: false,
-        message: 'Unable to reach the generated Supabase profile endpoint.',
-      };
+    const result = await fetchProfileRows(input, endpoint);
+    if (result.type === 'failure') return result.result;
+    if (result.type === 'rows' && result.rows.length > 0) {
+      return validateProfileRows(result.rows, input.session, config.fields);
     }
-
-    if (!response.ok) {
-      return {
-        ok: false,
-        message: `Supabase profile verification failed with HTTP ${response.status}.`,
-      };
+    if (attempt < config.maxAttempts) {
+      await delay(config.retryDelayMs);
+    } else if (result.type === 'retry') {
+      return { ok: false, message: result.message };
     }
-
-    let body: unknown;
-    try {
-      body = await response.json();
-    } catch {
-      return {
-        ok: false,
-        message: 'Supabase profile verification returned invalid JSON.',
-      };
-    }
-
-    if (!Array.isArray(body)) {
-      return {
-        ok: false,
-        message: 'Supabase profile verification returned an invalid row collection.',
-      };
-    }
-
-    if (body.length === 0) {
-      if (attempt < config.maxAttempts) {
-        await delay(config.retryDelayMs);
-        continue;
-      }
-      return {
-        ok: false,
-        message: 'The auth identity exists but its generated public profile row was not found.',
-      };
-    }
-
-    if (body.length !== 1) {
-      return {
-        ok: false,
-        message: 'The generated public profile lookup returned more than one row.',
-      };
-    }
-
-    return validateProfileRow(body[0], input.session, config.fields);
   }
-
   return {
     ok: false,
-    message: 'The generated public profile row could not be verified.',
+    message: 'The auth identity exists but its generated public profile row was not found.',
   };
+}
+
+async function fetchProfileRows(
+  input: { anonKey: string; fetch: SupabaseAuthFetch; session: AuthSession },
+  endpoint: string,
+): Promise<
+  | { type: 'retry'; message: string }
+  | { type: 'rows'; rows: unknown[] }
+  | { type: 'failure'; result: SupabaseOAuthProfileVerificationResult }
+> {
+  let response: Response;
+  try {
+    response = await input.fetch(endpoint, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        apikey: input.anonKey,
+        Authorization: `Bearer ${input.session.accessToken}`,
+      },
+    });
+  } catch {
+    return {
+      type: 'retry',
+      message: 'Unable to reach the generated Supabase profile endpoint.',
+    };
+  }
+  if (!response.ok) {
+    return profileFailure(`Supabase profile verification failed with HTTP ${response.status}.`);
+  }
+  return parseProfileRows(response);
+}
+
+async function parseProfileRows(
+  response: Response,
+): Promise<
+  | { type: 'rows'; rows: unknown[] }
+  | { type: 'failure'; result: SupabaseOAuthProfileVerificationResult }
+> {
+  let body: unknown;
+  try {
+    body = await response.json();
+  } catch {
+    return profileFailure('Supabase profile verification returned invalid JSON.');
+  }
+  return Array.isArray(body)
+    ? { type: 'rows', rows: body }
+    : profileFailure('Supabase profile verification returned an invalid row collection.');
+}
+
+function profileFailure(message: string) {
+  return { type: 'failure' as const, result: { ok: false as const, message } };
 }
 
 export function normalizeSupabaseAuthProfileVerificationConfig(
@@ -169,7 +167,7 @@ function createProfileEndpoint(
   userId: string,
 ): string {
   const url = new URL(`${baseUrl.replace(/\/+$/, '')}/rest/v1/${config.table}`);
-  const columns = ['id', ...config.fields.map((field) => PROFILE_COLUMN_BY_FIELD[field])];
+  const columns = ['id', ...config.fields.map((field) => PROFILE_COLUMN_MAP.get(field) ?? field)];
   url.searchParams.set('id', `eq.${userId}`);
   url.searchParams.set('select', [...new Set(columns)].join(','));
   url.searchParams.set('limit', '2');
@@ -191,7 +189,8 @@ function validateProfileRow(
   for (const field of fields) {
     const expected = getExpectedProfileValue(session, field);
     if (expected === undefined) continue;
-    if (value[PROFILE_COLUMN_BY_FIELD[field]] !== expected) {
+    const column = PROFILE_COLUMN_MAP.get(field);
+    if (column === undefined || Reflect.get(value, column) !== expected) {
       return {
         ok: false,
         message: `The generated public profile field "${field}" does not match provider metadata.`,
@@ -200,6 +199,20 @@ function validateProfileRow(
   }
 
   return { ok: true };
+}
+
+function validateProfileRows(
+  rows: readonly unknown[],
+  session: AuthSession,
+  fields: readonly SupabaseAuthProfileField[],
+): SupabaseOAuthProfileVerificationResult {
+  if (rows.length !== 1) {
+    return {
+      ok: false,
+      message: 'The generated public profile lookup returned more than one row.',
+    };
+  }
+  return validateProfileRow(rows.at(0), session, fields);
 }
 
 function getExpectedProfileValue(

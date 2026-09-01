@@ -12,7 +12,7 @@
     {
       "id": "npm",
       "label": "npm",
-      "value": "v1.1.0",
+      "value": "v1.2.6",
       "color": "cb3837"
     },
     {
@@ -64,14 +64,52 @@
   "entrypoints": ["src/index.ts"],
   "modules": [
     {
+      "path": "src/authConfiguration.ts",
+      "isEntrypoint": false,
+      "dependencies": [
+        "src/oauthProviderDefinitions.ts",
+        "src/profileVerification.ts",
+        "src/types.ts"
+      ],
+      "exports": ["RequiredSupabaseAuthConfig", "validateSupabaseAuthConfig"]
+    },
+    {
+      "path": "src/authPasswordOperations.ts",
+      "isEntrypoint": false,
+      "dependencies": ["src/authSessionContext.ts", "src/errors.ts", "src/session.ts"],
+      "exports": [
+        "createPasswordResetOperation",
+        "createSignInOperation",
+        "createSignUpOperation",
+        "createVerifyOtpOperation"
+      ]
+    },
+    {
+      "path": "src/authSessionContext.ts",
+      "isEntrypoint": false,
+      "dependencies": ["src/authConfiguration.ts", "src/errors.ts", "src/session.ts"],
+      "exports": ["AuthOperationContext", "createAuthOperationContext"]
+    },
+    {
+      "path": "src/authSessionOperations.ts",
+      "isEntrypoint": false,
+      "dependencies": ["src/authSessionContext.ts", "src/errors.ts"],
+      "exports": [
+        "createGetSessionOperation",
+        "createRefreshSessionOperation",
+        "createSignOutOperation"
+      ]
+    },
+    {
       "path": "src/createSupabaseAuthAdapter.ts",
       "isEntrypoint": false,
       "dependencies": [
-        "src/errors.ts",
+        "src/authConfiguration.ts",
+        "src/authPasswordOperations.ts",
+        "src/authSessionContext.ts",
+        "src/authSessionOperations.ts",
         "src/oauth.ts",
-        "src/oauthProviderDefinitions.ts",
         "src/profileVerification.ts",
-        "src/session.ts",
         "src/types.ts"
       ],
       "exports": ["createSupabaseAuthAdapter"]
@@ -93,13 +131,16 @@
         "isSupabaseOAuthProviderId",
         "materializeSupabaseOAuthEnvironment",
         "normalizeSupabaseAuthProfileVerificationConfig",
+        "resolveSupabaseOAuthSetupPlan",
         "SUPABASE_AUTH_PROFILE_FIELDS",
         "SUPABASE_OAUTH_PROVIDER_DEFINITIONS",
         "SUPABASE_OAUTH_PROVIDER_IDS",
+        "SUPABASE_OAUTH_SETUP_CAPABILITIES",
         "SupabaseAuthConfig",
         "SupabaseAuthErrorCode",
         "SupabaseAuthProfileField",
         "SupabaseAuthProfileVerificationConfig",
+        "SupabaseAuthRandomBytes",
         "SupabaseAuthStorage",
         "SupabaseOAuthLifecycleEvent",
         "SupabaseOAuthLifecycleObserver",
@@ -120,8 +161,83 @@
     {
       "path": "src/oauth.ts",
       "isEntrypoint": false,
-      "dependencies": ["src/oauthProviderDefinitions.ts", "src/session.ts", "src/types.ts"],
+      "dependencies": [
+        "src/oauthComplete.ts",
+        "src/oauthRuntime.ts",
+        "src/oauthStart.ts",
+        "src/oauthTypes.ts"
+      ],
       "exports": ["createSupabaseOAuthAdapter"]
+    },
+    {
+      "path": "src/oauthAttemptId.ts",
+      "isEntrypoint": false,
+      "dependencies": [],
+      "exports": ["createOAuthAttemptId"]
+    },
+    {
+      "path": "src/oauthCallback.ts",
+      "isEntrypoint": false,
+      "dependencies": [
+        "src/oauthErrors.ts",
+        "src/oauthProviderDefinitions.ts",
+        "src/oauthStorage.ts",
+        "src/oauthTypes.ts"
+      ],
+      "exports": ["completeOAuthReplay", "invalidCallback", "parseCallback"]
+    },
+    {
+      "path": "src/oauthComplete.ts",
+      "isEntrypoint": false,
+      "dependencies": [
+        "src/oauthCallback.ts",
+        "src/oauthCompletionState.ts",
+        "src/oauthErrors.ts",
+        "src/oauthExchange.ts",
+        "src/oauthLifecycle.ts",
+        "src/oauthRuntime.ts",
+        "src/oauthStorage.ts",
+        "src/oauthTypes.ts"
+      ],
+      "exports": ["completeSupabaseOAuthAuthorization"]
+    },
+    {
+      "path": "src/oauthCompletionState.ts",
+      "isEntrypoint": false,
+      "dependencies": [
+        "src/oauthLifecycle.ts",
+        "src/oauthRuntime.ts",
+        "src/oauthStorage.ts",
+        "src/oauthTypes.ts"
+      ],
+      "exports": ["clearOAuthAttempt", "failOAuthAttempt", "finalizeOAuthAttemptState"]
+    },
+    {
+      "path": "src/oauthErrors.ts",
+      "isEntrypoint": false,
+      "dependencies": ["src/oauthProviderDefinitions.ts"],
+      "exports": ["mapSupabaseOAuthError", "oauthCompletionError", "oauthStartError"]
+    },
+    {
+      "path": "src/oauthExchange.ts",
+      "isEntrypoint": false,
+      "dependencies": [
+        "src/errors.ts",
+        "src/oauthCompletionState.ts",
+        "src/oauthErrors.ts",
+        "src/oauthLifecycle.ts",
+        "src/oauthRuntime.ts",
+        "src/oauthStartSupport.ts",
+        "src/oauthTypes.ts",
+        "src/session.ts"
+      ],
+      "exports": ["exchangeAndPersistOAuthSession"]
+    },
+    {
+      "path": "src/oauthLifecycle.ts",
+      "isEntrypoint": false,
+      "dependencies": ["src/oauthTypes.ts", "src/types.ts"],
+      "exports": ["emitLifecycleEvent", "emitOAuthError"]
     },
     {
       "path": "src/oauthProviderDefinitions.ts",
@@ -142,6 +258,86 @@
       ]
     },
     {
+      "path": "src/oauthRuntime.ts",
+      "isEntrypoint": false,
+      "dependencies": [
+        "src/oauthProviderDefinitions.ts",
+        "src/oauthStorage.ts",
+        "src/oauthTypes.ts"
+      ],
+      "exports": ["createOAuthRuntimeContext", "OAuthRuntimeContext", "OAuthStartPreparation"]
+    },
+    {
+      "path": "src/oauthSetupRequirements.ts",
+      "isEntrypoint": false,
+      "dependencies": ["src/oauthProviderDefinitions.ts"],
+      "exports": ["resolveSupabaseOAuthSetupPlan", "SUPABASE_OAUTH_SETUP_CAPABILITIES"]
+    },
+    {
+      "path": "src/oauthStart.ts",
+      "isEntrypoint": false,
+      "dependencies": [
+        "src/oauthAttemptId.ts",
+        "src/oauthErrors.ts",
+        "src/oauthLifecycle.ts",
+        "src/oauthProviderDefinitions.ts",
+        "src/oauthRuntime.ts",
+        "src/oauthStartSupport.ts",
+        "src/oauthStorage.ts",
+        "src/oauthTypes.ts"
+      ],
+      "exports": ["startSupabaseOAuthAuthorization"]
+    },
+    {
+      "path": "src/oauthStartSupport.ts",
+      "isEntrypoint": false,
+      "dependencies": ["src/oauthErrors.ts", "src/oauthProviderDefinitions.ts", "src/types.ts"],
+      "exports": [
+        "createAuthorizationUrl",
+        "createPkcePair",
+        "exchangeAuthorizationCode",
+        "normalizeQueryParams",
+        "normalizeRedirectUri",
+        "normalizeScopes",
+        "resolveEnabledProvider"
+      ]
+    },
+    {
+      "path": "src/oauthStorage.ts",
+      "isEntrypoint": false,
+      "dependencies": ["src/oauthProviderDefinitions.ts", "src/oauthTypes.ts", "src/types.ts"],
+      "exports": [
+        "clearOAuthAttemptState",
+        "constantTimeEqual",
+        "finalizeAttempt",
+        "fingerprintConsumedOAuthCallback",
+        "fingerprintOAuthCallback",
+        "isAttemptExpired",
+        "normalizeAttemptLifetime",
+        "readAttempt",
+        "readConsumedCallbacks",
+        "writeAttempt",
+        "writeConsumedCallbacks"
+      ]
+    },
+    {
+      "path": "src/oauthTypes.ts",
+      "isEntrypoint": false,
+      "dependencies": ["src/oauthProviderDefinitions.ts", "src/types.ts"],
+      "exports": [
+        "ATTEMPT_VERSION",
+        "CONSUMED_CALLBACK_RETENTION_MS",
+        "CONSUMED_CALLBACKS_VERSION",
+        "CreateSupabaseOAuthAdapterInput",
+        "DEFAULT_ATTEMPT_LIFETIME_MS",
+        "MAX_CONSUMED_CALLBACKS",
+        "StoredConsumedOAuthCallback",
+        "StoredConsumedOAuthCallbacks",
+        "StoredOAuthAttempt",
+        "StoredOAuthAttemptReadResult"
+      ]
+    },
+    {
       "path": "src/profileVerification.ts",
       "isEntrypoint": false,
       "dependencies": ["src/types.ts"],
@@ -157,7 +353,6 @@
       "dependencies": [],
       "exports": [
         "isAuthSessionExpired",
-        "normalizeSupabaseClientSession",
         "normalizeSupabaseSession",
         "normalizeSupabaseUser",
         "parseStoredSession"
@@ -174,6 +369,7 @@
         "SupabaseAuthFetch",
         "SupabaseAuthProfileField",
         "SupabaseAuthProfileVerificationConfig",
+        "SupabaseAuthRandomBytes",
         "SupabaseAuthStorage",
         "SupabaseOAuthLifecycleEvent",
         "SupabaseOAuthLifecycleObserver",
@@ -195,7 +391,7 @@
       "modulePath": "src/createSupabaseAuthAdapter.ts",
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 42,
+        "line": 23,
         "column": 1
       },
       "exportPaths": ["src/index.ts"],
@@ -227,7 +423,7 @@
       "modulePath": "src/profileVerification.ts",
       "sourceLocation": {
         "filePath": "src/profileVerification.ts",
-        "line": 30,
+        "line": 33,
         "column": 1
       },
       "exportPaths": ["src/index.ts"],
@@ -259,7 +455,7 @@
       "modulePath": "src/oauthProviderDefinitions.ts",
       "sourceLocation": {
         "filePath": "src/oauthProviderDefinitions.ts",
-        "line": 71,
+        "line": 81,
         "column": 1
       },
       "exportPaths": ["src/index.ts"],
@@ -291,7 +487,7 @@
       "modulePath": "src/oauthProviderDefinitions.ts",
       "sourceLocation": {
         "filePath": "src/oauthProviderDefinitions.ts",
-        "line": 65,
+        "line": 75,
         "column": 1
       },
       "exportPaths": ["src/index.ts"],
@@ -323,7 +519,7 @@
       "modulePath": "src/oauthProviderDefinitions.ts",
       "sourceLocation": {
         "filePath": "src/oauthProviderDefinitions.ts",
-        "line": 122,
+        "line": 137,
         "column": 1
       },
       "exportPaths": ["src/index.ts"],
@@ -355,7 +551,7 @@
       "modulePath": "src/profileVerification.ts",
       "sourceLocation": {
         "filePath": "src/profileVerification.ts",
-        "line": 132,
+        "line": 130,
         "column": 1
       },
       "exportPaths": ["src/index.ts"],
@@ -379,6 +575,38 @@
       "structuredRows": []
     },
     {
+      "name": "resolveSupabaseOAuthSetupPlan",
+      "description": null,
+      "isReadme": false,
+      "examples": [],
+      "kind": "function",
+      "modulePath": "src/oauthSetupRequirements.ts",
+      "sourceLocation": {
+        "filePath": "src/oauthSetupRequirements.ts",
+        "line": 21,
+        "column": 1
+      },
+      "exportPaths": ["src/index.ts"],
+      "relatedSymbols": [],
+      "signatures": [
+        {
+          "label": "(input: { readonly provider: AuthOAuthProviderId; readonly transport: AuthOAuthTransportId; readonly environment: AuthOAuthSetupPlan[\"environment\"]; readonly targets: AuthOAuthSetupPlan[\"targets\"]; }) => AuthOAuthSetupPlan | null",
+          "parameters": [
+            {
+              "name": "input",
+              "type": "{ readonly provider: AuthOAuthProviderId; readonly transport: AuthOAuthTransportId; readonly environment: AuthOAuthSetupPlan[\"environment\"]; readonly targets: AuthOAuthSetupPlan[\"targets\"]; }",
+              "required": true,
+              "description": null
+            }
+          ],
+          "returnType": "AuthOAuthSetupPlan | null",
+          "returnDescription": null
+        }
+      ],
+      "members": [],
+      "structuredRows": []
+    },
+    {
       "name": "SUPABASE_AUTH_PROFILE_FIELDS",
       "description": null,
       "isReadme": false,
@@ -387,7 +615,7 @@
       "modulePath": "src/types.ts",
       "sourceLocation": {
         "filePath": "src/types.ts",
-        "line": 16,
+        "line": 19,
         "column": 14
       },
       "exportPaths": ["src/index.ts"],
@@ -433,6 +661,24 @@
       "structuredRows": []
     },
     {
+      "name": "SUPABASE_OAUTH_SETUP_CAPABILITIES",
+      "description": null,
+      "isReadme": false,
+      "examples": [],
+      "kind": "value",
+      "modulePath": "src/oauthSetupRequirements.ts",
+      "sourceLocation": {
+        "filePath": "src/oauthSetupRequirements.ts",
+        "line": 16,
+        "column": 14
+      },
+      "exportPaths": ["src/index.ts"],
+      "relatedSymbols": [],
+      "signatures": [],
+      "members": [],
+      "structuredRows": []
+    },
+    {
       "name": "SupabaseAuthConfig",
       "description": null,
       "isReadme": false,
@@ -441,12 +687,13 @@
       "modulePath": "src/types.ts",
       "sourceLocation": {
         "filePath": "src/types.ts",
-        "line": 71,
+        "line": 70,
         "column": 1
       },
       "exportPaths": ["src/index.ts"],
       "relatedSymbols": [
         "SupabaseAuthProfileVerificationConfig",
+        "SupabaseAuthRandomBytes",
         "SupabaseAuthStorage",
         "SupabaseOAuthLifecycleObserver"
       ],
@@ -470,6 +717,13 @@
           "name": "oauthProviders",
           "kind": "property",
           "type": "readonly AuthOAuthProviderId[] | undefined",
+          "required": false,
+          "description": null
+        },
+        {
+          "name": "oauthRandomBytes",
+          "kind": "property",
+          "type": "SupabaseAuthRandomBytes | undefined",
           "required": false,
           "description": null
         },
@@ -538,7 +792,7 @@
       "modulePath": "src/types.ts",
       "sourceLocation": {
         "filePath": "src/types.ts",
-        "line": 23,
+        "line": 26,
         "column": 1
       },
       "exportPaths": ["src/index.ts"],
@@ -556,7 +810,7 @@
       "modulePath": "src/types.ts",
       "sourceLocation": {
         "filePath": "src/types.ts",
-        "line": 25,
+        "line": 28,
         "column": 1
       },
       "exportPaths": ["src/index.ts"],
@@ -595,6 +849,24 @@
       "structuredRows": []
     },
     {
+      "name": "SupabaseAuthRandomBytes",
+      "description": null,
+      "isReadme": false,
+      "examples": [],
+      "kind": "unknown",
+      "modulePath": "src/types.ts",
+      "sourceLocation": {
+        "filePath": "src/types.ts",
+        "line": 11,
+        "column": 1
+      },
+      "exportPaths": ["src/index.ts"],
+      "relatedSymbols": [],
+      "signatures": [],
+      "members": [],
+      "structuredRows": []
+    },
+    {
       "name": "SupabaseAuthStorage",
       "description": null,
       "isReadme": false,
@@ -603,7 +875,7 @@
       "modulePath": "src/types.ts",
       "sourceLocation": {
         "filePath": "src/types.ts",
-        "line": 10,
+        "line": 13,
         "column": 1
       },
       "exportPaths": ["src/index.ts"],
@@ -643,7 +915,7 @@
       "modulePath": "src/types.ts",
       "sourceLocation": {
         "filePath": "src/types.ts",
-        "line": 55,
+        "line": 54,
         "column": 1
       },
       "exportPaths": ["src/index.ts"],
@@ -697,7 +969,7 @@
       "modulePath": "src/types.ts",
       "sourceLocation": {
         "filePath": "src/types.ts",
-        "line": 67,
+        "line": 66,
         "column": 1
       },
       "exportPaths": ["src/index.ts"],
@@ -715,7 +987,7 @@
       "modulePath": "src/types.ts",
       "sourceLocation": {
         "filePath": "src/types.ts",
-        "line": 48,
+        "line": 51,
         "column": 1
       },
       "exportPaths": ["src/index.ts"],
@@ -733,7 +1005,7 @@
       "modulePath": "src/types.ts",
       "sourceLocation": {
         "filePath": "src/types.ts",
-        "line": 36,
+        "line": 39,
         "column": 1
       },
       "exportPaths": ["src/index.ts"],
@@ -773,7 +1045,7 @@
       "modulePath": "src/types.ts",
       "sourceLocation": {
         "filePath": "src/types.ts",
-        "line": 42,
+        "line": 45,
         "column": 1
       },
       "exportPaths": ["src/index.ts"],
@@ -791,7 +1063,7 @@
       "modulePath": "src/types.ts",
       "sourceLocation": {
         "filePath": "src/types.ts",
-        "line": 44,
+        "line": 47,
         "column": 1
       },
       "exportPaths": ["src/index.ts"],
@@ -1022,7 +1294,7 @@
       "modulePath": "src/oauthProviderDefinitions.ts",
       "sourceLocation": {
         "filePath": "src/oauthProviderDefinitions.ts",
-        "line": 77,
+        "line": 89,
         "column": 1
       },
       "exportPaths": ["src/index.ts"],
@@ -1060,7 +1332,7 @@
       "modulePath": "src/profileVerification.ts",
       "sourceLocation": {
         "filePath": "src/profileVerification.ts",
-        "line": 49,
+        "line": 52,
         "column": 1
       },
       "exportPaths": ["src/index.ts"],
@@ -1090,38 +1362,182 @@
   "components": [],
   "sourceFunctions": [
     {
-      "name": "createSupabaseAuthAdapter",
+      "name": "validateSupabaseAuthConfig",
       "description": null,
       "sourceLocation": {
-        "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 42,
+        "filePath": "src/authConfiguration.ts",
+        "line": 31,
         "column": 1
       }
     },
     {
-      "name": "request",
+      "name": "normalizeUrl",
       "description": null,
       "sourceLocation": {
-        "filePath": "src/createSupabaseAuthAdapter.ts",
+        "filePath": "src/authConfiguration.ts",
+        "line": 57,
+        "column": 1
+      }
+    },
+    {
+      "name": "normalizeOAuthProviders",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/authConfiguration.ts",
+        "line": 68,
+        "column": 1
+      }
+    },
+    {
+      "name": "validateOAuthConfiguration",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/authConfiguration.ts",
+        "line": 80,
+        "column": 1
+      }
+    },
+    {
+      "name": "requireFetch",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/authConfiguration.ts",
+        "line": 92,
+        "column": 1
+      }
+    },
+    {
+      "name": "createDefaultFetch",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/authConfiguration.ts",
+        "line": 99,
+        "column": 1
+      }
+    },
+    {
+      "name": "createSignInOperation",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/authPasswordOperations.ts",
+        "line": 16,
+        "column": 1
+      }
+    },
+    {
+      "name": "createSignUpOperation",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/authPasswordOperations.ts",
+        "line": 31,
+        "column": 1
+      }
+    },
+    {
+      "name": "createPasswordResetOperation",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/authPasswordOperations.ts",
         "line": 47,
-        "column": 9
+        "column": 1
+      }
+    },
+    {
+      "name": "createVerifyOtpOperation",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/authPasswordOperations.ts",
+        "line": 66,
+        "column": 1
+      }
+    },
+    {
+      "name": "handleSignUpResponse",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/authPasswordOperations.ts",
+        "line": 82,
+        "column": 1
+      }
+    },
+    {
+      "name": "passwordCredentials",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/authPasswordOperations.ts",
+        "line": 102,
+        "column": 1
+      }
+    },
+    {
+      "name": "passwordResetEmail",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/authPasswordOperations.ts",
+        "line": 109,
+        "column": 1
+      }
+    },
+    {
+      "name": "otpBody",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/authPasswordOperations.ts",
+        "line": 125,
+        "column": 1
+      }
+    },
+    {
+      "name": "validatePassword",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/authPasswordOperations.ts",
+        "line": 146,
+        "column": 1
+      }
+    },
+    {
+      "name": "identifierBody",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/authPasswordOperations.ts",
+        "line": 152,
+        "column": 1
+      }
+    },
+    {
+      "name": "metadataBody",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/authPasswordOperations.ts",
+        "line": 168,
+        "column": 1
+      }
+    },
+    {
+      "name": "isRecord",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/authPasswordOperations.ts",
+        "line": 176,
+        "column": 1
+      }
+    },
+    {
+      "name": "createAuthOperationContext",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/authSessionContext.ts",
+        "line": 24,
+        "column": 1
       }
     },
     {
       "name": "persistSession",
       "description": null,
       "sourceLocation": {
-        "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 64,
-        "column": 9
-      }
-    },
-    {
-      "name": "persistSessionSafely",
-      "description": null,
-      "sourceLocation": {
-        "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 79,
+        "filePath": "src/authSessionContext.ts",
+        "line": 29,
         "column": 9
       }
     },
@@ -1129,26 +1545,116 @@
       "name": "readStoredSession",
       "description": null,
       "sourceLocation": {
-        "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 95,
+        "filePath": "src/authSessionContext.ts",
+        "line": 38,
         "column": 9
       }
     },
     {
-      "name": "handleSessionResponse",
+      "name": "createAuthRequest",
       "description": null,
       "sourceLocation": {
-        "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 109,
-        "column": 9
+        "filePath": "src/authSessionContext.ts",
+        "line": 58,
+        "column": 1
       }
     },
     {
-      "name": "validateConfig",
+      "name": "createSafeSessionPersistence",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/authSessionContext.ts",
+        "line": 70,
+        "column": 1
+      }
+    },
+    {
+      "name": "createSessionResponseHandler",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/authSessionContext.ts",
+        "line": 88,
+        "column": 1
+      }
+    },
+    {
+      "name": "createHeaders",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/authSessionContext.ts",
+        "line": 115,
+        "column": 1
+      }
+    },
+    {
+      "name": "createSignOutOperation",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/authSessionOperations.ts",
+        "line": 11,
+        "column": 1
+      }
+    },
+    {
+      "name": "createGetSessionOperation",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/authSessionOperations.ts",
+        "line": 20,
+        "column": 1
+      }
+    },
+    {
+      "name": "createRefreshSessionOperation",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/authSessionOperations.ts",
+        "line": 38,
+        "column": 1
+      }
+    },
+    {
+      "name": "signOutProvider",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/authSessionOperations.ts",
+        "line": 61,
+        "column": 1
+      }
+    },
+    {
+      "name": "readRefreshSession",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/authSessionOperations.ts",
+        "line": 86,
+        "column": 1
+      }
+    },
+    {
+      "name": "createSupabaseAuthAdapter",
       "description": null,
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 362,
+        "line": 23,
+        "column": 1
+      }
+    },
+    {
+      "name": "createOAuthAdapter",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/createSupabaseAuthAdapter.ts",
+        "line": 46,
+        "column": 1
+      }
+    },
+    {
+      "name": "createOAuthSessionPersistence",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/createSupabaseAuthAdapter.ts",
+        "line": 67,
         "column": 1
       }
     },
@@ -1157,16 +1663,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 416,
-        "column": 1
-      }
-    },
-    {
-      "name": "createDefaultFetch",
-      "description": null,
-      "sourceLocation": {
-        "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 426,
+        "line": 74,
         "column": 1
       }
     },
@@ -1175,52 +1672,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 441,
-        "column": 1
-      }
-    },
-    {
-      "name": "validatePassword",
-      "description": null,
-      "sourceLocation": {
-        "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 450,
-        "column": 1
-      }
-    },
-    {
-      "name": "identifierBody",
-      "description": null,
-      "sourceLocation": {
-        "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 456,
-        "column": 1
-      }
-    },
-    {
-      "name": "metadataBody",
-      "description": null,
-      "sourceLocation": {
-        "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 474,
-        "column": 1
-      }
-    },
-    {
-      "name": "createHeaders",
-      "description": null,
-      "sourceLocation": {
-        "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 482,
-        "column": 1
-      }
-    },
-    {
-      "name": "isRecord",
-      "description": null,
-      "sourceLocation": {
-        "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 491,
+        "line": 86,
         "column": 1
       }
     },
@@ -1252,11 +1704,47 @@
       }
     },
     {
+      "name": "isExpiredAccessSession",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/errors.ts",
+        "line": 48,
+        "column": 1
+      }
+    },
+    {
+      "name": "isInvalidCredentialMessage",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/errors.ts",
+        "line": 52,
+        "column": 1
+      }
+    },
+    {
+      "name": "isExpiredRefreshSession",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/errors.ts",
+        "line": 62,
+        "column": 1
+      }
+    },
+    {
+      "name": "includesAny",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/errors.ts",
+        "line": 69,
+        "column": 1
+      }
+    },
+    {
       "name": "readResponseBody",
       "description": null,
       "sourceLocation": {
         "filePath": "src/errors.ts",
-        "line": 64,
+        "line": 73,
         "column": 1
       }
     },
@@ -1265,7 +1753,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/errors.ts",
-        "line": 88,
+        "line": 97,
         "column": 1
       }
     },
@@ -1274,97 +1762,106 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/errors.ts",
-        "line": 115,
+        "line": 124,
         "column": 1
       }
     },
     {
       "name": "createSupabaseOAuthAdapter",
-      "description": null,
+      "description": "Creates the Supabase OAuth adapter around isolated start and completion operations.",
       "sourceLocation": {
         "filePath": "src/oauth.ts",
-        "line": 61,
+        "line": 13,
         "column": 1
       }
     },
     {
-      "name": "emitOAuthError",
-      "description": null,
+      "name": "createCompletionRunner",
+      "description": "Serializes completion attempts so the same callback cannot be consumed concurrently.",
       "sourceLocation": {
         "filePath": "src/oauth.ts",
-        "line": 429,
+        "line": 27,
         "column": 1
       }
     },
     {
-      "name": "emitLifecycleEvent",
+      "name": "createOAuthAttemptId",
       "description": null,
       "sourceLocation": {
-        "filePath": "src/oauth.ts",
-        "line": 444,
+        "filePath": "src/oauthAttemptId.ts",
+        "line": 14,
         "column": 1
       }
     },
     {
-      "name": "createPkceOnlyStorage",
+      "name": "resolveOAuthAttemptIdRuntime",
       "description": null,
       "sourceLocation": {
-        "filePath": "src/oauth.ts",
-        "line": 456,
+        "filePath": "src/oauthAttemptId.ts",
+        "line": 33,
         "column": 1
       }
     },
     {
-      "name": "resolveEnabledProvider",
+      "name": "createFallbackRandomChunk",
       "description": null,
       "sourceLocation": {
-        "filePath": "src/oauth.ts",
-        "line": 473,
+        "filePath": "src/oauthAttemptId.ts",
+        "line": 66,
         "column": 1
       }
     },
     {
-      "name": "normalizeRedirectUri",
-      "description": null,
+      "name": "completeOAuthReplay",
+      "description": "Validates an OAuth replay against the callback fingerprint stored for its attempt.",
       "sourceLocation": {
-        "filePath": "src/oauth.ts",
-        "line": 492,
-        "column": 1
-      }
-    },
-    {
-      "name": "normalizeQueryParams",
-      "description": null,
-      "sourceLocation": {
-        "filePath": "src/oauth.ts",
-        "line": 534,
-        "column": 1
-      }
-    },
-    {
-      "name": "normalizeScopes",
-      "description": null,
-      "sourceLocation": {
-        "filePath": "src/oauth.ts",
-        "line": 558,
+        "filePath": "src/oauthCallback.ts",
+        "line": 19,
         "column": 1
       }
     },
     {
       "name": "parseCallback",
-      "description": null,
+      "description": "Parses and validates the provider callback against the stored redirect URI.",
       "sourceLocation": {
-        "filePath": "src/oauth.ts",
-        "line": 566,
+        "filePath": "src/oauthCallback.ts",
+        "line": 43,
         "column": 1
       }
     },
     {
       "name": "invalidCallback",
+      "description": "Creates a safe invalid-callback completion result.",
+      "sourceLocation": {
+        "filePath": "src/oauthCallback.ts",
+        "line": 65,
+        "column": 1
+      }
+    },
+    {
+      "name": "classifyCallback",
       "description": null,
       "sourceLocation": {
-        "filePath": "src/oauth.ts",
-        "line": 636,
+        "filePath": "src/oauthCallback.ts",
+        "line": 75,
+        "column": 1
+      }
+    },
+    {
+      "name": "classifyProviderError",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/oauthCallback.ts",
+        "line": 99,
+        "column": 1
+      }
+    },
+    {
+      "name": "parseCallbackLocations",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/oauthCallback.ts",
+        "line": 116,
         "column": 1
       }
     },
@@ -1372,107 +1869,179 @@
       "name": "sameCallbackLocation",
       "description": null,
       "sourceLocation": {
-        "filePath": "src/oauth.ts",
-        "line": 646,
+        "filePath": "src/oauthCallback.ts",
+        "line": 127,
         "column": 1
       }
     },
     {
-      "name": "isLocalhost",
+      "name": "replayMismatch",
       "description": null,
       "sourceLocation": {
-        "filePath": "src/oauth.ts",
-        "line": 656,
+        "filePath": "src/oauthCallback.ts",
+        "line": 137,
         "column": 1
       }
     },
     {
-      "name": "createAttemptId",
-      "description": null,
+      "name": "completeSupabaseOAuthAuthorization",
+      "description": "Completes one Supabase OAuth authorization attempt.",
       "sourceLocation": {
-        "filePath": "src/oauth.ts",
-        "line": 660,
+        "filePath": "src/oauthComplete.ts",
+        "line": 44,
         "column": 1
       }
     },
     {
-      "name": "readAttempt",
+      "name": "loadAttempt",
       "description": null,
       "sourceLocation": {
-        "filePath": "src/oauth.ts",
-        "line": 667,
+        "filePath": "src/oauthComplete.ts",
+        "line": 62,
         "column": 1
       }
     },
     {
-      "name": "writeAttempt",
+      "name": "parseCompletion",
       "description": null,
       "sourceLocation": {
-        "filePath": "src/oauth.ts",
-        "line": 681,
+        "filePath": "src/oauthComplete.ts",
+        "line": 95,
         "column": 1
       }
     },
     {
-      "name": "completeAttempt",
+      "name": "completeCancellation",
       "description": null,
       "sourceLocation": {
-        "filePath": "src/oauth.ts",
-        "line": 689,
+        "filePath": "src/oauthComplete.ts",
+        "line": 122,
         "column": 1
       }
     },
     {
-      "name": "safeRemove",
+      "name": "reserveCallback",
       "description": null,
       "sourceLocation": {
-        "filePath": "src/oauth.ts",
-        "line": 701,
+        "filePath": "src/oauthComplete.ts",
+        "line": 141,
         "column": 1
       }
     },
     {
-      "name": "isStoredAttempt",
+      "name": "writeCallbackReservation",
       "description": null,
       "sourceLocation": {
-        "filePath": "src/oauth.ts",
-        "line": 709,
+        "filePath": "src/oauthComplete.ts",
+        "line": 184,
+        "column": 1
+      }
+    },
+    {
+      "name": "writeCallbackLedger",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/oauthComplete.ts",
+        "line": 206,
+        "column": 1
+      }
+    },
+    {
+      "name": "reservationFailure",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/oauthComplete.ts",
+        "line": 227,
+        "column": 1
+      }
+    },
+    {
+      "name": "completionFailure",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/oauthComplete.ts",
+        "line": 243,
+        "column": 1
+      }
+    },
+    {
+      "name": "failOAuthAttempt",
+      "description": "Finalizes a failed OAuth attempt, emits safe lifecycle metadata, and returns its result.",
+      "sourceLocation": {
+        "filePath": "src/oauthCompletionState.ts",
+        "line": 9,
+        "column": 1
+      }
+    },
+    {
+      "name": "finalizeOAuthAttemptState",
+      "description": "Marks an OAuth attempt completed and emits authentication success when applicable.",
+      "sourceLocation": {
+        "filePath": "src/oauthCompletionState.ts",
+        "line": 20,
+        "column": 1
+      }
+    },
+    {
+      "name": "clearOAuthAttempt",
+      "description": "Clears the active attempt and its PKCE verifier.",
+      "sourceLocation": {
+        "filePath": "src/oauthCompletionState.ts",
+        "line": 42,
         "column": 1
       }
     },
     {
       "name": "mapSupabaseOAuthError",
-      "description": null,
+      "description": "Maps safe Supabase error metadata to the canonical OAuth error contract.",
       "sourceLocation": {
-        "filePath": "src/oauth.ts",
-        "line": 720,
+        "filePath": "src/oauthErrors.ts",
+        "line": 60,
         "column": 1
       }
     },
     {
       "name": "oauthStartError",
-      "description": null,
+      "description": "Creates a failed OAuth start result.",
       "sourceLocation": {
-        "filePath": "src/oauth.ts",
-        "line": 816,
+        "filePath": "src/oauthErrors.ts",
+        "line": 82,
         "column": 1
       }
     },
     {
       "name": "oauthCompletionError",
-      "description": null,
+      "description": "Creates a failed OAuth completion result.",
       "sourceLocation": {
-        "filePath": "src/oauth.ts",
-        "line": 828,
+        "filePath": "src/oauthErrors.ts",
+        "line": 92,
         "column": 1
       }
     },
     {
       "name": "createOAuthError",
+      "description": "Creates a canonical OAuth error without exposing provider secrets.",
+      "sourceLocation": {
+        "filePath": "src/oauthErrors.ts",
+        "line": 107,
+        "column": 1
+      }
+    },
+    {
+      "name": "normalizeOAuthErrorText",
       "description": null,
       "sourceLocation": {
-        "filePath": "src/oauth.ts",
-        "line": 842,
+        "filePath": "src/oauthErrors.ts",
+        "line": 119,
+        "column": 1
+      }
+    },
+    {
+      "name": "includesAny",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/oauthErrors.ts",
+        "line": 126,
         "column": 1
       }
     },
@@ -1480,8 +2049,8 @@
       "name": "readString",
       "description": null,
       "sourceLocation": {
-        "filePath": "src/oauth.ts",
-        "line": 854,
+        "filePath": "src/oauthErrors.ts",
+        "line": 130,
         "column": 1
       }
     },
@@ -1489,8 +2058,80 @@
       "name": "isRecord",
       "description": null,
       "sourceLocation": {
-        "filePath": "src/oauth.ts",
-        "line": 858,
+        "filePath": "src/oauthErrors.ts",
+        "line": 136,
+        "column": 1
+      }
+    },
+    {
+      "name": "exchangeAndPersistOAuthSession",
+      "description": "Exchanges an OAuth code, persists its session, and verifies the generated profile.",
+      "sourceLocation": {
+        "filePath": "src/oauthExchange.ts",
+        "line": 16,
+        "column": 1
+      }
+    },
+    {
+      "name": "exchangeSession",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/oauthExchange.ts",
+        "line": 31,
+        "column": 1
+      }
+    },
+    {
+      "name": "normalizeExchangeResponse",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/oauthExchange.ts",
+        "line": 62,
+        "column": 1
+      }
+    },
+    {
+      "name": "readVerifier",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/oauthExchange.ts",
+        "line": 91,
+        "column": 1
+      }
+    },
+    {
+      "name": "persistSession",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/oauthExchange.ts",
+        "line": 126,
+        "column": 1
+      }
+    },
+    {
+      "name": "verifyProfile",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/oauthExchange.ts",
+        "line": 149,
+        "column": 1
+      }
+    },
+    {
+      "name": "emitOAuthError",
+      "description": "Emits a redacted OAuth failure event for the supplied attempt.",
+      "sourceLocation": {
+        "filePath": "src/oauthLifecycle.ts",
+        "line": 7,
+        "column": 1
+      }
+    },
+    {
+      "name": "emitLifecycleEvent",
+      "description": "Notifies the optional lifecycle observer without changing authentication behavior.",
+      "sourceLocation": {
+        "filePath": "src/oauthLifecycle.ts",
+        "line": 23,
         "column": 1
       }
     },
@@ -1499,7 +2140,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/oauthProviderDefinitions.ts",
-        "line": 65,
+        "line": 75,
         "column": 1
       }
     },
@@ -1508,7 +2149,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/oauthProviderDefinitions.ts",
-        "line": 71,
+        "line": 81,
         "column": 1
       }
     },
@@ -1517,7 +2158,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/oauthProviderDefinitions.ts",
-        "line": 77,
+        "line": 89,
         "column": 1
       }
     },
@@ -1526,7 +2167,385 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/oauthProviderDefinitions.ts",
-        "line": 122,
+        "line": 137,
+        "column": 1
+      }
+    },
+    {
+      "name": "createOAuthRuntimeContext",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/oauthRuntime.ts",
+        "line": 17,
+        "column": 1
+      }
+    },
+    {
+      "name": "resolveSupabaseOAuthSetupPlan",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/oauthSetupRequirements.ts",
+        "line": 21,
+        "column": 1
+      }
+    },
+    {
+      "name": "startSupabaseOAuthAuthorization",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/oauthStart.ts",
+        "line": 28,
+        "column": 1
+      }
+    },
+    {
+      "name": "prepareStartInput",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/oauthStart.ts",
+        "line": 39,
+        "column": 1
+      }
+    },
+    {
+      "name": "clearPreviousAttempt",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/oauthStart.ts",
+        "line": 58,
+        "column": 1
+      }
+    },
+    {
+      "name": "createAuthorizationAttempt",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/oauthStart.ts",
+        "line": 90,
+        "column": 1
+      }
+    },
+    {
+      "name": "createAttempt",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/oauthStart.ts",
+        "line": 118,
+        "column": 1
+      }
+    },
+    {
+      "name": "createStartResult",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/oauthStart.ts",
+        "line": 134,
+        "column": 1
+      }
+    },
+    {
+      "name": "clearAttempt",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/oauthStart.ts",
+        "line": 161,
+        "column": 1
+      }
+    },
+    {
+      "name": "resolveEnabledProvider",
+      "description": "Resolves an OAuth provider against the adapter's enabled provider set.",
+      "sourceLocation": {
+        "filePath": "src/oauthStartSupport.ts",
+        "line": 25,
+        "column": 1
+      }
+    },
+    {
+      "name": "normalizeRedirectUri",
+      "description": "Normalizes and validates a canonical OAuth callback URI.",
+      "sourceLocation": {
+        "filePath": "src/oauthStartSupport.ts",
+        "line": 45,
+        "column": 1
+      }
+    },
+    {
+      "name": "normalizeQueryParams",
+      "description": "Normalizes provider query parameters while rejecting reserved OAuth fields.",
+      "sourceLocation": {
+        "filePath": "src/oauthStartSupport.ts",
+        "line": 66,
+        "column": 1
+      }
+    },
+    {
+      "name": "normalizeScopes",
+      "description": "Returns unique non-empty OAuth scopes in request order.",
+      "sourceLocation": {
+        "filePath": "src/oauthStartSupport.ts",
+        "line": 89,
+        "column": 1
+      }
+    },
+    {
+      "name": "createPkcePair",
+      "description": "Creates a PKCE verifier and its S256 challenge from an injected secure byte source.",
+      "sourceLocation": {
+        "filePath": "src/oauthStartSupport.ts",
+        "line": 98,
+        "column": 1
+      }
+    },
+    {
+      "name": "createAuthorizationUrl",
+      "description": "Creates the public Supabase PKCE authorization URL.",
+      "sourceLocation": {
+        "filePath": "src/oauthStartSupport.ts",
+        "line": 111,
+        "column": 1
+      }
+    },
+    {
+      "name": "exchangeAuthorizationCode",
+      "description": "Exchanges a Supabase PKCE authorization code through the public HTTP contract.",
+      "sourceLocation": {
+        "filePath": "src/oauthStartSupport.ts",
+        "line": 133,
+        "column": 1
+      }
+    },
+    {
+      "name": "bytesToBase64Url",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/oauthStartSupport.ts",
+        "line": 151,
+        "column": 1
+      }
+    },
+    {
+      "name": "encodeBase64Triplet",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/oauthStartSupport.ts",
+        "line": 158,
+        "column": 1
+      }
+    },
+    {
+      "name": "parseAbsoluteUrl",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/oauthStartSupport.ts",
+        "line": 173,
+        "column": 1
+      }
+    },
+    {
+      "name": "isPermittedRedirect",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/oauthStartSupport.ts",
+        "line": 181,
+        "column": 1
+      }
+    },
+    {
+      "name": "invalidRedirect",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/oauthStartSupport.ts",
+        "line": 192,
+        "column": 1
+      }
+    },
+    {
+      "name": "isLocalhost",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/oauthStartSupport.ts",
+        "line": 199,
+        "column": 1
+      }
+    },
+    {
+      "name": "readAttempt",
+      "description": "Reads and validates the persisted OAuth authorization attempt.",
+      "sourceLocation": {
+        "filePath": "src/oauthStorage.ts",
+        "line": 18,
+        "column": 1
+      }
+    },
+    {
+      "name": "writeAttempt",
+      "description": "Persists the current OAuth authorization attempt.",
+      "sourceLocation": {
+        "filePath": "src/oauthStorage.ts",
+        "line": 33,
+        "column": 1
+      }
+    },
+    {
+      "name": "finalizeAttempt",
+      "description": "Finalizes an OAuth attempt and removes its one-use PKCE verifier.",
+      "sourceLocation": {
+        "filePath": "src/oauthStorage.ts",
+        "line": 42,
+        "column": 1
+      }
+    },
+    {
+      "name": "clearOAuthAttemptState",
+      "description": "Removes all persisted state for the active OAuth attempt.",
+      "sourceLocation": {
+        "filePath": "src/oauthStorage.ts",
+        "line": 62,
+        "column": 1
+      }
+    },
+    {
+      "name": "isAttemptExpired",
+      "description": "Reports whether an OAuth attempt has reached its expiry time.",
+      "sourceLocation": {
+        "filePath": "src/oauthStorage.ts",
+        "line": 72,
+        "column": 1
+      }
+    },
+    {
+      "name": "fingerprintOAuthCallback",
+      "description": "Fingerprints one callback for exact replay detection within its attempt.",
+      "sourceLocation": {
+        "filePath": "src/oauthStorage.ts",
+        "line": 77,
+        "column": 1
+      }
+    },
+    {
+      "name": "fingerprintConsumedOAuthCallback",
+      "description": "Fingerprints one callback across attempts sharing the same redirect URI.",
+      "sourceLocation": {
+        "filePath": "src/oauthStorage.ts",
+        "line": 82,
+        "column": 1
+      }
+    },
+    {
+      "name": "readConsumedCallbacks",
+      "description": "Reads valid, unexpired callback fingerprints from persistent storage.",
+      "sourceLocation": {
+        "filePath": "src/oauthStorage.ts",
+        "line": 87,
+        "column": 1
+      }
+    },
+    {
+      "name": "writeConsumedCallbacks",
+      "description": "Persists the bounded callback replay-protection ledger.",
+      "sourceLocation": {
+        "filePath": "src/oauthStorage.ts",
+        "line": 102,
+        "column": 1
+      }
+    },
+    {
+      "name": "constantTimeEqual",
+      "description": "Compares equal-length callback fingerprints without data-dependent early exit.",
+      "sourceLocation": {
+        "filePath": "src/oauthStorage.ts",
+        "line": 115,
+        "column": 1
+      }
+    },
+    {
+      "name": "normalizeAttemptLifetime",
+      "description": "Normalizes the configured OAuth attempt lifetime.",
+      "sourceLocation": {
+        "filePath": "src/oauthStorage.ts",
+        "line": 125,
+        "column": 1
+      }
+    },
+    {
+      "name": "isStoredAttempt",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/oauthStorage.ts",
+        "line": 133,
+        "column": 1
+      }
+    },
+    {
+      "name": "hasAttemptIdentity",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/oauthStorage.ts",
+        "line": 140,
+        "column": 1
+      }
+    },
+    {
+      "name": "hasAttemptTimeline",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/oauthStorage.ts",
+        "line": 150,
+        "column": 1
+      }
+    },
+    {
+      "name": "hasValidCallbackFingerprint",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/oauthStorage.ts",
+        "line": 161,
+        "column": 1
+      }
+    },
+    {
+      "name": "isStoredConsumedOAuthCallbacks",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/oauthStorage.ts",
+        "line": 170,
+        "column": 1
+      }
+    },
+    {
+      "name": "isStoredConsumedOAuthCallback",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/oauthStorage.ts",
+        "line": 180,
+        "column": 1
+      }
+    },
+    {
+      "name": "safeRemove",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/oauthStorage.ts",
+        "line": 191,
+        "column": 1
+      }
+    },
+    {
+      "name": "digest",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/oauthStorage.ts",
+        "line": 199,
+        "column": 1
+      }
+    },
+    {
+      "name": "isRecord",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/oauthStorage.ts",
+        "line": 203,
         "column": 1
       }
     },
@@ -1535,7 +2554,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/profileVerification.ts",
-        "line": 30,
+        "line": 33,
         "column": 1
       }
     },
@@ -1544,7 +2563,34 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/profileVerification.ts",
-        "line": 49,
+        "line": 52,
+        "column": 1
+      }
+    },
+    {
+      "name": "fetchProfileRows",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/profileVerification.ts",
+        "line": 79,
+        "column": 1
+      }
+    },
+    {
+      "name": "parseProfileRows",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/profileVerification.ts",
+        "line": 109,
+        "column": 1
+      }
+    },
+    {
+      "name": "profileFailure",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/profileVerification.ts",
+        "line": 126,
         "column": 1
       }
     },
@@ -1553,7 +2599,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/profileVerification.ts",
-        "line": 132,
+        "line": 130,
         "column": 1
       }
     },
@@ -1562,7 +2608,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/profileVerification.ts",
-        "line": 166,
+        "line": 164,
         "column": 1
       }
     },
@@ -1571,7 +2617,16 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/profileVerification.ts",
-        "line": 179,
+        "line": 177,
+        "column": 1
+      }
+    },
+    {
+      "name": "validateProfileRows",
+      "description": null,
+      "sourceLocation": {
+        "filePath": "src/profileVerification.ts",
+        "line": 204,
         "column": 1
       }
     },
@@ -1580,7 +2635,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/profileVerification.ts",
-        "line": 205,
+        "line": 218,
         "column": 1
       }
     },
@@ -1589,7 +2644,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/profileVerification.ts",
-        "line": 223,
+        "line": 236,
         "column": 1
       }
     },
@@ -1598,7 +2653,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/profileVerification.ts",
-        "line": 239,
+        "line": 252,
         "column": 1
       }
     },
@@ -1607,7 +2662,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/profileVerification.ts",
-        "line": 255,
+        "line": 268,
         "column": 1
       }
     },
@@ -1616,7 +2671,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/profileVerification.ts",
-        "line": 262,
+        "line": 275,
         "column": 1
       }
     },
@@ -1625,16 +2680,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/session.ts",
-        "line": 4,
-        "column": 1
-      }
-    },
-    {
-      "name": "normalizeSupabaseClientSession",
-      "description": null,
-      "sourceLocation": {
-        "filePath": "src/session.ts",
-        "line": 19,
+        "line": 3,
         "column": 1
       }
     },
@@ -1643,7 +2689,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/session.ts",
-        "line": 30,
+        "line": 18,
         "column": 1
       }
     },
@@ -1652,7 +2698,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/session.ts",
-        "line": 62,
+        "line": 50,
         "column": 1
       }
     },
@@ -1661,7 +2707,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/session.ts",
-        "line": 78,
+        "line": 66,
         "column": 1
       }
     },
@@ -1670,7 +2716,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/session.ts",
-        "line": 86,
+        "line": 74,
         "column": 1
       }
     },
@@ -1679,7 +2725,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/session.ts",
-        "line": 90,
+        "line": 78,
         "column": 1
       }
     },
@@ -1688,7 +2734,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/session.ts",
-        "line": 102,
+        "line": 90,
         "column": 1
       }
     },
@@ -1697,7 +2743,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/session.ts",
-        "line": 108,
+        "line": 96,
         "column": 1
       }
     },
@@ -1706,7 +2752,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/session.ts",
-        "line": 120,
+        "line": 108,
         "column": 1
       }
     },
@@ -1715,7 +2761,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/session.ts",
-        "line": 129,
+        "line": 117,
         "column": 1
       }
     },
@@ -1724,7 +2770,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/session.ts",
-        "line": 133,
+        "line": 121,
         "column": 1
       }
     },
@@ -1733,7 +2779,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/session.ts",
-        "line": 142,
+        "line": 130,
         "column": 1
       }
     }
@@ -1789,6 +2835,14 @@
     },
     {
       "kind": "export",
+      "name": "resolveSupabaseOAuthSetupPlan",
+      "sourcePath": "src/oauthSetupRequirements.ts",
+      "symbolName": "resolveSupabaseOAuthSetupPlan",
+      "description": null,
+      "isReadme": false
+    },
+    {
+      "kind": "export",
       "name": "validateSupabaseOAuthSecretPayload",
       "sourcePath": "src/oauthProviderDefinitions.ts",
       "symbolName": "validateSupabaseOAuthSecretPayload",
@@ -1807,8 +2861,78 @@
   "graphs": {
     "imports": [
       {
-        "fromPath": "src/createSupabaseAuthAdapter.ts",
+        "fromPath": "src/authConfiguration.ts",
+        "toPath": "src/oauthProviderDefinitions.ts",
+        "sourcePath": "src/authConfiguration.ts"
+      },
+      {
+        "fromPath": "src/authConfiguration.ts",
+        "toPath": "src/profileVerification.ts",
+        "sourcePath": "src/authConfiguration.ts"
+      },
+      {
+        "fromPath": "src/authConfiguration.ts",
+        "toPath": "src/types.ts",
+        "sourcePath": "src/authConfiguration.ts"
+      },
+      {
+        "fromPath": "src/authPasswordOperations.ts",
+        "toPath": "src/authSessionContext.ts",
+        "sourcePath": "src/authPasswordOperations.ts"
+      },
+      {
+        "fromPath": "src/authPasswordOperations.ts",
         "toPath": "src/errors.ts",
+        "sourcePath": "src/authPasswordOperations.ts"
+      },
+      {
+        "fromPath": "src/authPasswordOperations.ts",
+        "toPath": "src/session.ts",
+        "sourcePath": "src/authPasswordOperations.ts"
+      },
+      {
+        "fromPath": "src/authSessionContext.ts",
+        "toPath": "src/authConfiguration.ts",
+        "sourcePath": "src/authSessionContext.ts"
+      },
+      {
+        "fromPath": "src/authSessionContext.ts",
+        "toPath": "src/errors.ts",
+        "sourcePath": "src/authSessionContext.ts"
+      },
+      {
+        "fromPath": "src/authSessionContext.ts",
+        "toPath": "src/session.ts",
+        "sourcePath": "src/authSessionContext.ts"
+      },
+      {
+        "fromPath": "src/authSessionOperations.ts",
+        "toPath": "src/authSessionContext.ts",
+        "sourcePath": "src/authSessionOperations.ts"
+      },
+      {
+        "fromPath": "src/authSessionOperations.ts",
+        "toPath": "src/errors.ts",
+        "sourcePath": "src/authSessionOperations.ts"
+      },
+      {
+        "fromPath": "src/createSupabaseAuthAdapter.ts",
+        "toPath": "src/authConfiguration.ts",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromPath": "src/createSupabaseAuthAdapter.ts",
+        "toPath": "src/authPasswordOperations.ts",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromPath": "src/createSupabaseAuthAdapter.ts",
+        "toPath": "src/authSessionContext.ts",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromPath": "src/createSupabaseAuthAdapter.ts",
+        "toPath": "src/authSessionOperations.ts",
         "sourcePath": "src/createSupabaseAuthAdapter.ts"
       },
       {
@@ -1818,17 +2942,7 @@
       },
       {
         "fromPath": "src/createSupabaseAuthAdapter.ts",
-        "toPath": "src/oauthProviderDefinitions.ts",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromPath": "src/createSupabaseAuthAdapter.ts",
         "toPath": "src/profileVerification.ts",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromPath": "src/createSupabaseAuthAdapter.ts",
-        "toPath": "src/session.ts",
         "sourcePath": "src/createSupabaseAuthAdapter.ts"
       },
       {
@@ -1853,6 +2967,11 @@
       },
       {
         "fromPath": "src/index.ts",
+        "toPath": "src/oauthSetupRequirements.ts",
+        "sourcePath": "src/index.ts"
+      },
+      {
+        "fromPath": "src/index.ts",
         "toPath": "src/profileVerification.ts",
         "sourcePath": "src/index.ts"
       },
@@ -1863,18 +2982,258 @@
       },
       {
         "fromPath": "src/oauth.ts",
+        "toPath": "src/oauthComplete.ts",
+        "sourcePath": "src/oauth.ts"
+      },
+      {
+        "fromPath": "src/oauth.ts",
+        "toPath": "src/oauthRuntime.ts",
+        "sourcePath": "src/oauth.ts"
+      },
+      {
+        "fromPath": "src/oauth.ts",
+        "toPath": "src/oauthStart.ts",
+        "sourcePath": "src/oauth.ts"
+      },
+      {
+        "fromPath": "src/oauth.ts",
+        "toPath": "src/oauthTypes.ts",
+        "sourcePath": "src/oauth.ts"
+      },
+      {
+        "fromPath": "src/oauthCallback.ts",
+        "toPath": "src/oauthErrors.ts",
+        "sourcePath": "src/oauthCallback.ts"
+      },
+      {
+        "fromPath": "src/oauthCallback.ts",
         "toPath": "src/oauthProviderDefinitions.ts",
-        "sourcePath": "src/oauth.ts"
+        "sourcePath": "src/oauthCallback.ts"
       },
       {
-        "fromPath": "src/oauth.ts",
+        "fromPath": "src/oauthCallback.ts",
+        "toPath": "src/oauthStorage.ts",
+        "sourcePath": "src/oauthCallback.ts"
+      },
+      {
+        "fromPath": "src/oauthCallback.ts",
+        "toPath": "src/oauthTypes.ts",
+        "sourcePath": "src/oauthCallback.ts"
+      },
+      {
+        "fromPath": "src/oauthComplete.ts",
+        "toPath": "src/oauthCallback.ts",
+        "sourcePath": "src/oauthComplete.ts"
+      },
+      {
+        "fromPath": "src/oauthComplete.ts",
+        "toPath": "src/oauthCompletionState.ts",
+        "sourcePath": "src/oauthComplete.ts"
+      },
+      {
+        "fromPath": "src/oauthComplete.ts",
+        "toPath": "src/oauthErrors.ts",
+        "sourcePath": "src/oauthComplete.ts"
+      },
+      {
+        "fromPath": "src/oauthComplete.ts",
+        "toPath": "src/oauthExchange.ts",
+        "sourcePath": "src/oauthComplete.ts"
+      },
+      {
+        "fromPath": "src/oauthComplete.ts",
+        "toPath": "src/oauthLifecycle.ts",
+        "sourcePath": "src/oauthComplete.ts"
+      },
+      {
+        "fromPath": "src/oauthComplete.ts",
+        "toPath": "src/oauthRuntime.ts",
+        "sourcePath": "src/oauthComplete.ts"
+      },
+      {
+        "fromPath": "src/oauthComplete.ts",
+        "toPath": "src/oauthStorage.ts",
+        "sourcePath": "src/oauthComplete.ts"
+      },
+      {
+        "fromPath": "src/oauthComplete.ts",
+        "toPath": "src/oauthTypes.ts",
+        "sourcePath": "src/oauthComplete.ts"
+      },
+      {
+        "fromPath": "src/oauthCompletionState.ts",
+        "toPath": "src/oauthLifecycle.ts",
+        "sourcePath": "src/oauthCompletionState.ts"
+      },
+      {
+        "fromPath": "src/oauthCompletionState.ts",
+        "toPath": "src/oauthRuntime.ts",
+        "sourcePath": "src/oauthCompletionState.ts"
+      },
+      {
+        "fromPath": "src/oauthCompletionState.ts",
+        "toPath": "src/oauthStorage.ts",
+        "sourcePath": "src/oauthCompletionState.ts"
+      },
+      {
+        "fromPath": "src/oauthCompletionState.ts",
+        "toPath": "src/oauthTypes.ts",
+        "sourcePath": "src/oauthCompletionState.ts"
+      },
+      {
+        "fromPath": "src/oauthErrors.ts",
+        "toPath": "src/oauthProviderDefinitions.ts",
+        "sourcePath": "src/oauthErrors.ts"
+      },
+      {
+        "fromPath": "src/oauthExchange.ts",
+        "toPath": "src/errors.ts",
+        "sourcePath": "src/oauthExchange.ts"
+      },
+      {
+        "fromPath": "src/oauthExchange.ts",
+        "toPath": "src/oauthCompletionState.ts",
+        "sourcePath": "src/oauthExchange.ts"
+      },
+      {
+        "fromPath": "src/oauthExchange.ts",
+        "toPath": "src/oauthErrors.ts",
+        "sourcePath": "src/oauthExchange.ts"
+      },
+      {
+        "fromPath": "src/oauthExchange.ts",
+        "toPath": "src/oauthLifecycle.ts",
+        "sourcePath": "src/oauthExchange.ts"
+      },
+      {
+        "fromPath": "src/oauthExchange.ts",
+        "toPath": "src/oauthRuntime.ts",
+        "sourcePath": "src/oauthExchange.ts"
+      },
+      {
+        "fromPath": "src/oauthExchange.ts",
+        "toPath": "src/oauthStartSupport.ts",
+        "sourcePath": "src/oauthExchange.ts"
+      },
+      {
+        "fromPath": "src/oauthExchange.ts",
+        "toPath": "src/oauthTypes.ts",
+        "sourcePath": "src/oauthExchange.ts"
+      },
+      {
+        "fromPath": "src/oauthExchange.ts",
         "toPath": "src/session.ts",
-        "sourcePath": "src/oauth.ts"
+        "sourcePath": "src/oauthExchange.ts"
       },
       {
-        "fromPath": "src/oauth.ts",
+        "fromPath": "src/oauthLifecycle.ts",
+        "toPath": "src/oauthTypes.ts",
+        "sourcePath": "src/oauthLifecycle.ts"
+      },
+      {
+        "fromPath": "src/oauthLifecycle.ts",
         "toPath": "src/types.ts",
-        "sourcePath": "src/oauth.ts"
+        "sourcePath": "src/oauthLifecycle.ts"
+      },
+      {
+        "fromPath": "src/oauthRuntime.ts",
+        "toPath": "src/oauthProviderDefinitions.ts",
+        "sourcePath": "src/oauthRuntime.ts"
+      },
+      {
+        "fromPath": "src/oauthRuntime.ts",
+        "toPath": "src/oauthStorage.ts",
+        "sourcePath": "src/oauthRuntime.ts"
+      },
+      {
+        "fromPath": "src/oauthRuntime.ts",
+        "toPath": "src/oauthTypes.ts",
+        "sourcePath": "src/oauthRuntime.ts"
+      },
+      {
+        "fromPath": "src/oauthSetupRequirements.ts",
+        "toPath": "src/oauthProviderDefinitions.ts",
+        "sourcePath": "src/oauthSetupRequirements.ts"
+      },
+      {
+        "fromPath": "src/oauthStart.ts",
+        "toPath": "src/oauthAttemptId.ts",
+        "sourcePath": "src/oauthStart.ts"
+      },
+      {
+        "fromPath": "src/oauthStart.ts",
+        "toPath": "src/oauthErrors.ts",
+        "sourcePath": "src/oauthStart.ts"
+      },
+      {
+        "fromPath": "src/oauthStart.ts",
+        "toPath": "src/oauthLifecycle.ts",
+        "sourcePath": "src/oauthStart.ts"
+      },
+      {
+        "fromPath": "src/oauthStart.ts",
+        "toPath": "src/oauthProviderDefinitions.ts",
+        "sourcePath": "src/oauthStart.ts"
+      },
+      {
+        "fromPath": "src/oauthStart.ts",
+        "toPath": "src/oauthRuntime.ts",
+        "sourcePath": "src/oauthStart.ts"
+      },
+      {
+        "fromPath": "src/oauthStart.ts",
+        "toPath": "src/oauthStartSupport.ts",
+        "sourcePath": "src/oauthStart.ts"
+      },
+      {
+        "fromPath": "src/oauthStart.ts",
+        "toPath": "src/oauthStorage.ts",
+        "sourcePath": "src/oauthStart.ts"
+      },
+      {
+        "fromPath": "src/oauthStart.ts",
+        "toPath": "src/oauthTypes.ts",
+        "sourcePath": "src/oauthStart.ts"
+      },
+      {
+        "fromPath": "src/oauthStartSupport.ts",
+        "toPath": "src/oauthErrors.ts",
+        "sourcePath": "src/oauthStartSupport.ts"
+      },
+      {
+        "fromPath": "src/oauthStartSupport.ts",
+        "toPath": "src/oauthProviderDefinitions.ts",
+        "sourcePath": "src/oauthStartSupport.ts"
+      },
+      {
+        "fromPath": "src/oauthStartSupport.ts",
+        "toPath": "src/types.ts",
+        "sourcePath": "src/oauthStartSupport.ts"
+      },
+      {
+        "fromPath": "src/oauthStorage.ts",
+        "toPath": "src/oauthProviderDefinitions.ts",
+        "sourcePath": "src/oauthStorage.ts"
+      },
+      {
+        "fromPath": "src/oauthStorage.ts",
+        "toPath": "src/oauthTypes.ts",
+        "sourcePath": "src/oauthStorage.ts"
+      },
+      {
+        "fromPath": "src/oauthStorage.ts",
+        "toPath": "src/types.ts",
+        "sourcePath": "src/oauthStorage.ts"
+      },
+      {
+        "fromPath": "src/oauthTypes.ts",
+        "toPath": "src/oauthProviderDefinitions.ts",
+        "sourcePath": "src/oauthTypes.ts"
+      },
+      {
+        "fromPath": "src/oauthTypes.ts",
+        "toPath": "src/types.ts",
+        "sourcePath": "src/oauthTypes.ts"
       },
       {
         "fromPath": "src/profileVerification.ts",
@@ -1884,405 +3243,483 @@
     ],
     "calls": [
       {
-        "fromSymbol": "createSupabaseAuthAdapter",
-        "toSymbol": "validateConfig",
-        "callExpression": "validateConfig",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+        "fromSymbol": "validateSupabaseAuthConfig",
+        "toSymbol": "normalizeUrl",
+        "callExpression": "normalizeUrl",
+        "sourcePath": "src/authConfiguration.ts"
       },
       {
-        "fromSymbol": "request",
-        "toSymbol": "fetch",
-        "callExpression": "normalizedConfig.fetch",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+        "fromSymbol": "validateSupabaseAuthConfig",
+        "toSymbol": "normalizeOAuthProviders",
+        "callExpression": "normalizeOAuthProviders",
+        "sourcePath": "src/authConfiguration.ts"
       },
       {
-        "fromSymbol": "request",
-        "toSymbol": "createHeaders",
-        "callExpression": "createHeaders",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+        "fromSymbol": "validateSupabaseAuthConfig",
+        "toSymbol": "validateOAuthConfiguration",
+        "callExpression": "validateOAuthConfiguration",
+        "sourcePath": "src/authConfiguration.ts"
+      },
+      {
+        "fromSymbol": "validateSupabaseAuthConfig",
+        "toSymbol": "requireFetch",
+        "callExpression": "requireFetch",
+        "sourcePath": "src/authConfiguration.ts"
+      },
+      {
+        "fromSymbol": "validateSupabaseAuthConfig",
+        "toSymbol": "normalizeSupabaseAuthProfileVerificationConfig",
+        "callExpression": "normalizeSupabaseAuthProfileVerificationConfig",
+        "sourcePath": "src/authConfiguration.ts"
+      },
+      {
+        "fromSymbol": "normalizeOAuthProviders",
+        "toSymbol": "isSupabaseOAuthProviderId",
+        "callExpression": "isSupabaseOAuthProviderId",
+        "sourcePath": "src/authConfiguration.ts"
+      },
+      {
+        "fromSymbol": "requireFetch",
+        "toSymbol": "createDefaultFetch",
+        "callExpression": "createDefaultFetch",
+        "sourcePath": "src/authConfiguration.ts"
+      },
+      {
+        "fromSymbol": "src/authPasswordOperations.ts",
+        "toSymbol": "passwordCredentials",
+        "callExpression": "passwordCredentials",
+        "sourcePath": "src/authPasswordOperations.ts"
+      },
+      {
+        "fromSymbol": "src/authPasswordOperations.ts",
+        "toSymbol": "request",
+        "callExpression": "context.request",
+        "sourcePath": "src/authPasswordOperations.ts"
+      },
+      {
+        "fromSymbol": "src/authPasswordOperations.ts",
+        "toSymbol": "handleSessionResponse",
+        "callExpression": "context.handleSessionResponse",
+        "sourcePath": "src/authPasswordOperations.ts"
+      },
+      {
+        "fromSymbol": "src/authPasswordOperations.ts",
+        "toSymbol": "mapNetworkError",
+        "callExpression": "mapNetworkError",
+        "sourcePath": "src/authPasswordOperations.ts"
+      },
+      {
+        "fromSymbol": "src/authPasswordOperations.ts",
+        "toSymbol": "metadataBody",
+        "callExpression": "metadataBody",
+        "sourcePath": "src/authPasswordOperations.ts"
+      },
+      {
+        "fromSymbol": "src/authPasswordOperations.ts",
+        "toSymbol": "handleSignUpResponse",
+        "callExpression": "handleSignUpResponse",
+        "sourcePath": "src/authPasswordOperations.ts"
+      },
+      {
+        "fromSymbol": "src/authPasswordOperations.ts",
+        "toSymbol": "passwordResetEmail",
+        "callExpression": "passwordResetEmail",
+        "sourcePath": "src/authPasswordOperations.ts"
+      },
+      {
+        "fromSymbol": "src/authPasswordOperations.ts",
+        "toSymbol": "mapSupabaseError",
+        "callExpression": "mapSupabaseError",
+        "sourcePath": "src/authPasswordOperations.ts"
+      },
+      {
+        "fromSymbol": "src/authPasswordOperations.ts",
+        "toSymbol": "readResponseBody",
+        "callExpression": "readResponseBody",
+        "sourcePath": "src/authPasswordOperations.ts"
+      },
+      {
+        "fromSymbol": "src/authPasswordOperations.ts",
+        "toSymbol": "otpBody",
+        "callExpression": "otpBody",
+        "sourcePath": "src/authPasswordOperations.ts"
+      },
+      {
+        "fromSymbol": "handleSignUpResponse",
+        "toSymbol": "readResponseBody",
+        "callExpression": "readResponseBody",
+        "sourcePath": "src/authPasswordOperations.ts"
+      },
+      {
+        "fromSymbol": "handleSignUpResponse",
+        "toSymbol": "mapSupabaseError",
+        "callExpression": "mapSupabaseError",
+        "sourcePath": "src/authPasswordOperations.ts"
+      },
+      {
+        "fromSymbol": "handleSignUpResponse",
+        "toSymbol": "normalizeSupabaseSession",
+        "callExpression": "normalizeSupabaseSession",
+        "sourcePath": "src/authPasswordOperations.ts"
+      },
+      {
+        "fromSymbol": "handleSignUpResponse",
+        "toSymbol": "persistSessionSafely",
+        "callExpression": "context.persistSessionSafely",
+        "sourcePath": "src/authPasswordOperations.ts"
+      },
+      {
+        "fromSymbol": "handleSignUpResponse",
+        "toSymbol": "normalizeSupabaseUser",
+        "callExpression": "normalizeSupabaseUser",
+        "sourcePath": "src/authPasswordOperations.ts"
+      },
+      {
+        "fromSymbol": "handleSignUpResponse",
+        "toSymbol": "isRecord",
+        "callExpression": "isRecord",
+        "sourcePath": "src/authPasswordOperations.ts"
+      },
+      {
+        "fromSymbol": "handleSignUpResponse",
+        "toSymbol": "createAuthError",
+        "callExpression": "createAuthError",
+        "sourcePath": "src/authPasswordOperations.ts"
+      },
+      {
+        "fromSymbol": "passwordCredentials",
+        "toSymbol": "validatePassword",
+        "callExpression": "validatePassword",
+        "sourcePath": "src/authPasswordOperations.ts"
+      },
+      {
+        "fromSymbol": "passwordCredentials",
+        "toSymbol": "identifierBody",
+        "callExpression": "identifierBody",
+        "sourcePath": "src/authPasswordOperations.ts"
+      },
+      {
+        "fromSymbol": "passwordResetEmail",
+        "toSymbol": "createAuthError",
+        "callExpression": "createAuthError",
+        "sourcePath": "src/authPasswordOperations.ts"
+      },
+      {
+        "fromSymbol": "otpBody",
+        "toSymbol": "createAuthError",
+        "callExpression": "createAuthError",
+        "sourcePath": "src/authPasswordOperations.ts"
+      },
+      {
+        "fromSymbol": "otpBody",
+        "toSymbol": "identifierBody",
+        "callExpression": "identifierBody",
+        "sourcePath": "src/authPasswordOperations.ts"
+      },
+      {
+        "fromSymbol": "validatePassword",
+        "toSymbol": "createAuthError",
+        "callExpression": "createAuthError",
+        "sourcePath": "src/authPasswordOperations.ts"
+      },
+      {
+        "fromSymbol": "identifierBody",
+        "toSymbol": "createAuthError",
+        "callExpression": "createAuthError",
+        "sourcePath": "src/authPasswordOperations.ts"
       },
       {
         "fromSymbol": "persistSession",
         "toSymbol": "removeItem",
-        "callExpression": "normalizedConfig.storage.removeItem",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+        "callExpression": "config.storage.removeItem",
+        "sourcePath": "src/authSessionContext.ts"
       },
       {
         "fromSymbol": "persistSession",
         "toSymbol": "setItem",
-        "callExpression": "normalizedConfig.storage.setItem",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+        "callExpression": "config.storage.setItem",
+        "sourcePath": "src/authSessionContext.ts"
       },
       {
-        "fromSymbol": "persistSessionSafely",
-        "toSymbol": "persistSession",
-        "callExpression": "persistSession",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "persistSessionSafely",
-        "toSymbol": "createAuthError",
-        "callExpression": "createAuthError",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "readStoredSession",
-        "toSymbol": "getItem",
-        "callExpression": "normalizedConfig.storage.getItem",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+        "fromSymbol": "createAuthOperationContext",
+        "toSymbol": "createSafeSessionPersistence",
+        "callExpression": "createSafeSessionPersistence",
+        "sourcePath": "src/authSessionContext.ts"
       },
       {
         "fromSymbol": "readStoredSession",
         "toSymbol": "parseStoredSession",
         "callExpression": "parseStoredSession",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+        "sourcePath": "src/authSessionContext.ts"
+      },
+      {
+        "fromSymbol": "readStoredSession",
+        "toSymbol": "getItem",
+        "callExpression": "config.storage.getItem",
+        "sourcePath": "src/authSessionContext.ts"
       },
       {
         "fromSymbol": "readStoredSession",
         "toSymbol": "isAuthSessionExpired",
         "callExpression": "isAuthSessionExpired",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+        "sourcePath": "src/authSessionContext.ts"
       },
       {
         "fromSymbol": "readStoredSession",
         "toSymbol": "removeItem",
-        "callExpression": "normalizedConfig.storage.removeItem",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+        "callExpression": "config.storage.removeItem",
+        "sourcePath": "src/authSessionContext.ts"
       },
       {
-        "fromSymbol": "handleSessionResponse",
-        "toSymbol": "readResponseBody",
-        "callExpression": "readResponseBody",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+        "fromSymbol": "createAuthOperationContext",
+        "toSymbol": "createAuthRequest",
+        "callExpression": "createAuthRequest",
+        "sourcePath": "src/authSessionContext.ts"
       },
       {
-        "fromSymbol": "handleSessionResponse",
-        "toSymbol": "mapSupabaseError",
-        "callExpression": "mapSupabaseError",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+        "fromSymbol": "createAuthOperationContext",
+        "toSymbol": "createSessionResponseHandler",
+        "callExpression": "createSessionResponseHandler",
+        "sourcePath": "src/authSessionContext.ts"
       },
       {
-        "fromSymbol": "handleSessionResponse",
-        "toSymbol": "persistSessionSafely",
-        "callExpression": "persistSessionSafely",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+        "fromSymbol": "src/authSessionContext.ts",
+        "toSymbol": "fetch",
+        "callExpression": "config.fetch",
+        "sourcePath": "src/authSessionContext.ts"
       },
       {
-        "fromSymbol": "handleSessionResponse",
-        "toSymbol": "normalizeSupabaseSession",
-        "callExpression": "normalizeSupabaseSession",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+        "fromSymbol": "src/authSessionContext.ts",
+        "toSymbol": "createHeaders",
+        "callExpression": "createHeaders",
+        "sourcePath": "src/authSessionContext.ts"
       },
       {
-        "fromSymbol": "handleSessionResponse",
+        "fromSymbol": "src/authSessionContext.ts",
+        "toSymbol": "persistSession",
+        "callExpression": "persistSession",
+        "sourcePath": "src/authSessionContext.ts"
+      },
+      {
+        "fromSymbol": "src/authSessionContext.ts",
         "toSymbol": "createAuthError",
         "callExpression": "createAuthError",
+        "sourcePath": "src/authSessionContext.ts"
+      },
+      {
+        "fromSymbol": "src/authSessionContext.ts",
+        "toSymbol": "readResponseBody",
+        "callExpression": "readResponseBody",
+        "sourcePath": "src/authSessionContext.ts"
+      },
+      {
+        "fromSymbol": "src/authSessionContext.ts",
+        "toSymbol": "mapSupabaseError",
+        "callExpression": "mapSupabaseError",
+        "sourcePath": "src/authSessionContext.ts"
+      },
+      {
+        "fromSymbol": "src/authSessionContext.ts",
+        "toSymbol": "persistSessionSafely",
+        "callExpression": "persistSessionSafely",
+        "sourcePath": "src/authSessionContext.ts"
+      },
+      {
+        "fromSymbol": "src/authSessionContext.ts",
+        "toSymbol": "normalizeSupabaseSession",
+        "callExpression": "normalizeSupabaseSession",
+        "sourcePath": "src/authSessionContext.ts"
+      },
+      {
+        "fromSymbol": "src/authSessionOperations.ts",
+        "toSymbol": "signOutProvider",
+        "callExpression": "signOutProvider",
+        "sourcePath": "src/authSessionOperations.ts"
+      },
+      {
+        "fromSymbol": "src/authSessionOperations.ts",
+        "toSymbol": "persistSessionSafely",
+        "callExpression": "context.persistSessionSafely",
+        "sourcePath": "src/authSessionOperations.ts"
+      },
+      {
+        "fromSymbol": "src/authSessionOperations.ts",
+        "toSymbol": "readStoredSession",
+        "callExpression": "context.readStoredSession",
+        "sourcePath": "src/authSessionOperations.ts"
+      },
+      {
+        "fromSymbol": "src/authSessionOperations.ts",
+        "toSymbol": "createAuthError",
+        "callExpression": "createAuthError",
+        "sourcePath": "src/authSessionOperations.ts"
+      },
+      {
+        "fromSymbol": "src/authSessionOperations.ts",
+        "toSymbol": "readRefreshSession",
+        "callExpression": "readRefreshSession",
+        "sourcePath": "src/authSessionOperations.ts"
+      },
+      {
+        "fromSymbol": "src/authSessionOperations.ts",
+        "toSymbol": "request",
+        "callExpression": "context.request",
+        "sourcePath": "src/authSessionOperations.ts"
+      },
+      {
+        "fromSymbol": "src/authSessionOperations.ts",
+        "toSymbol": "handleSessionResponse",
+        "callExpression": "context.handleSessionResponse",
+        "sourcePath": "src/authSessionOperations.ts"
+      },
+      {
+        "fromSymbol": "src/authSessionOperations.ts",
+        "toSymbol": "mapNetworkError",
+        "callExpression": "mapNetworkError",
+        "sourcePath": "src/authSessionOperations.ts"
+      },
+      {
+        "fromSymbol": "signOutProvider",
+        "toSymbol": "readStoredSession",
+        "callExpression": "context.readStoredSession",
+        "sourcePath": "src/authSessionOperations.ts"
+      },
+      {
+        "fromSymbol": "signOutProvider",
+        "toSymbol": "createAuthError",
+        "callExpression": "createAuthError",
+        "sourcePath": "src/authSessionOperations.ts"
+      },
+      {
+        "fromSymbol": "signOutProvider",
+        "toSymbol": "request",
+        "callExpression": "context.request",
+        "sourcePath": "src/authSessionOperations.ts"
+      },
+      {
+        "fromSymbol": "signOutProvider",
+        "toSymbol": "mapSupabaseError",
+        "callExpression": "mapSupabaseError",
+        "sourcePath": "src/authSessionOperations.ts"
+      },
+      {
+        "fromSymbol": "signOutProvider",
+        "toSymbol": "readResponseBody",
+        "callExpression": "readResponseBody",
+        "sourcePath": "src/authSessionOperations.ts"
+      },
+      {
+        "fromSymbol": "signOutProvider",
+        "toSymbol": "mapNetworkError",
+        "callExpression": "mapNetworkError",
+        "sourcePath": "src/authSessionOperations.ts"
+      },
+      {
+        "fromSymbol": "readRefreshSession",
+        "toSymbol": "readStoredSession",
+        "callExpression": "context.readStoredSession",
+        "sourcePath": "src/authSessionOperations.ts"
+      },
+      {
+        "fromSymbol": "readRefreshSession",
+        "toSymbol": "createAuthError",
+        "callExpression": "createAuthError",
+        "sourcePath": "src/authSessionOperations.ts"
+      },
+      {
+        "fromSymbol": "createSupabaseAuthAdapter",
+        "toSymbol": "validateSupabaseAuthConfig",
+        "callExpression": "validateSupabaseAuthConfig",
         "sourcePath": "src/createSupabaseAuthAdapter.ts"
       },
       {
         "fromSymbol": "createSupabaseAuthAdapter",
-        "toSymbol": "createProfileVerifier",
-        "callExpression": "createProfileVerifier",
+        "toSymbol": "createAuthOperationContext",
+        "callExpression": "createAuthOperationContext",
         "sourcePath": "src/createSupabaseAuthAdapter.ts"
       },
       {
         "fromSymbol": "createSupabaseAuthAdapter",
+        "toSymbol": "createOAuthAdapter",
+        "callExpression": "createOAuthAdapter",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "createSupabaseAuthAdapter",
+        "toSymbol": "createSignInOperation",
+        "callExpression": "createSignInOperation",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "createSupabaseAuthAdapter",
+        "toSymbol": "createSignUpOperation",
+        "callExpression": "createSignUpOperation",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "createSupabaseAuthAdapter",
+        "toSymbol": "createSignOutOperation",
+        "callExpression": "createSignOutOperation",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "createSupabaseAuthAdapter",
+        "toSymbol": "createGetSessionOperation",
+        "callExpression": "createGetSessionOperation",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "createSupabaseAuthAdapter",
+        "toSymbol": "createRefreshSessionOperation",
+        "callExpression": "createRefreshSessionOperation",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "createSupabaseAuthAdapter",
+        "toSymbol": "createPasswordResetOperation",
+        "callExpression": "createPasswordResetOperation",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "createSupabaseAuthAdapter",
+        "toSymbol": "createVerifyOtpOperation",
+        "callExpression": "createVerifyOtpOperation",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "createOAuthAdapter",
         "toSymbol": "createSupabaseOAuthAdapter",
         "callExpression": "createSupabaseOAuthAdapter",
         "sourcePath": "src/createSupabaseAuthAdapter.ts"
       },
       {
-        "fromSymbol": "createSupabaseAuthAdapter",
+        "fromSymbol": "createOAuthAdapter",
         "toSymbol": "requireOAuthStorage",
         "callExpression": "requireOAuthStorage",
         "sourcePath": "src/createSupabaseAuthAdapter.ts"
       },
       {
-        "fromSymbol": "persistSession",
+        "fromSymbol": "createOAuthAdapter",
+        "toSymbol": "createOAuthSessionPersistence",
+        "callExpression": "createOAuthSessionPersistence",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "createOAuthAdapter",
+        "toSymbol": "createProfileVerifier",
+        "callExpression": "createProfileVerifier",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "src/createSupabaseAuthAdapter.ts",
         "toSymbol": "persistSessionSafely",
-        "callExpression": "persistSessionSafely",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "signIn",
-        "toSymbol": "validatePassword",
-        "callExpression": "validatePassword",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "signIn",
-        "toSymbol": "identifierBody",
-        "callExpression": "identifierBody",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "signIn",
-        "toSymbol": "request",
-        "callExpression": "request",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "signIn",
-        "toSymbol": "handleSessionResponse",
-        "callExpression": "handleSessionResponse",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "signIn",
-        "toSymbol": "mapNetworkError",
-        "callExpression": "mapNetworkError",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "signUp",
-        "toSymbol": "validatePassword",
-        "callExpression": "validatePassword",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "signUp",
-        "toSymbol": "identifierBody",
-        "callExpression": "identifierBody",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "signUp",
-        "toSymbol": "request",
-        "callExpression": "request",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "signUp",
-        "toSymbol": "metadataBody",
-        "callExpression": "metadataBody",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "signUp",
-        "toSymbol": "readResponseBody",
-        "callExpression": "readResponseBody",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "signUp",
-        "toSymbol": "mapSupabaseError",
-        "callExpression": "mapSupabaseError",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "signUp",
-        "toSymbol": "normalizeSupabaseSession",
-        "callExpression": "normalizeSupabaseSession",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "signUp",
-        "toSymbol": "persistSessionSafely",
-        "callExpression": "persistSessionSafely",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "signUp",
-        "toSymbol": "normalizeSupabaseUser",
-        "callExpression": "normalizeSupabaseUser",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "signUp",
-        "toSymbol": "isRecord",
-        "callExpression": "isRecord",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "signUp",
-        "toSymbol": "createAuthError",
-        "callExpression": "createAuthError",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "signUp",
-        "toSymbol": "mapNetworkError",
-        "callExpression": "mapNetworkError",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "signOut",
-        "toSymbol": "readStoredSession",
-        "callExpression": "readStoredSession",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "signOut",
-        "toSymbol": "createAuthError",
-        "callExpression": "createAuthError",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "signOut",
-        "toSymbol": "request",
-        "callExpression": "request",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "signOut",
-        "toSymbol": "readResponseBody",
-        "callExpression": "readResponseBody",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "signOut",
-        "toSymbol": "mapSupabaseError",
-        "callExpression": "mapSupabaseError",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "signOut",
-        "toSymbol": "mapNetworkError",
-        "callExpression": "mapNetworkError",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "signOut",
-        "toSymbol": "persistSessionSafely",
-        "callExpression": "persistSessionSafely",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "getSession",
-        "toSymbol": "readStoredSession",
-        "callExpression": "readStoredSession",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "getSession",
-        "toSymbol": "createAuthError",
-        "callExpression": "createAuthError",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "refreshSession",
-        "toSymbol": "readStoredSession",
-        "callExpression": "readStoredSession",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "refreshSession",
-        "toSymbol": "createAuthError",
-        "callExpression": "createAuthError",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "refreshSession",
-        "toSymbol": "request",
-        "callExpression": "request",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "refreshSession",
-        "toSymbol": "handleSessionResponse",
-        "callExpression": "handleSessionResponse",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "refreshSession",
-        "toSymbol": "mapNetworkError",
-        "callExpression": "mapNetworkError",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "requestPasswordReset",
-        "toSymbol": "createAuthError",
-        "callExpression": "createAuthError",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "requestPasswordReset",
-        "toSymbol": "request",
-        "callExpression": "request",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "requestPasswordReset",
-        "toSymbol": "readResponseBody",
-        "callExpression": "readResponseBody",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "requestPasswordReset",
-        "toSymbol": "mapSupabaseError",
-        "callExpression": "mapSupabaseError",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "requestPasswordReset",
-        "toSymbol": "mapNetworkError",
-        "callExpression": "mapNetworkError",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "verifyOtp",
-        "toSymbol": "createAuthError",
-        "callExpression": "createAuthError",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "verifyOtp",
-        "toSymbol": "identifierBody",
-        "callExpression": "identifierBody",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "verifyOtp",
-        "toSymbol": "request",
-        "callExpression": "request",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "verifyOtp",
-        "toSymbol": "handleSessionResponse",
-        "callExpression": "handleSessionResponse",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "verifyOtp",
-        "toSymbol": "mapNetworkError",
-        "callExpression": "mapNetworkError",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "validateConfig",
-        "toSymbol": "createDefaultFetch",
-        "callExpression": "createDefaultFetch",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "validateConfig",
-        "toSymbol": "isSupabaseOAuthProviderId",
-        "callExpression": "isSupabaseOAuthProviderId",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "validateConfig",
-        "toSymbol": "normalizeSupabaseAuthProfileVerificationConfig",
-        "callExpression": "normalizeSupabaseAuthProfileVerificationConfig",
+        "callExpression": "context.persistSessionSafely",
         "sourcePath": "src/createSupabaseAuthAdapter.ts"
       },
       {
         "fromSymbol": "createProfileVerifier",
         "toSymbol": "createSupabaseOAuthProfileVerifier",
         "callExpression": "createSupabaseOAuthProfileVerifier",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "validatePassword",
-        "toSymbol": "createAuthError",
-        "callExpression": "createAuthError",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "identifierBody",
-        "toSymbol": "createAuthError",
-        "callExpression": "createAuthError",
         "sourcePath": "src/createSupabaseAuthAdapter.ts"
       },
       {
@@ -2299,8 +3736,44 @@
       },
       {
         "fromSymbol": "mapSupabaseError",
+        "toSymbol": "isExpiredAccessSession",
+        "callExpression": "isExpiredAccessSession",
+        "sourcePath": "src/errors.ts"
+      },
+      {
+        "fromSymbol": "mapSupabaseError",
         "toSymbol": "createAuthError",
         "callExpression": "createAuthError",
+        "sourcePath": "src/errors.ts"
+      },
+      {
+        "fromSymbol": "mapSupabaseError",
+        "toSymbol": "isInvalidCredentialMessage",
+        "callExpression": "isInvalidCredentialMessage",
+        "sourcePath": "src/errors.ts"
+      },
+      {
+        "fromSymbol": "mapSupabaseError",
+        "toSymbol": "isExpiredRefreshSession",
+        "callExpression": "isExpiredRefreshSession",
+        "sourcePath": "src/errors.ts"
+      },
+      {
+        "fromSymbol": "isExpiredAccessSession",
+        "toSymbol": "includesAny",
+        "callExpression": "includesAny",
+        "sourcePath": "src/errors.ts"
+      },
+      {
+        "fromSymbol": "isInvalidCredentialMessage",
+        "toSymbol": "includesAny",
+        "callExpression": "includesAny",
+        "sourcePath": "src/errors.ts"
+      },
+      {
+        "fromSymbol": "isExpiredRefreshSession",
+        "toSymbol": "includesAny",
+        "callExpression": "includesAny",
         "sourcePath": "src/errors.ts"
       },
       {
@@ -2311,315 +3784,597 @@
       },
       {
         "fromSymbol": "createSupabaseOAuthAdapter",
-        "toSymbol": "createClient",
-        "callExpression": "createClient",
+        "toSymbol": "createOAuthRuntimeContext",
+        "callExpression": "createOAuthRuntimeContext",
         "sourcePath": "src/oauth.ts"
       },
       {
         "fromSymbol": "createSupabaseOAuthAdapter",
-        "toSymbol": "createPkceOnlyStorage",
-        "callExpression": "createPkceOnlyStorage",
+        "toSymbol": "createCompletionRunner",
+        "callExpression": "createCompletionRunner",
         "sourcePath": "src/oauth.ts"
       },
       {
         "fromSymbol": "startAuthorization",
-        "toSymbol": "resolveEnabledProvider",
-        "callExpression": "resolveEnabledProvider",
+        "toSymbol": "startSupabaseOAuthAuthorization",
+        "callExpression": "startSupabaseOAuthAuthorization",
         "sourcePath": "src/oauth.ts"
       },
       {
-        "fromSymbol": "startAuthorization",
-        "toSymbol": "normalizeRedirectUri",
-        "callExpression": "normalizeRedirectUri",
+        "fromSymbol": "src/oauth.ts",
+        "toSymbol": "completeSupabaseOAuthAuthorization",
+        "callExpression": "completeSupabaseOAuthAuthorization",
         "sourcePath": "src/oauth.ts"
       },
       {
-        "fromSymbol": "startAuthorization",
-        "toSymbol": "normalizeQueryParams",
-        "callExpression": "normalizeQueryParams",
+        "fromSymbol": "src/oauth.ts",
+        "toSymbol": "releaseCompletion",
+        "callExpression": "releaseCompletion",
         "sourcePath": "src/oauth.ts"
       },
       {
-        "fromSymbol": "startAuthorization",
-        "toSymbol": "readAttempt",
-        "callExpression": "readAttempt",
-        "sourcePath": "src/oauth.ts"
+        "fromSymbol": "createOAuthAttemptId",
+        "toSymbol": "resolveOAuthAttemptIdRuntime",
+        "callExpression": "resolveOAuthAttemptIdRuntime",
+        "sourcePath": "src/oauthAttemptId.ts"
       },
       {
-        "fromSymbol": "startAuthorization",
-        "toSymbol": "oauthStartError",
-        "callExpression": "oauthStartError",
-        "sourcePath": "src/oauth.ts"
+        "fromSymbol": "createOAuthAttemptId",
+        "toSymbol": "randomUuid",
+        "callExpression": "runtime.randomUuid",
+        "sourcePath": "src/oauthAttemptId.ts"
       },
       {
-        "fromSymbol": "startAuthorization",
-        "toSymbol": "getSupabaseOAuthProviderDefinition",
-        "callExpression": "getSupabaseOAuthProviderDefinition",
-        "sourcePath": "src/oauth.ts"
+        "fromSymbol": "createOAuthAttemptId",
+        "toSymbol": "fillRandomBytes",
+        "callExpression": "runtime.fillRandomBytes",
+        "sourcePath": "src/oauthAttemptId.ts"
       },
       {
-        "fromSymbol": "startAuthorization",
-        "toSymbol": "normalizeScopes",
-        "callExpression": "normalizeScopes",
-        "sourcePath": "src/oauth.ts"
+        "fromSymbol": "src/oauthAttemptId.ts",
+        "toSymbol": "createFallbackRandomChunk",
+        "callExpression": "createFallbackRandomChunk",
+        "sourcePath": "src/oauthAttemptId.ts"
       },
       {
-        "fromSymbol": "startAuthorization",
-        "toSymbol": "safeRemove",
-        "callExpression": "safeRemove",
-        "sourcePath": "src/oauth.ts"
+        "fromSymbol": "createOAuthAttemptId",
+        "toSymbol": "now",
+        "callExpression": "runtime.now",
+        "sourcePath": "src/oauthAttemptId.ts"
       },
       {
-        "fromSymbol": "startAuthorization",
-        "toSymbol": "mapSupabaseOAuthError",
-        "callExpression": "mapSupabaseOAuthError",
-        "sourcePath": "src/oauth.ts"
+        "fromSymbol": "createFallbackRandomChunk",
+        "toSymbol": "random",
+        "callExpression": "random",
+        "sourcePath": "src/oauthAttemptId.ts"
       },
       {
-        "fromSymbol": "startAuthorization",
-        "toSymbol": "createAttemptId",
-        "callExpression": "createAttemptId",
-        "sourcePath": "src/oauth.ts"
+        "fromSymbol": "completeOAuthReplay",
+        "toSymbol": "replayMismatch",
+        "callExpression": "replayMismatch",
+        "sourcePath": "src/oauthCallback.ts"
       },
       {
-        "fromSymbol": "startAuthorization",
-        "toSymbol": "writeAttempt",
-        "callExpression": "writeAttempt",
-        "sourcePath": "src/oauth.ts"
-      },
-      {
-        "fromSymbol": "startAuthorization",
-        "toSymbol": "emitLifecycleEvent",
-        "callExpression": "emitLifecycleEvent",
-        "sourcePath": "src/oauth.ts"
-      },
-      {
-        "fromSymbol": "completeAuthorization",
-        "toSymbol": "readAttempt",
-        "callExpression": "readAttempt",
-        "sourcePath": "src/oauth.ts"
-      },
-      {
-        "fromSymbol": "completeAuthorization",
-        "toSymbol": "oauthCompletionError",
-        "callExpression": "oauthCompletionError",
-        "sourcePath": "src/oauth.ts"
-      },
-      {
-        "fromSymbol": "completeAuthorization",
-        "toSymbol": "completeAttempt",
-        "callExpression": "completeAttempt",
-        "sourcePath": "src/oauth.ts"
-      },
-      {
-        "fromSymbol": "completeAuthorization",
-        "toSymbol": "safeRemove",
-        "callExpression": "safeRemove",
-        "sourcePath": "src/oauth.ts"
-      },
-      {
-        "fromSymbol": "completeAuthorization",
-        "toSymbol": "emitLifecycleEvent",
-        "callExpression": "emitLifecycleEvent",
-        "sourcePath": "src/oauth.ts"
-      },
-      {
-        "fromSymbol": "completeAuthorization",
-        "toSymbol": "emitOAuthError",
-        "callExpression": "emitOAuthError",
-        "sourcePath": "src/oauth.ts"
-      },
-      {
-        "fromSymbol": "completeAuthorization",
+        "fromSymbol": "completeOAuthReplay",
         "toSymbol": "parseCallback",
         "callExpression": "parseCallback",
-        "sourcePath": "src/oauth.ts"
+        "sourcePath": "src/oauthCallback.ts"
       },
       {
-        "fromSymbol": "completeAuthorization",
-        "toSymbol": "writeAttempt",
-        "callExpression": "writeAttempt",
-        "sourcePath": "src/oauth.ts"
+        "fromSymbol": "completeOAuthReplay",
+        "toSymbol": "fingerprintOAuthCallback",
+        "callExpression": "fingerprintOAuthCallback",
+        "sourcePath": "src/oauthCallback.ts"
       },
       {
-        "fromSymbol": "completeAuthorization",
-        "toSymbol": "mapSupabaseOAuthError",
-        "callExpression": "mapSupabaseOAuthError",
-        "sourcePath": "src/oauth.ts"
+        "fromSymbol": "completeOAuthReplay",
+        "toSymbol": "constantTimeEqual",
+        "callExpression": "constantTimeEqual",
+        "sourcePath": "src/oauthCallback.ts"
       },
       {
-        "fromSymbol": "completeAuthorization",
-        "toSymbol": "normalizeSupabaseClientSession",
-        "callExpression": "normalizeSupabaseClientSession",
-        "sourcePath": "src/oauth.ts"
+        "fromSymbol": "completeOAuthReplay",
+        "toSymbol": "oauthCompletionError",
+        "callExpression": "oauthCompletionError",
+        "sourcePath": "src/oauthCallback.ts"
       },
       {
-        "fromSymbol": "completeAuthorization",
-        "toSymbol": "persistSession",
-        "callExpression": "input.persistSession",
-        "sourcePath": "src/oauth.ts"
-      },
-      {
-        "fromSymbol": "completeAuthorization",
-        "toSymbol": "verifyProfile",
-        "callExpression": "input.verifyProfile",
-        "sourcePath": "src/oauth.ts"
-      },
-      {
-        "fromSymbol": "emitOAuthError",
-        "toSymbol": "emitLifecycleEvent",
-        "callExpression": "emitLifecycleEvent",
-        "sourcePath": "src/oauth.ts"
-      },
-      {
-        "fromSymbol": "emitLifecycleEvent",
-        "toSymbol": "observer",
-        "callExpression": "observer",
-        "sourcePath": "src/oauth.ts"
-      },
-      {
-        "fromSymbol": "getItem",
-        "toSymbol": "getItem",
-        "callExpression": "storage.getItem",
-        "sourcePath": "src/oauth.ts"
-      },
-      {
-        "fromSymbol": "setItem",
-        "toSymbol": "setItem",
-        "callExpression": "storage.setItem",
-        "sourcePath": "src/oauth.ts"
-      },
-      {
-        "fromSymbol": "removeItem",
-        "toSymbol": "removeItem",
-        "callExpression": "storage.removeItem",
-        "sourcePath": "src/oauth.ts"
-      },
-      {
-        "fromSymbol": "resolveEnabledProvider",
-        "toSymbol": "isSupabaseOAuthProviderId",
-        "callExpression": "isSupabaseOAuthProviderId",
-        "sourcePath": "src/oauth.ts"
-      },
-      {
-        "fromSymbol": "resolveEnabledProvider",
-        "toSymbol": "oauthStartError",
-        "callExpression": "oauthStartError",
-        "sourcePath": "src/oauth.ts"
-      },
-      {
-        "fromSymbol": "normalizeRedirectUri",
-        "toSymbol": "oauthStartError",
-        "callExpression": "oauthStartError",
-        "sourcePath": "src/oauth.ts"
-      },
-      {
-        "fromSymbol": "normalizeRedirectUri",
-        "toSymbol": "isLocalhost",
-        "callExpression": "isLocalhost",
-        "sourcePath": "src/oauth.ts"
-      },
-      {
-        "fromSymbol": "normalizeQueryParams",
-        "toSymbol": "oauthStartError",
-        "callExpression": "oauthStartError",
-        "sourcePath": "src/oauth.ts"
+        "fromSymbol": "parseCallback",
+        "toSymbol": "parseCallbackLocations",
+        "callExpression": "parseCallbackLocations",
+        "sourcePath": "src/oauthCallback.ts"
       },
       {
         "fromSymbol": "parseCallback",
         "toSymbol": "invalidCallback",
         "callExpression": "invalidCallback",
-        "sourcePath": "src/oauth.ts"
+        "sourcePath": "src/oauthCallback.ts"
       },
       {
         "fromSymbol": "parseCallback",
         "toSymbol": "sameCallbackLocation",
         "callExpression": "sameCallbackLocation",
-        "sourcePath": "src/oauth.ts"
+        "sourcePath": "src/oauthCallback.ts"
       },
       {
         "fromSymbol": "parseCallback",
-        "toSymbol": "oauthCompletionError",
-        "callExpression": "oauthCompletionError",
-        "sourcePath": "src/oauth.ts"
+        "toSymbol": "classifyCallback",
+        "callExpression": "classifyCallback",
+        "sourcePath": "src/oauthCallback.ts"
       },
       {
         "fromSymbol": "invalidCallback",
         "toSymbol": "oauthCompletionError",
         "callExpression": "oauthCompletionError",
-        "sourcePath": "src/oauth.ts"
+        "sourcePath": "src/oauthCallback.ts"
       },
       {
-        "fromSymbol": "readAttempt",
-        "toSymbol": "getItem",
-        "callExpression": "storage.getItem",
-        "sourcePath": "src/oauth.ts"
+        "fromSymbol": "classifyCallback",
+        "toSymbol": "invalidCallback",
+        "callExpression": "invalidCallback",
+        "sourcePath": "src/oauthCallback.ts"
       },
       {
-        "fromSymbol": "readAttempt",
-        "toSymbol": "isStoredAttempt",
-        "callExpression": "isStoredAttempt",
-        "sourcePath": "src/oauth.ts"
+        "fromSymbol": "classifyCallback",
+        "toSymbol": "classifyProviderError",
+        "callExpression": "classifyProviderError",
+        "sourcePath": "src/oauthCallback.ts"
       },
       {
-        "fromSymbol": "writeAttempt",
-        "toSymbol": "setItem",
-        "callExpression": "storage.setItem",
-        "sourcePath": "src/oauth.ts"
+        "fromSymbol": "classifyProviderError",
+        "toSymbol": "oauthCompletionError",
+        "callExpression": "oauthCompletionError",
+        "sourcePath": "src/oauthCallback.ts"
       },
       {
-        "fromSymbol": "completeAttempt",
+        "fromSymbol": "replayMismatch",
+        "toSymbol": "invalidCallback",
+        "callExpression": "invalidCallback",
+        "sourcePath": "src/oauthCallback.ts"
+      },
+      {
+        "fromSymbol": "completeSupabaseOAuthAuthorization",
+        "toSymbol": "loadAttempt",
+        "callExpression": "loadAttempt",
+        "sourcePath": "src/oauthComplete.ts"
+      },
+      {
+        "fromSymbol": "completeSupabaseOAuthAuthorization",
+        "toSymbol": "completeOAuthReplay",
+        "callExpression": "completeOAuthReplay",
+        "sourcePath": "src/oauthComplete.ts"
+      },
+      {
+        "fromSymbol": "completeSupabaseOAuthAuthorization",
+        "toSymbol": "parseCompletion",
+        "callExpression": "parseCompletion",
+        "sourcePath": "src/oauthComplete.ts"
+      },
+      {
+        "fromSymbol": "completeSupabaseOAuthAuthorization",
+        "toSymbol": "reserveCallback",
+        "callExpression": "reserveCallback",
+        "sourcePath": "src/oauthComplete.ts"
+      },
+      {
+        "fromSymbol": "completeSupabaseOAuthAuthorization",
+        "toSymbol": "exchangeAndPersistOAuthSession",
+        "callExpression": "exchangeAndPersistOAuthSession",
+        "sourcePath": "src/oauthComplete.ts"
+      },
+      {
+        "fromSymbol": "completeSupabaseOAuthAuthorization",
+        "toSymbol": "finalizeOAuthAttemptState",
+        "callExpression": "finalizeOAuthAttemptState",
+        "sourcePath": "src/oauthComplete.ts"
+      },
+      {
+        "fromSymbol": "loadAttempt",
+        "toSymbol": "readAttempt",
+        "callExpression": "readAttempt",
+        "sourcePath": "src/oauthComplete.ts"
+      },
+      {
+        "fromSymbol": "loadAttempt",
+        "toSymbol": "clearOAuthAttempt",
+        "callExpression": "clearOAuthAttempt",
+        "sourcePath": "src/oauthComplete.ts"
+      },
+      {
+        "fromSymbol": "loadAttempt",
+        "toSymbol": "completionFailure",
+        "callExpression": "completionFailure",
+        "sourcePath": "src/oauthComplete.ts"
+      },
+      {
+        "fromSymbol": "loadAttempt",
+        "toSymbol": "isAttemptExpired",
+        "callExpression": "isAttemptExpired",
+        "sourcePath": "src/oauthComplete.ts"
+      },
+      {
+        "fromSymbol": "loadAttempt",
+        "toSymbol": "now",
+        "callExpression": "context.now",
+        "sourcePath": "src/oauthComplete.ts"
+      },
+      {
+        "fromSymbol": "parseCompletion",
+        "toSymbol": "completeCancellation",
+        "callExpression": "completeCancellation",
+        "sourcePath": "src/oauthComplete.ts"
+      },
+      {
+        "fromSymbol": "parseCompletion",
+        "toSymbol": "failOAuthAttempt",
+        "callExpression": "failOAuthAttempt",
+        "sourcePath": "src/oauthComplete.ts"
+      },
+      {
+        "fromSymbol": "parseCompletion",
+        "toSymbol": "oauthCompletionError",
+        "callExpression": "oauthCompletionError",
+        "sourcePath": "src/oauthComplete.ts"
+      },
+      {
+        "fromSymbol": "parseCompletion",
+        "toSymbol": "parseCallback",
+        "callExpression": "parseCallback",
+        "sourcePath": "src/oauthComplete.ts"
+      },
+      {
+        "fromSymbol": "completeCancellation",
+        "toSymbol": "finalizeOAuthAttemptState",
+        "callExpression": "finalizeOAuthAttemptState",
+        "sourcePath": "src/oauthComplete.ts"
+      },
+      {
+        "fromSymbol": "completeCancellation",
+        "toSymbol": "emitLifecycleEvent",
+        "callExpression": "emitLifecycleEvent",
+        "sourcePath": "src/oauthComplete.ts"
+      },
+      {
+        "fromSymbol": "reserveCallback",
+        "toSymbol": "fingerprintOAuthCallback",
+        "callExpression": "fingerprintOAuthCallback",
+        "sourcePath": "src/oauthComplete.ts"
+      },
+      {
+        "fromSymbol": "reserveCallback",
+        "toSymbol": "fingerprintConsumedOAuthCallback",
+        "callExpression": "fingerprintConsumedOAuthCallback",
+        "sourcePath": "src/oauthComplete.ts"
+      },
+      {
+        "fromSymbol": "reserveCallback",
+        "toSymbol": "readConsumedCallbacks",
+        "callExpression": "readConsumedCallbacks",
+        "sourcePath": "src/oauthComplete.ts"
+      },
+      {
+        "fromSymbol": "reserveCallback",
+        "toSymbol": "now",
+        "callExpression": "context.now",
+        "sourcePath": "src/oauthComplete.ts"
+      },
+      {
+        "fromSymbol": "reserveCallback",
+        "toSymbol": "failOAuthAttempt",
+        "callExpression": "failOAuthAttempt",
+        "sourcePath": "src/oauthComplete.ts"
+      },
+      {
+        "fromSymbol": "reserveCallback",
+        "toSymbol": "oauthCompletionError",
+        "callExpression": "oauthCompletionError",
+        "sourcePath": "src/oauthComplete.ts"
+      },
+      {
+        "fromSymbol": "src/oauthComplete.ts",
+        "toSymbol": "constantTimeEqual",
+        "callExpression": "constantTimeEqual",
+        "sourcePath": "src/oauthComplete.ts"
+      },
+      {
+        "fromSymbol": "reserveCallback",
+        "toSymbol": "invalidCallback",
+        "callExpression": "invalidCallback",
+        "sourcePath": "src/oauthComplete.ts"
+      },
+      {
+        "fromSymbol": "reserveCallback",
+        "toSymbol": "writeCallbackReservation",
+        "callExpression": "writeCallbackReservation",
+        "sourcePath": "src/oauthComplete.ts"
+      },
+      {
+        "fromSymbol": "writeCallbackReservation",
+        "toSymbol": "writeCallbackLedger",
+        "callExpression": "writeCallbackLedger",
+        "sourcePath": "src/oauthComplete.ts"
+      },
+      {
+        "fromSymbol": "writeCallbackReservation",
         "toSymbol": "writeAttempt",
         "callExpression": "writeAttempt",
-        "sourcePath": "src/oauth.ts"
+        "sourcePath": "src/oauthComplete.ts"
       },
       {
-        "fromSymbol": "safeRemove",
-        "toSymbol": "removeItem",
-        "callExpression": "storage.removeItem",
-        "sourcePath": "src/oauth.ts"
+        "fromSymbol": "writeCallbackReservation",
+        "toSymbol": "clearOAuthAttempt",
+        "callExpression": "clearOAuthAttempt",
+        "sourcePath": "src/oauthComplete.ts"
       },
       {
-        "fromSymbol": "isStoredAttempt",
-        "toSymbol": "isRecord",
-        "callExpression": "isRecord",
-        "sourcePath": "src/oauth.ts"
+        "fromSymbol": "writeCallbackReservation",
+        "toSymbol": "reservationFailure",
+        "callExpression": "reservationFailure",
+        "sourcePath": "src/oauthComplete.ts"
       },
       {
-        "fromSymbol": "isStoredAttempt",
-        "toSymbol": "isSupabaseOAuthProviderId",
-        "callExpression": "isSupabaseOAuthProviderId",
-        "sourcePath": "src/oauth.ts"
+        "fromSymbol": "writeCallbackLedger",
+        "toSymbol": "writeConsumedCallbacks",
+        "callExpression": "writeConsumedCallbacks",
+        "sourcePath": "src/oauthComplete.ts"
+      },
+      {
+        "fromSymbol": "writeCallbackLedger",
+        "toSymbol": "now",
+        "callExpression": "context.now",
+        "sourcePath": "src/oauthComplete.ts"
+      },
+      {
+        "fromSymbol": "writeCallbackLedger",
+        "toSymbol": "failOAuthAttempt",
+        "callExpression": "failOAuthAttempt",
+        "sourcePath": "src/oauthComplete.ts"
+      },
+      {
+        "fromSymbol": "writeCallbackLedger",
+        "toSymbol": "reservationFailure",
+        "callExpression": "reservationFailure",
+        "sourcePath": "src/oauthComplete.ts"
+      },
+      {
+        "fromSymbol": "reservationFailure",
+        "toSymbol": "oauthCompletionError",
+        "callExpression": "oauthCompletionError",
+        "sourcePath": "src/oauthComplete.ts"
+      },
+      {
+        "fromSymbol": "completionFailure",
+        "toSymbol": "oauthCompletionError",
+        "callExpression": "oauthCompletionError",
+        "sourcePath": "src/oauthComplete.ts"
+      },
+      {
+        "fromSymbol": "failOAuthAttempt",
+        "toSymbol": "finalizeOAuthAttemptState",
+        "callExpression": "finalizeOAuthAttemptState",
+        "sourcePath": "src/oauthCompletionState.ts"
+      },
+      {
+        "fromSymbol": "failOAuthAttempt",
+        "toSymbol": "emitOAuthError",
+        "callExpression": "emitOAuthError",
+        "sourcePath": "src/oauthCompletionState.ts"
+      },
+      {
+        "fromSymbol": "finalizeOAuthAttemptState",
+        "toSymbol": "finalizeAttempt",
+        "callExpression": "finalizeAttempt",
+        "sourcePath": "src/oauthCompletionState.ts"
+      },
+      {
+        "fromSymbol": "finalizeOAuthAttemptState",
+        "toSymbol": "emitLifecycleEvent",
+        "callExpression": "emitLifecycleEvent",
+        "sourcePath": "src/oauthCompletionState.ts"
+      },
+      {
+        "fromSymbol": "clearOAuthAttempt",
+        "toSymbol": "clearOAuthAttemptState",
+        "callExpression": "clearOAuthAttemptState",
+        "sourcePath": "src/oauthCompletionState.ts"
+      },
+      {
+        "fromSymbol": "src/oauthErrors.ts",
+        "toSymbol": "includesAny",
+        "callExpression": "includesAny",
+        "sourcePath": "src/oauthErrors.ts"
       },
       {
         "fromSymbol": "mapSupabaseOAuthError",
-        "toSymbol": "readString",
-        "callExpression": "readString",
-        "sourcePath": "src/oauth.ts"
+        "toSymbol": "normalizeOAuthErrorText",
+        "callExpression": "normalizeOAuthErrorText",
+        "sourcePath": "src/oauthErrors.ts"
+      },
+      {
+        "fromSymbol": "src/oauthErrors.ts",
+        "toSymbol": "matches",
+        "callExpression": "candidate.matches",
+        "sourcePath": "src/oauthErrors.ts"
       },
       {
         "fromSymbol": "mapSupabaseOAuthError",
         "toSymbol": "createOAuthError",
         "callExpression": "createOAuthError",
-        "sourcePath": "src/oauth.ts"
+        "sourcePath": "src/oauthErrors.ts"
       },
       {
         "fromSymbol": "oauthStartError",
         "toSymbol": "createOAuthError",
         "callExpression": "createOAuthError",
-        "sourcePath": "src/oauth.ts"
+        "sourcePath": "src/oauthErrors.ts"
       },
       {
         "fromSymbol": "oauthCompletionError",
         "toSymbol": "createOAuthError",
         "callExpression": "createOAuthError",
-        "sourcePath": "src/oauth.ts"
+        "sourcePath": "src/oauthErrors.ts"
+      },
+      {
+        "fromSymbol": "normalizeOAuthErrorText",
+        "toSymbol": "readString",
+        "callExpression": "readString",
+        "sourcePath": "src/oauthErrors.ts"
       },
       {
         "fromSymbol": "readString",
         "toSymbol": "isRecord",
         "callExpression": "isRecord",
-        "sourcePath": "src/oauth.ts"
+        "sourcePath": "src/oauthErrors.ts"
+      },
+      {
+        "fromSymbol": "exchangeAndPersistOAuthSession",
+        "toSymbol": "readVerifier",
+        "callExpression": "readVerifier",
+        "sourcePath": "src/oauthExchange.ts"
+      },
+      {
+        "fromSymbol": "exchangeAndPersistOAuthSession",
+        "toSymbol": "exchangeSession",
+        "callExpression": "exchangeSession",
+        "sourcePath": "src/oauthExchange.ts"
+      },
+      {
+        "fromSymbol": "exchangeAndPersistOAuthSession",
+        "toSymbol": "persistSession",
+        "callExpression": "persistSession",
+        "sourcePath": "src/oauthExchange.ts"
+      },
+      {
+        "fromSymbol": "exchangeAndPersistOAuthSession",
+        "toSymbol": "verifyProfile",
+        "callExpression": "verifyProfile",
+        "sourcePath": "src/oauthExchange.ts"
+      },
+      {
+        "fromSymbol": "exchangeSession",
+        "toSymbol": "exchangeAuthorizationCode",
+        "callExpression": "exchangeAuthorizationCode",
+        "sourcePath": "src/oauthExchange.ts"
+      },
+      {
+        "fromSymbol": "exchangeSession",
+        "toSymbol": "failOAuthAttempt",
+        "callExpression": "failOAuthAttempt",
+        "sourcePath": "src/oauthExchange.ts"
+      },
+      {
+        "fromSymbol": "exchangeSession",
+        "toSymbol": "oauthCompletionError",
+        "callExpression": "oauthCompletionError",
+        "sourcePath": "src/oauthExchange.ts"
+      },
+      {
+        "fromSymbol": "exchangeSession",
+        "toSymbol": "normalizeExchangeResponse",
+        "callExpression": "normalizeExchangeResponse",
+        "sourcePath": "src/oauthExchange.ts"
+      },
+      {
+        "fromSymbol": "normalizeExchangeResponse",
+        "toSymbol": "readResponseBody",
+        "callExpression": "readResponseBody",
+        "sourcePath": "src/oauthExchange.ts"
+      },
+      {
+        "fromSymbol": "normalizeExchangeResponse",
+        "toSymbol": "failOAuthAttempt",
+        "callExpression": "failOAuthAttempt",
+        "sourcePath": "src/oauthExchange.ts"
+      },
+      {
+        "fromSymbol": "normalizeExchangeResponse",
+        "toSymbol": "mapSupabaseOAuthError",
+        "callExpression": "mapSupabaseOAuthError",
+        "sourcePath": "src/oauthExchange.ts"
+      },
+      {
+        "fromSymbol": "normalizeExchangeResponse",
+        "toSymbol": "normalizeSupabaseSession",
+        "callExpression": "normalizeSupabaseSession",
+        "sourcePath": "src/oauthExchange.ts"
+      },
+      {
+        "fromSymbol": "normalizeExchangeResponse",
+        "toSymbol": "oauthCompletionError",
+        "callExpression": "oauthCompletionError",
+        "sourcePath": "src/oauthExchange.ts"
+      },
+      {
+        "fromSymbol": "readVerifier",
+        "toSymbol": "getItem",
+        "callExpression": "context.storage.getItem",
+        "sourcePath": "src/oauthExchange.ts"
+      },
+      {
+        "fromSymbol": "readVerifier",
+        "toSymbol": "failOAuthAttempt",
+        "callExpression": "failOAuthAttempt",
+        "sourcePath": "src/oauthExchange.ts"
+      },
+      {
+        "fromSymbol": "readVerifier",
+        "toSymbol": "oauthCompletionError",
+        "callExpression": "oauthCompletionError",
+        "sourcePath": "src/oauthExchange.ts"
+      },
+      {
+        "fromSymbol": "persistSession",
+        "toSymbol": "persistSession",
+        "callExpression": "context.persistSession",
+        "sourcePath": "src/oauthExchange.ts"
+      },
+      {
+        "fromSymbol": "persistSession",
+        "toSymbol": "failOAuthAttempt",
+        "callExpression": "failOAuthAttempt",
+        "sourcePath": "src/oauthExchange.ts"
+      },
+      {
+        "fromSymbol": "persistSession",
+        "toSymbol": "oauthCompletionError",
+        "callExpression": "oauthCompletionError",
+        "sourcePath": "src/oauthExchange.ts"
+      },
+      {
+        "fromSymbol": "verifyProfile",
+        "toSymbol": "verifyProfile",
+        "callExpression": "context.verifyProfile",
+        "sourcePath": "src/oauthExchange.ts"
+      },
+      {
+        "fromSymbol": "verifyProfile",
+        "toSymbol": "failOAuthAttempt",
+        "callExpression": "failOAuthAttempt",
+        "sourcePath": "src/oauthExchange.ts"
+      },
+      {
+        "fromSymbol": "verifyProfile",
+        "toSymbol": "oauthCompletionError",
+        "callExpression": "oauthCompletionError",
+        "sourcePath": "src/oauthExchange.ts"
+      },
+      {
+        "fromSymbol": "verifyProfile",
+        "toSymbol": "emitLifecycleEvent",
+        "callExpression": "emitLifecycleEvent",
+        "sourcePath": "src/oauthExchange.ts"
+      },
+      {
+        "fromSymbol": "emitOAuthError",
+        "toSymbol": "emitLifecycleEvent",
+        "callExpression": "emitLifecycleEvent",
+        "sourcePath": "src/oauthLifecycle.ts"
+      },
+      {
+        "fromSymbol": "emitLifecycleEvent",
+        "toSymbol": "observer",
+        "callExpression": "observer",
+        "sourcePath": "src/oauthLifecycle.ts"
       },
       {
         "fromSymbol": "getSupabaseOAuthProviderDefinition",
@@ -2644,6 +4399,390 @@
         "toSymbol": "validateSupabaseOAuthSecretPayload",
         "callExpression": "validateSupabaseOAuthSecretPayload",
         "sourcePath": "src/oauthProviderDefinitions.ts"
+      },
+      {
+        "fromSymbol": "createOAuthRuntimeContext",
+        "toSymbol": "normalizeAttemptLifetime",
+        "callExpression": "normalizeAttemptLifetime",
+        "sourcePath": "src/oauthRuntime.ts"
+      },
+      {
+        "fromSymbol": "resolveSupabaseOAuthSetupPlan",
+        "toSymbol": "getSupabaseOAuthProviderDefinition",
+        "callExpression": "getSupabaseOAuthProviderDefinition",
+        "sourcePath": "src/oauthSetupRequirements.ts"
+      },
+      {
+        "fromSymbol": "startSupabaseOAuthAuthorization",
+        "toSymbol": "prepareStartInput",
+        "callExpression": "prepareStartInput",
+        "sourcePath": "src/oauthStart.ts"
+      },
+      {
+        "fromSymbol": "startSupabaseOAuthAuthorization",
+        "toSymbol": "clearPreviousAttempt",
+        "callExpression": "clearPreviousAttempt",
+        "sourcePath": "src/oauthStart.ts"
+      },
+      {
+        "fromSymbol": "startSupabaseOAuthAuthorization",
+        "toSymbol": "createAuthorizationAttempt",
+        "callExpression": "createAuthorizationAttempt",
+        "sourcePath": "src/oauthStart.ts"
+      },
+      {
+        "fromSymbol": "prepareStartInput",
+        "toSymbol": "resolveEnabledProvider",
+        "callExpression": "resolveEnabledProvider",
+        "sourcePath": "src/oauthStart.ts"
+      },
+      {
+        "fromSymbol": "prepareStartInput",
+        "toSymbol": "normalizeRedirectUri",
+        "callExpression": "normalizeRedirectUri",
+        "sourcePath": "src/oauthStart.ts"
+      },
+      {
+        "fromSymbol": "prepareStartInput",
+        "toSymbol": "normalizeQueryParams",
+        "callExpression": "normalizeQueryParams",
+        "sourcePath": "src/oauthStart.ts"
+      },
+      {
+        "fromSymbol": "clearPreviousAttempt",
+        "toSymbol": "readAttempt",
+        "callExpression": "readAttempt",
+        "sourcePath": "src/oauthStart.ts"
+      },
+      {
+        "fromSymbol": "clearPreviousAttempt",
+        "toSymbol": "oauthStartError",
+        "callExpression": "oauthStartError",
+        "sourcePath": "src/oauthStart.ts"
+      },
+      {
+        "fromSymbol": "clearPreviousAttempt",
+        "toSymbol": "clearAttempt",
+        "callExpression": "clearAttempt",
+        "sourcePath": "src/oauthStart.ts"
+      },
+      {
+        "fromSymbol": "clearPreviousAttempt",
+        "toSymbol": "isAttemptExpired",
+        "callExpression": "isAttemptExpired",
+        "sourcePath": "src/oauthStart.ts"
+      },
+      {
+        "fromSymbol": "clearPreviousAttempt",
+        "toSymbol": "now",
+        "callExpression": "context.now",
+        "sourcePath": "src/oauthStart.ts"
+      },
+      {
+        "fromSymbol": "createAuthorizationAttempt",
+        "toSymbol": "createPkcePair",
+        "callExpression": "createPkcePair",
+        "sourcePath": "src/oauthStart.ts"
+      },
+      {
+        "fromSymbol": "createAuthorizationAttempt",
+        "toSymbol": "createAttempt",
+        "callExpression": "createAttempt",
+        "sourcePath": "src/oauthStart.ts"
+      },
+      {
+        "fromSymbol": "createAuthorizationAttempt",
+        "toSymbol": "setItem",
+        "callExpression": "context.storage.setItem",
+        "sourcePath": "src/oauthStart.ts"
+      },
+      {
+        "fromSymbol": "createAuthorizationAttempt",
+        "toSymbol": "writeAttempt",
+        "callExpression": "writeAttempt",
+        "sourcePath": "src/oauthStart.ts"
+      },
+      {
+        "fromSymbol": "createAuthorizationAttempt",
+        "toSymbol": "emitLifecycleEvent",
+        "callExpression": "emitLifecycleEvent",
+        "sourcePath": "src/oauthStart.ts"
+      },
+      {
+        "fromSymbol": "createAuthorizationAttempt",
+        "toSymbol": "createStartResult",
+        "callExpression": "createStartResult",
+        "sourcePath": "src/oauthStart.ts"
+      },
+      {
+        "fromSymbol": "createAuthorizationAttempt",
+        "toSymbol": "clearAttempt",
+        "callExpression": "clearAttempt",
+        "sourcePath": "src/oauthStart.ts"
+      },
+      {
+        "fromSymbol": "createAuthorizationAttempt",
+        "toSymbol": "oauthStartError",
+        "callExpression": "oauthStartError",
+        "sourcePath": "src/oauthStart.ts"
+      },
+      {
+        "fromSymbol": "createAttempt",
+        "toSymbol": "now",
+        "callExpression": "context.now",
+        "sourcePath": "src/oauthStart.ts"
+      },
+      {
+        "fromSymbol": "createAttempt",
+        "toSymbol": "createOAuthAttemptId",
+        "callExpression": "createOAuthAttemptId",
+        "sourcePath": "src/oauthStart.ts"
+      },
+      {
+        "fromSymbol": "createStartResult",
+        "toSymbol": "getSupabaseOAuthProviderDefinition",
+        "callExpression": "getSupabaseOAuthProviderDefinition",
+        "sourcePath": "src/oauthStart.ts"
+      },
+      {
+        "fromSymbol": "createStartResult",
+        "toSymbol": "normalizeScopes",
+        "callExpression": "normalizeScopes",
+        "sourcePath": "src/oauthStart.ts"
+      },
+      {
+        "fromSymbol": "createStartResult",
+        "toSymbol": "createAuthorizationUrl",
+        "callExpression": "createAuthorizationUrl",
+        "sourcePath": "src/oauthStart.ts"
+      },
+      {
+        "fromSymbol": "clearAttempt",
+        "toSymbol": "clearOAuthAttemptState",
+        "callExpression": "clearOAuthAttemptState",
+        "sourcePath": "src/oauthStart.ts"
+      },
+      {
+        "fromSymbol": "resolveEnabledProvider",
+        "toSymbol": "isSupabaseOAuthProviderId",
+        "callExpression": "isSupabaseOAuthProviderId",
+        "sourcePath": "src/oauthStartSupport.ts"
+      },
+      {
+        "fromSymbol": "resolveEnabledProvider",
+        "toSymbol": "oauthStartError",
+        "callExpression": "oauthStartError",
+        "sourcePath": "src/oauthStartSupport.ts"
+      },
+      {
+        "fromSymbol": "normalizeRedirectUri",
+        "toSymbol": "parseAbsoluteUrl",
+        "callExpression": "parseAbsoluteUrl",
+        "sourcePath": "src/oauthStartSupport.ts"
+      },
+      {
+        "fromSymbol": "normalizeRedirectUri",
+        "toSymbol": "invalidRedirect",
+        "callExpression": "invalidRedirect",
+        "sourcePath": "src/oauthStartSupport.ts"
+      },
+      {
+        "fromSymbol": "normalizeRedirectUri",
+        "toSymbol": "isPermittedRedirect",
+        "callExpression": "isPermittedRedirect",
+        "sourcePath": "src/oauthStartSupport.ts"
+      },
+      {
+        "fromSymbol": "normalizeQueryParams",
+        "toSymbol": "oauthStartError",
+        "callExpression": "oauthStartError",
+        "sourcePath": "src/oauthStartSupport.ts"
+      },
+      {
+        "fromSymbol": "createPkcePair",
+        "toSymbol": "generateRandomBytes",
+        "callExpression": "generateRandomBytes",
+        "sourcePath": "src/oauthStartSupport.ts"
+      },
+      {
+        "fromSymbol": "createPkcePair",
+        "toSymbol": "isBytes",
+        "callExpression": "isBytes",
+        "sourcePath": "src/oauthStartSupport.ts"
+      },
+      {
+        "fromSymbol": "createPkcePair",
+        "toSymbol": "bytesToBase64Url",
+        "callExpression": "bytesToBase64Url",
+        "sourcePath": "src/oauthStartSupport.ts"
+      },
+      {
+        "fromSymbol": "createPkcePair",
+        "toSymbol": "sha256",
+        "callExpression": "sha256",
+        "sourcePath": "src/oauthStartSupport.ts"
+      },
+      {
+        "fromSymbol": "createPkcePair",
+        "toSymbol": "utf8ToBytes",
+        "callExpression": "utf8ToBytes",
+        "sourcePath": "src/oauthStartSupport.ts"
+      },
+      {
+        "fromSymbol": "exchangeAuthorizationCode",
+        "toSymbol": "fetch",
+        "callExpression": "input.fetch",
+        "sourcePath": "src/oauthStartSupport.ts"
+      },
+      {
+        "fromSymbol": "bytesToBase64Url",
+        "toSymbol": "encodeBase64Triplet",
+        "callExpression": "encodeBase64Triplet",
+        "sourcePath": "src/oauthStartSupport.ts"
+      },
+      {
+        "fromSymbol": "isPermittedRedirect",
+        "toSymbol": "isLocalhost",
+        "callExpression": "isLocalhost",
+        "sourcePath": "src/oauthStartSupport.ts"
+      },
+      {
+        "fromSymbol": "invalidRedirect",
+        "toSymbol": "oauthStartError",
+        "callExpression": "oauthStartError",
+        "sourcePath": "src/oauthStartSupport.ts"
+      },
+      {
+        "fromSymbol": "readAttempt",
+        "toSymbol": "getItem",
+        "callExpression": "storage.getItem",
+        "sourcePath": "src/oauthStorage.ts"
+      },
+      {
+        "fromSymbol": "readAttempt",
+        "toSymbol": "isStoredAttempt",
+        "callExpression": "isStoredAttempt",
+        "sourcePath": "src/oauthStorage.ts"
+      },
+      {
+        "fromSymbol": "writeAttempt",
+        "toSymbol": "setItem",
+        "callExpression": "storage.setItem",
+        "sourcePath": "src/oauthStorage.ts"
+      },
+      {
+        "fromSymbol": "finalizeAttempt",
+        "toSymbol": "writeAttempt",
+        "callExpression": "writeAttempt",
+        "sourcePath": "src/oauthStorage.ts"
+      },
+      {
+        "fromSymbol": "finalizeAttempt",
+        "toSymbol": "safeRemove",
+        "callExpression": "safeRemove",
+        "sourcePath": "src/oauthStorage.ts"
+      },
+      {
+        "fromSymbol": "clearOAuthAttemptState",
+        "toSymbol": "safeRemove",
+        "callExpression": "safeRemove",
+        "sourcePath": "src/oauthStorage.ts"
+      },
+      {
+        "fromSymbol": "fingerprintOAuthCallback",
+        "toSymbol": "digest",
+        "callExpression": "digest",
+        "sourcePath": "src/oauthStorage.ts"
+      },
+      {
+        "fromSymbol": "fingerprintConsumedOAuthCallback",
+        "toSymbol": "digest",
+        "callExpression": "digest",
+        "sourcePath": "src/oauthStorage.ts"
+      },
+      {
+        "fromSymbol": "readConsumedCallbacks",
+        "toSymbol": "getItem",
+        "callExpression": "storage.getItem",
+        "sourcePath": "src/oauthStorage.ts"
+      },
+      {
+        "fromSymbol": "readConsumedCallbacks",
+        "toSymbol": "isStoredConsumedOAuthCallbacks",
+        "callExpression": "isStoredConsumedOAuthCallbacks",
+        "sourcePath": "src/oauthStorage.ts"
+      },
+      {
+        "fromSymbol": "writeConsumedCallbacks",
+        "toSymbol": "setItem",
+        "callExpression": "storage.setItem",
+        "sourcePath": "src/oauthStorage.ts"
+      },
+      {
+        "fromSymbol": "isStoredAttempt",
+        "toSymbol": "isRecord",
+        "callExpression": "isRecord",
+        "sourcePath": "src/oauthStorage.ts"
+      },
+      {
+        "fromSymbol": "isStoredAttempt",
+        "toSymbol": "hasAttemptIdentity",
+        "callExpression": "hasAttemptIdentity",
+        "sourcePath": "src/oauthStorage.ts"
+      },
+      {
+        "fromSymbol": "isStoredAttempt",
+        "toSymbol": "hasAttemptTimeline",
+        "callExpression": "hasAttemptTimeline",
+        "sourcePath": "src/oauthStorage.ts"
+      },
+      {
+        "fromSymbol": "isStoredAttempt",
+        "toSymbol": "hasValidCallbackFingerprint",
+        "callExpression": "hasValidCallbackFingerprint",
+        "sourcePath": "src/oauthStorage.ts"
+      },
+      {
+        "fromSymbol": "hasAttemptIdentity",
+        "toSymbol": "isSupabaseOAuthProviderId",
+        "callExpression": "isSupabaseOAuthProviderId",
+        "sourcePath": "src/oauthStorage.ts"
+      },
+      {
+        "fromSymbol": "isStoredConsumedOAuthCallbacks",
+        "toSymbol": "isRecord",
+        "callExpression": "isRecord",
+        "sourcePath": "src/oauthStorage.ts"
+      },
+      {
+        "fromSymbol": "isStoredConsumedOAuthCallback",
+        "toSymbol": "isRecord",
+        "callExpression": "isRecord",
+        "sourcePath": "src/oauthStorage.ts"
+      },
+      {
+        "fromSymbol": "safeRemove",
+        "toSymbol": "removeItem",
+        "callExpression": "storage.removeItem",
+        "sourcePath": "src/oauthStorage.ts"
+      },
+      {
+        "fromSymbol": "digest",
+        "toSymbol": "bytesToHex",
+        "callExpression": "bytesToHex",
+        "sourcePath": "src/oauthStorage.ts"
+      },
+      {
+        "fromSymbol": "digest",
+        "toSymbol": "sha256",
+        "callExpression": "sha256",
+        "sourcePath": "src/oauthStorage.ts"
+      },
+      {
+        "fromSymbol": "digest",
+        "toSymbol": "utf8ToBytes",
+        "callExpression": "utf8ToBytes",
+        "sourcePath": "src/oauthStorage.ts"
       },
       {
         "fromSymbol": "createSupabaseOAuthProfileVerifier",
@@ -2671,8 +4810,14 @@
       },
       {
         "fromSymbol": "verifySupabaseOAuthProfile",
-        "toSymbol": "fetch",
-        "callExpression": "input.fetch",
+        "toSymbol": "fetchProfileRows",
+        "callExpression": "fetchProfileRows",
+        "sourcePath": "src/profileVerification.ts"
+      },
+      {
+        "fromSymbol": "verifySupabaseOAuthProfile",
+        "toSymbol": "validateProfileRows",
+        "callExpression": "validateProfileRows",
         "sourcePath": "src/profileVerification.ts"
       },
       {
@@ -2682,9 +4827,27 @@
         "sourcePath": "src/profileVerification.ts"
       },
       {
-        "fromSymbol": "verifySupabaseOAuthProfile",
-        "toSymbol": "validateProfileRow",
-        "callExpression": "validateProfileRow",
+        "fromSymbol": "fetchProfileRows",
+        "toSymbol": "fetch",
+        "callExpression": "input.fetch",
+        "sourcePath": "src/profileVerification.ts"
+      },
+      {
+        "fromSymbol": "fetchProfileRows",
+        "toSymbol": "profileFailure",
+        "callExpression": "profileFailure",
+        "sourcePath": "src/profileVerification.ts"
+      },
+      {
+        "fromSymbol": "fetchProfileRows",
+        "toSymbol": "parseProfileRows",
+        "callExpression": "parseProfileRows",
+        "sourcePath": "src/profileVerification.ts"
+      },
+      {
+        "fromSymbol": "parseProfileRows",
+        "toSymbol": "profileFailure",
+        "callExpression": "profileFailure",
         "sourcePath": "src/profileVerification.ts"
       },
       {
@@ -2712,6 +4875,12 @@
         "sourcePath": "src/profileVerification.ts"
       },
       {
+        "fromSymbol": "validateProfileRows",
+        "toSymbol": "validateProfileRow",
+        "callExpression": "validateProfileRow",
+        "sourcePath": "src/profileVerification.ts"
+      },
+      {
         "fromSymbol": "normalizeSupabaseSession",
         "toSymbol": "isRecord",
         "callExpression": "isRecord",
@@ -2733,12 +4902,6 @@
         "fromSymbol": "normalizeSupabaseSession",
         "toSymbol": "normalizeExpiresAt",
         "callExpression": "normalizeExpiresAt",
-        "sourcePath": "src/session.ts"
-      },
-      {
-        "fromSymbol": "normalizeSupabaseClientSession",
-        "toSymbol": "normalizeSupabaseSession",
-        "callExpression": "normalizeSupabaseSession",
         "sourcePath": "src/session.ts"
       },
       {
@@ -2885,6 +5048,21 @@
         "sourcePath": "src/oauthProviderDefinitions.ts"
       },
       {
+        "fromSymbol": "resolveSupabaseOAuthSetupPlan",
+        "toType": "AuthOAuthProviderId",
+        "sourcePath": "src/oauthSetupRequirements.ts"
+      },
+      {
+        "fromSymbol": "resolveSupabaseOAuthSetupPlan",
+        "toType": "AuthOAuthSetupPlan",
+        "sourcePath": "src/oauthSetupRequirements.ts"
+      },
+      {
+        "fromSymbol": "resolveSupabaseOAuthSetupPlan",
+        "toType": "AuthOAuthTransportId",
+        "sourcePath": "src/oauthSetupRequirements.ts"
+      },
+      {
         "fromSymbol": "createSupabaseOAuthProfileVerifier",
         "toType": "SupabaseAuthFetch",
         "sourcePath": "src/profileVerification.ts"
@@ -2937,6 +5115,11 @@
       {
         "fromSymbol": "SupabaseAuthConfig",
         "toType": "SupabaseAuthProfileVerificationConfig",
+        "sourcePath": "src/types.ts"
+      },
+      {
+        "fromSymbol": "SupabaseAuthConfig",
+        "toType": "SupabaseAuthRandomBytes",
         "sourcePath": "src/types.ts"
       },
       {

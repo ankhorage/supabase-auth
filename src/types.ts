@@ -49,11 +49,7 @@ export type SupabaseOAuthProfileVerifier = (
 ) => Promise<SupabaseOAuthProfileVerificationResult>;
 
 export type SupabaseOAuthLifecycleStatus =
-  | 'started'
-  | 'cancelled'
-  | 'error'
-  | 'profile_verified'
-  | 'authenticated';
+  'started' | 'cancelled' | 'error' | 'profile_verified' | 'authenticated';
 
 export interface SupabaseOAuthLifecycleEvent {
   correlationId: string;

@@ -19,7 +19,7 @@ describe('OAuth attempt ids', () => {
   it('uses secure random bytes when randomUUID is unavailable', () => {
     const id = createOAuthAttemptId({
       fillRandomBytes(bytes) {
-        for (let index = 0; index < bytes.length; index += 1) bytes[index] = index;
+        bytes.set(Uint8Array.from({ length: bytes.length }, (_, index) => index));
       },
       now: () => 1,
       random: () => 0,

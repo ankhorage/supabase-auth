@@ -22,15 +22,16 @@
     "url": "git+https://github.com/ankhorage/supabase-auth.git"
   },
   "keywords": [
-    "typescript",
-    "supabase",
+    "adapter",
+    "ankhorage",
     "auth",
     "authentication",
-    "oauth",
     "gotrue",
+    "oauth",
     "secret-store",
-    "adapter",
-    "session"
+    "session",
+    "supabase",
+    "typescript"
   ],
   "files": [
     "dist",

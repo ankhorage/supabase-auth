@@ -1,5 +1,11 @@
 # @ankhorage/supabase-auth
 
+## 1.2.14
+
+### Patch Changes
+
+- e8de4ad: Republish the package under a fresh patch version after npm left the previous release staged without an installable tarball.
+
 ## 1.2.13
 
 ### Patch Changes

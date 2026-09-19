@@ -2,6 +2,8 @@
   "packageName": "SUPABASE AUTH",
   "packageId": "@ankhorage/supabase-auth",
   "description": "Supabase auth adapter implementing shared TypeScript auth contracts.",
+  "collaborators": null,
+  "donation": null,
   "badges": [
     {
       "id": "license",
@@ -12,7 +14,7 @@
     {
       "id": "npm",
       "label": "npm",
-      "value": "v1.2.6",
+      "value": "v1.2.19",
       "color": "cb3837"
     },
     {
@@ -59,9 +61,14 @@
     }
   ],
   "usage": null,
+  "readmeUsageDescription": null,
   "readmeUsage": [],
+  "readmeCli": null,
+  "readmeConfig": null,
   "config": null,
-  "entrypoints": ["src/index.ts"],
+  "entrypoints": [
+    "src/index.ts"
+  ],
   "modules": [
     {
       "path": "src/authConfiguration.ts",
@@ -71,12 +78,19 @@
         "src/profileVerification.ts",
         "src/types.ts"
       ],
-      "exports": ["RequiredSupabaseAuthConfig", "validateSupabaseAuthConfig"]
+      "exports": [
+        "RequiredSupabaseAuthConfig",
+        "validateSupabaseAuthConfig"
+      ]
     },
     {
       "path": "src/authPasswordOperations.ts",
       "isEntrypoint": false,
-      "dependencies": ["src/authSessionContext.ts", "src/errors.ts", "src/session.ts"],
+      "dependencies": [
+        "src/authSessionContext.ts",
+        "src/errors.ts",
+        "src/session.ts"
+      ],
       "exports": [
         "createPasswordResetOperation",
         "createSignInOperation",
@@ -87,13 +101,23 @@
     {
       "path": "src/authSessionContext.ts",
       "isEntrypoint": false,
-      "dependencies": ["src/authConfiguration.ts", "src/errors.ts", "src/session.ts"],
-      "exports": ["AuthOperationContext", "createAuthOperationContext"]
+      "dependencies": [
+        "src/authConfiguration.ts",
+        "src/errors.ts",
+        "src/session.ts"
+      ],
+      "exports": [
+        "AuthOperationContext",
+        "createAuthOperationContext"
+      ]
     },
     {
       "path": "src/authSessionOperations.ts",
       "isEntrypoint": false,
-      "dependencies": ["src/authSessionContext.ts", "src/errors.ts"],
+      "dependencies": [
+        "src/authSessionContext.ts",
+        "src/errors.ts"
+      ],
       "exports": [
         "createGetSessionOperation",
         "createRefreshSessionOperation",
@@ -112,13 +136,22 @@
         "src/profileVerification.ts",
         "src/types.ts"
       ],
-      "exports": ["createSupabaseAuthAdapter"]
+      "exports": [
+        "createSupabaseAuthAdapter"
+      ]
     },
     {
       "path": "src/errors.ts",
       "isEntrypoint": false,
-      "dependencies": ["src/types.ts"],
-      "exports": ["createAuthError", "mapNetworkError", "mapSupabaseError", "readResponseBody"]
+      "dependencies": [
+        "src/types.ts"
+      ],
+      "exports": [
+        "createAuthError",
+        "mapNetworkError",
+        "mapSupabaseError",
+        "readResponseBody"
+      ]
     },
     {
       "path": "src/index.ts",
@@ -167,13 +200,17 @@
         "src/oauthStart.ts",
         "src/oauthTypes.ts"
       ],
-      "exports": ["createSupabaseOAuthAdapter"]
+      "exports": [
+        "createSupabaseOAuthAdapter"
+      ]
     },
     {
       "path": "src/oauthAttemptId.ts",
       "isEntrypoint": false,
       "dependencies": [],
-      "exports": ["createOAuthAttemptId"]
+      "exports": [
+        "createOAuthAttemptId"
+      ]
     },
     {
       "path": "src/oauthCallback.ts",
@@ -184,7 +221,11 @@
         "src/oauthStorage.ts",
         "src/oauthTypes.ts"
       ],
-      "exports": ["completeOAuthReplay", "invalidCallback", "parseCallback"]
+      "exports": [
+        "completeOAuthReplay",
+        "invalidCallback",
+        "parseCallback"
+      ]
     },
     {
       "path": "src/oauthComplete.ts",
@@ -199,7 +240,9 @@
         "src/oauthStorage.ts",
         "src/oauthTypes.ts"
       ],
-      "exports": ["completeSupabaseOAuthAuthorization"]
+      "exports": [
+        "completeSupabaseOAuthAuthorization"
+      ]
     },
     {
       "path": "src/oauthCompletionState.ts",
@@ -210,13 +253,23 @@
         "src/oauthStorage.ts",
         "src/oauthTypes.ts"
       ],
-      "exports": ["clearOAuthAttempt", "failOAuthAttempt", "finalizeOAuthAttemptState"]
+      "exports": [
+        "clearOAuthAttempt",
+        "failOAuthAttempt",
+        "finalizeOAuthAttemptState"
+      ]
     },
     {
       "path": "src/oauthErrors.ts",
       "isEntrypoint": false,
-      "dependencies": ["src/oauthProviderDefinitions.ts"],
-      "exports": ["mapSupabaseOAuthError", "oauthCompletionError", "oauthStartError"]
+      "dependencies": [
+        "src/oauthProviderDefinitions.ts"
+      ],
+      "exports": [
+        "mapSupabaseOAuthError",
+        "oauthCompletionError",
+        "oauthStartError"
+      ]
     },
     {
       "path": "src/oauthExchange.ts",
@@ -231,13 +284,21 @@
         "src/oauthTypes.ts",
         "src/session.ts"
       ],
-      "exports": ["exchangeAndPersistOAuthSession"]
+      "exports": [
+        "exchangeAndPersistOAuthSession"
+      ]
     },
     {
       "path": "src/oauthLifecycle.ts",
       "isEntrypoint": false,
-      "dependencies": ["src/oauthTypes.ts", "src/types.ts"],
-      "exports": ["emitLifecycleEvent", "emitOAuthError"]
+      "dependencies": [
+        "src/oauthTypes.ts",
+        "src/types.ts"
+      ],
+      "exports": [
+        "emitLifecycleEvent",
+        "emitOAuthError"
+      ]
     },
     {
       "path": "src/oauthProviderDefinitions.ts",
@@ -265,13 +326,22 @@
         "src/oauthStorage.ts",
         "src/oauthTypes.ts"
       ],
-      "exports": ["createOAuthRuntimeContext", "OAuthRuntimeContext", "OAuthStartPreparation"]
+      "exports": [
+        "createOAuthRuntimeContext",
+        "OAuthRuntimeContext",
+        "OAuthStartPreparation"
+      ]
     },
     {
       "path": "src/oauthSetupRequirements.ts",
       "isEntrypoint": false,
-      "dependencies": ["src/oauthProviderDefinitions.ts"],
-      "exports": ["resolveSupabaseOAuthSetupPlan", "SUPABASE_OAUTH_SETUP_CAPABILITIES"]
+      "dependencies": [
+        "src/oauthProviderDefinitions.ts"
+      ],
+      "exports": [
+        "resolveSupabaseOAuthSetupPlan",
+        "SUPABASE_OAUTH_SETUP_CAPABILITIES"
+      ]
     },
     {
       "path": "src/oauthStart.ts",
@@ -286,12 +356,18 @@
         "src/oauthStorage.ts",
         "src/oauthTypes.ts"
       ],
-      "exports": ["startSupabaseOAuthAuthorization"]
+      "exports": [
+        "startSupabaseOAuthAuthorization"
+      ]
     },
     {
       "path": "src/oauthStartSupport.ts",
       "isEntrypoint": false,
-      "dependencies": ["src/oauthErrors.ts", "src/oauthProviderDefinitions.ts", "src/types.ts"],
+      "dependencies": [
+        "src/oauthErrors.ts",
+        "src/oauthProviderDefinitions.ts",
+        "src/types.ts"
+      ],
       "exports": [
         "createAuthorizationUrl",
         "createPkcePair",
@@ -305,7 +381,11 @@
     {
       "path": "src/oauthStorage.ts",
       "isEntrypoint": false,
-      "dependencies": ["src/oauthProviderDefinitions.ts", "src/oauthTypes.ts", "src/types.ts"],
+      "dependencies": [
+        "src/oauthProviderDefinitions.ts",
+        "src/oauthTypes.ts",
+        "src/types.ts"
+      ],
       "exports": [
         "clearOAuthAttemptState",
         "constantTimeEqual",
@@ -323,7 +403,10 @@
     {
       "path": "src/oauthTypes.ts",
       "isEntrypoint": false,
-      "dependencies": ["src/oauthProviderDefinitions.ts", "src/types.ts"],
+      "dependencies": [
+        "src/oauthProviderDefinitions.ts",
+        "src/types.ts"
+      ],
       "exports": [
         "ATTEMPT_VERSION",
         "CONSUMED_CALLBACK_RETENTION_MS",
@@ -340,7 +423,9 @@
     {
       "path": "src/profileVerification.ts",
       "isEntrypoint": false,
-      "dependencies": ["src/types.ts"],
+      "dependencies": [
+        "src/types.ts"
+      ],
       "exports": [
         "createSupabaseOAuthProfileVerifier",
         "normalizeSupabaseAuthProfileVerificationConfig",
@@ -394,8 +479,12 @@
         "line": 23,
         "column": 1
       },
-      "exportPaths": ["src/index.ts"],
-      "relatedSymbols": ["SupabaseAuthConfig"],
+      "exportPaths": [
+        "src/index.ts"
+      ],
+      "relatedSymbols": [
+        "SupabaseAuthConfig"
+      ],
       "signatures": [
         {
           "label": "(config: SupabaseAuthConfig) => AuthAdapter",
@@ -426,8 +515,13 @@
         "line": 33,
         "column": 1
       },
-      "exportPaths": ["src/index.ts"],
-      "relatedSymbols": ["SupabaseAuthProfileVerificationConfig", "SupabaseOAuthProfileVerifier"],
+      "exportPaths": [
+        "src/index.ts"
+      ],
+      "relatedSymbols": [
+        "SupabaseAuthProfileVerificationConfig",
+        "SupabaseOAuthProfileVerifier"
+      ],
       "signatures": [
         {
           "label": "(input: { url: string; anonKey: string; fetch: SupabaseAuthFetch; config: SupabaseAuthProfileVerificationConfig; }) => SupabaseOAuthProfileVerifier",
@@ -458,8 +552,12 @@
         "line": 81,
         "column": 1
       },
-      "exportPaths": ["src/index.ts"],
-      "relatedSymbols": ["SupabaseOAuthProviderDefinition"],
+      "exportPaths": [
+        "src/index.ts"
+      ],
+      "relatedSymbols": [
+        "SupabaseOAuthProviderDefinition"
+      ],
       "signatures": [
         {
           "label": "(provider: AuthOAuthProviderId) => SupabaseOAuthProviderDefinition | null",
@@ -490,7 +588,9 @@
         "line": 75,
         "column": 1
       },
-      "exportPaths": ["src/index.ts"],
+      "exportPaths": [
+        "src/index.ts"
+      ],
       "relatedSymbols": [],
       "signatures": [
         {
@@ -522,7 +622,9 @@
         "line": 137,
         "column": 1
       },
-      "exportPaths": ["src/index.ts"],
+      "exportPaths": [
+        "src/index.ts"
+      ],
       "relatedSymbols": [],
       "signatures": [
         {
@@ -554,8 +656,12 @@
         "line": 130,
         "column": 1
       },
-      "exportPaths": ["src/index.ts"],
-      "relatedSymbols": ["SupabaseAuthProfileVerificationConfig"],
+      "exportPaths": [
+        "src/index.ts"
+      ],
+      "relatedSymbols": [
+        "SupabaseAuthProfileVerificationConfig"
+      ],
       "signatures": [
         {
           "label": "(config: SupabaseAuthProfileVerificationConfig) => NormalizedSupabaseAuthProfileVerificationConfig",
@@ -586,7 +692,9 @@
         "line": 21,
         "column": 1
       },
-      "exportPaths": ["src/index.ts"],
+      "exportPaths": [
+        "src/index.ts"
+      ],
       "relatedSymbols": [],
       "signatures": [
         {
@@ -618,7 +726,9 @@
         "line": 19,
         "column": 14
       },
-      "exportPaths": ["src/index.ts"],
+      "exportPaths": [
+        "src/index.ts"
+      ],
       "relatedSymbols": [],
       "signatures": [],
       "members": [],
@@ -636,7 +746,9 @@
         "line": 38,
         "column": 14
       },
-      "exportPaths": ["src/index.ts"],
+      "exportPaths": [
+        "src/index.ts"
+      ],
       "relatedSymbols": [],
       "signatures": [],
       "members": [],
@@ -654,7 +766,9 @@
         "line": 4,
         "column": 14
       },
-      "exportPaths": ["src/index.ts"],
+      "exportPaths": [
+        "src/index.ts"
+      ],
       "relatedSymbols": [],
       "signatures": [],
       "members": [],
@@ -672,7 +786,9 @@
         "line": 16,
         "column": 14
       },
-      "exportPaths": ["src/index.ts"],
+      "exportPaths": [
+        "src/index.ts"
+      ],
       "relatedSymbols": [],
       "signatures": [],
       "members": [],
@@ -690,7 +806,9 @@
         "line": 70,
         "column": 1
       },
-      "exportPaths": ["src/index.ts"],
+      "exportPaths": [
+        "src/index.ts"
+      ],
       "relatedSymbols": [
         "SupabaseAuthProfileVerificationConfig",
         "SupabaseAuthRandomBytes",
@@ -777,7 +895,9 @@
         "line": 82,
         "column": 1
       },
-      "exportPaths": ["src/index.ts"],
+      "exportPaths": [
+        "src/index.ts"
+      ],
       "relatedSymbols": [],
       "signatures": [],
       "members": [],
@@ -795,7 +915,9 @@
         "line": 26,
         "column": 1
       },
-      "exportPaths": ["src/index.ts"],
+      "exportPaths": [
+        "src/index.ts"
+      ],
       "relatedSymbols": [],
       "signatures": [],
       "members": [],
@@ -813,7 +935,9 @@
         "line": 28,
         "column": 1
       },
-      "exportPaths": ["src/index.ts"],
+      "exportPaths": [
+        "src/index.ts"
+      ],
       "relatedSymbols": [],
       "signatures": [],
       "members": [
@@ -860,7 +984,9 @@
         "line": 11,
         "column": 1
       },
-      "exportPaths": ["src/index.ts"],
+      "exportPaths": [
+        "src/index.ts"
+      ],
       "relatedSymbols": [],
       "signatures": [],
       "members": [],
@@ -878,7 +1004,9 @@
         "line": 13,
         "column": 1
       },
-      "exportPaths": ["src/index.ts"],
+      "exportPaths": [
+        "src/index.ts"
+      ],
       "relatedSymbols": [],
       "signatures": [],
       "members": [
@@ -918,8 +1046,12 @@
         "line": 54,
         "column": 1
       },
-      "exportPaths": ["src/index.ts"],
-      "relatedSymbols": ["SupabaseOAuthLifecycleStatus"],
+      "exportPaths": [
+        "src/index.ts"
+      ],
+      "relatedSymbols": [
+        "SupabaseOAuthLifecycleStatus"
+      ],
       "signatures": [],
       "members": [
         {
@@ -972,7 +1104,9 @@
         "line": 66,
         "column": 1
       },
-      "exportPaths": ["src/index.ts"],
+      "exportPaths": [
+        "src/index.ts"
+      ],
       "relatedSymbols": [],
       "signatures": [],
       "members": [],
@@ -990,7 +1124,9 @@
         "line": 51,
         "column": 1
       },
-      "exportPaths": ["src/index.ts"],
+      "exportPaths": [
+        "src/index.ts"
+      ],
       "relatedSymbols": [],
       "signatures": [],
       "members": [],
@@ -1008,7 +1144,9 @@
         "line": 39,
         "column": 1
       },
-      "exportPaths": ["src/index.ts"],
+      "exportPaths": [
+        "src/index.ts"
+      ],
       "relatedSymbols": [],
       "signatures": [],
       "members": [
@@ -1048,7 +1186,9 @@
         "line": 45,
         "column": 1
       },
-      "exportPaths": ["src/index.ts"],
+      "exportPaths": [
+        "src/index.ts"
+      ],
       "relatedSymbols": [],
       "signatures": [],
       "members": [],
@@ -1066,7 +1206,9 @@
         "line": 47,
         "column": 1
       },
-      "exportPaths": ["src/index.ts"],
+      "exportPaths": [
+        "src/index.ts"
+      ],
       "relatedSymbols": [],
       "signatures": [],
       "members": [],
@@ -1084,7 +1226,9 @@
         "line": 25,
         "column": 1
       },
-      "exportPaths": ["src/index.ts"],
+      "exportPaths": [
+        "src/index.ts"
+      ],
       "relatedSymbols": [
         "SupabaseOAuthRuntimeEnvironmentDefinition",
         "SupabaseOAuthSecretFieldDefinition"
@@ -1141,7 +1285,9 @@
         "line": 5,
         "column": 1
       },
-      "exportPaths": ["src/index.ts"],
+      "exportPaths": [
+        "src/index.ts"
+      ],
       "relatedSymbols": [],
       "signatures": [],
       "members": [],
@@ -1159,7 +1305,9 @@
         "line": 18,
         "column": 1
       },
-      "exportPaths": ["src/index.ts"],
+      "exportPaths": [
+        "src/index.ts"
+      ],
       "relatedSymbols": [],
       "signatures": [],
       "members": [
@@ -1206,7 +1354,9 @@
         "line": 12,
         "column": 1
       },
-      "exportPaths": ["src/index.ts"],
+      "exportPaths": [
+        "src/index.ts"
+      ],
       "relatedSymbols": [],
       "signatures": [],
       "members": [
@@ -1246,7 +1396,9 @@
         "line": 7,
         "column": 1
       },
-      "exportPaths": ["src/index.ts"],
+      "exportPaths": [
+        "src/index.ts"
+      ],
       "relatedSymbols": [],
       "signatures": [],
       "members": [],
@@ -1264,7 +1416,9 @@
         "line": 94,
         "column": 1
       },
-      "exportPaths": ["src/index.ts"],
+      "exportPaths": [
+        "src/index.ts"
+      ],
       "relatedSymbols": [],
       "signatures": [],
       "members": [
@@ -1297,8 +1451,12 @@
         "line": 89,
         "column": 1
       },
-      "exportPaths": ["src/index.ts"],
-      "relatedSymbols": ["SupabaseOAuthSecretPayload"],
+      "exportPaths": [
+        "src/index.ts"
+      ],
+      "relatedSymbols": [
+        "SupabaseOAuthSecretPayload"
+      ],
       "signatures": [
         {
           "label": "(provider: AuthOAuthProviderId, payload: Readonly<Record<string, string>>) => SecretStoreResult<SupabaseOAuthSecretPayload>",
@@ -1335,7 +1493,9 @@
         "line": 52,
         "column": 1
       },
-      "exportPaths": ["src/index.ts"],
+      "exportPaths": [
+        "src/index.ts"
+      ],
       "relatedSymbols": [
         "SupabaseAuthProfileVerificationConfig",
         "SupabaseOAuthProfileVerificationResult"
@@ -1654,7 +1814,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 67,
+        "line": 66,
         "column": 1
       }
     },
@@ -1663,7 +1823,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 74,
+        "line": 73,
         "column": 1
       }
     },
@@ -1672,7 +1832,7 @@
       "description": null,
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
-        "line": 86,
+        "line": 85,
         "column": 1
       }
     },
@@ -3688,6 +3848,12 @@
       },
       {
         "fromSymbol": "createOAuthAdapter",
+        "toSymbol": "createProfileVerifier",
+        "callExpression": "createProfileVerifier",
+        "sourcePath": "src/createSupabaseAuthAdapter.ts"
+      },
+      {
+        "fromSymbol": "createOAuthAdapter",
         "toSymbol": "createSupabaseOAuthAdapter",
         "callExpression": "createSupabaseOAuthAdapter",
         "sourcePath": "src/createSupabaseAuthAdapter.ts"
@@ -3702,12 +3868,6 @@
         "fromSymbol": "createOAuthAdapter",
         "toSymbol": "createOAuthSessionPersistence",
         "callExpression": "createOAuthSessionPersistence",
-        "sourcePath": "src/createSupabaseAuthAdapter.ts"
-      },
-      {
-        "fromSymbol": "createOAuthAdapter",
-        "toSymbol": "createProfileVerifier",
-        "callExpression": "createProfileVerifier",
         "sourcePath": "src/createSupabaseAuthAdapter.ts"
       },
       {

@@ -116,17 +116,17 @@ Source: `src/types.ts:70:1`
 
 ### Members
 
-| Name                  | Kind     | Type                                                 | Required | Description |
-| --------------------- | -------- | ---------------------------------------------------- | -------- | ----------- |
-| anonKey               | property | `string`                                             | yes      |             |
-| fetch                 | property | `typeof fetch \| undefined`                          | no       |             |
-| oauthProviders        | property | `readonly AuthOAuthProviderId[] \| undefined`        | no       |             |
-| oauthRandomBytes      | property | `SupabaseAuthRandomBytes \| undefined`               | no       |             |
-| onOAuthLifecycleEvent | property | `SupabaseOAuthLifecycleObserver \| undefined`        | no       |             |
-| profileVerification   | property | `SupabaseAuthProfileVerificationConfig \| undefined` | no       |             |
-| storage               | property | `SupabaseAuthStorage \| undefined`                   | no       |             |
-| storageKey            | property | `string \| undefined`                                | no       |             |
-| url                   | property | `string`                                             | yes      |             |
+| Name | Kind | Type | Required | Description |
+| --- | --- | --- | --- | --- |
+| anonKey | property | `string` | yes |  |
+| fetch | property | `typeof fetch \| undefined` | no |  |
+| oauthProviders | property | `readonly AuthOAuthProviderId[] \| undefined` | no |  |
+| oauthRandomBytes | property | `SupabaseAuthRandomBytes \| undefined` | no |  |
+| onOAuthLifecycleEvent | property | `SupabaseOAuthLifecycleObserver \| undefined` | no |  |
+| profileVerification | property | `SupabaseAuthProfileVerificationConfig \| undefined` | no |  |
+| storage | property | `SupabaseAuthStorage \| undefined` | no |  |
+| storageKey | property | `string \| undefined` | no |  |
+| url | property | `string` | yes |  |
 
 ## SupabaseAuthErrorCode
 
@@ -148,12 +148,12 @@ Source: `src/types.ts:28:1`
 
 ### Members
 
-| Name         | Kind     | Type                                                                                         | Required | Description |
-| ------------ | -------- | -------------------------------------------------------------------------------------------- | -------- | ----------- |
-| fields       | property | `readonly ("email" \| "displayName" \| "avatarUrl" \| "username" \| "phone")[] \| undefined` | no       |             |
-| maxAttempts  | property | `number \| undefined`                                                                        | no       |             |
-| retryDelayMs | property | `number \| undefined`                                                                        | no       |             |
-| table        | property | `string`                                                                                     | yes      |             |
+| Name | Kind | Type | Required | Description |
+| --- | --- | --- | --- | --- |
+| fields | property | `readonly ("email" \| "displayName" \| "avatarUrl" \| "username" \| "phone")[] \| undefined` | no |  |
+| maxAttempts | property | `number \| undefined` | no |  |
+| retryDelayMs | property | `number \| undefined` | no |  |
+| table | property | `string` | yes |  |
 
 ## SupabaseAuthRandomBytes
 
@@ -169,11 +169,11 @@ Source: `src/types.ts:13:1`
 
 ### Members
 
-| Name       | Kind   | Type                                                         | Required | Description |
-| ---------- | ------ | ------------------------------------------------------------ | -------- | ----------- |
-| getItem    | method | `(key: string) => string \| Promise<string \| null> \| null` | yes      |             |
-| removeItem | method | `(key: string) => void \| Promise<void>`                     | yes      |             |
-| setItem    | method | `(key: string, value: string) => void \| Promise<void>`      | yes      |             |
+| Name | Kind | Type | Required | Description |
+| --- | --- | --- | --- | --- |
+| getItem | method | `(key: string) => string \| Promise<string \| null> \| null` | yes |  |
+| removeItem | method | `(key: string) => void \| Promise<void>` | yes |  |
+| setItem | method | `(key: string, value: string) => void \| Promise<void>` | yes |  |
 
 ## SupabaseOAuthLifecycleEvent
 
@@ -183,13 +183,13 @@ Source: `src/types.ts:54:1`
 
 ### Members
 
-| Name          | Kind     | Type                                                                                                                                                                                                                                                                                                                                                                                                      | Required | Description |
-| ------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----------- |
-| correlationId | property | `string`                                                                                                                                                                                                                                                                                                                                                                                                  | yes      |             |
-| errorCode     | property | `"oauth_unavailable" \| "provider_disabled" \| "provider_misconfigured" \| "invalid_redirect_uri" \| "authorization_failed" \| "authorization_attempt_not_found" \| "invalid_callback" \| "state_mismatch" \| "pkce_mismatch" \| "callback_already_completed" \| "code_exchange_failed" \| "network_error" \| "session_persistence_failed" \| "profile_creation_failed" \| "provider_error" \| undefined` | no       |             |
-| provider      | property | `AuthOAuthProviderId`                                                                                                                                                                                                                                                                                                                                                                                     | yes      |             |
-| stage         | property | `"start" \| "transport" \| "callback" \| "exchange" \| "session" \| "profile"`                                                                                                                                                                                                                                                                                                                            | yes      |             |
-| status        | property | `SupabaseOAuthLifecycleStatus`                                                                                                                                                                                                                                                                                                                                                                            | yes      |             |
+| Name | Kind | Type | Required | Description |
+| --- | --- | --- | --- | --- |
+| correlationId | property | `string` | yes |  |
+| errorCode | property | `"oauth_unavailable" \| "provider_disabled" \| "provider_misconfigured" \| "invalid_redirect_uri" \| "authorization_failed" \| "authorization_attempt_not_found" \| "invalid_callback" \| "state_mismatch" \| "pkce_mismatch" \| "callback_already_completed" \| "code_exchange_failed" \| "network_error" \| "session_persistence_failed" \| "profile_creation_failed" \| "provider_error" \| undefined` | no |  |
+| provider | property | `AuthOAuthProviderId` | yes |  |
+| stage | property | `"start" \| "transport" \| "callback" \| "exchange" \| "session" \| "profile"` | yes |  |
+| status | property | `SupabaseOAuthLifecycleStatus` | yes |  |
 
 ## SupabaseOAuthLifecycleObserver
 
@@ -211,11 +211,11 @@ Source: `src/types.ts:39:1`
 
 ### Members
 
-| Name          | Kind     | Type                  | Required | Description |
-| ------------- | -------- | --------------------- | -------- | ----------- |
-| correlationId | property | `string`              | yes      |             |
-| provider      | property | `AuthOAuthProviderId` | yes      |             |
-| session       | property | `AuthSession`         | yes      |             |
+| Name | Kind | Type | Required | Description |
+| --- | --- | --- | --- | --- |
+| correlationId | property | `string` | yes |  |
+| provider | property | `AuthOAuthProviderId` | yes |  |
+| session | property | `AuthSession` | yes |  |
 
 ## SupabaseOAuthProfileVerificationResult
 
@@ -237,13 +237,13 @@ Source: `src/oauthProviderDefinitions.ts:25:1`
 
 ### Members
 
-| Name               | Kind     | Type                                            | Required | Description |
-| ------------------ | -------- | ----------------------------------------------- | -------- | ----------- |
-| defaultScopes      | property | `readonly string[]`                             | yes      |             |
-| id                 | property | `"google" \| "apple"`                           | yes      |             |
-| label              | property | `string`                                        | yes      |             |
-| runtimeEnvironment | property | `SupabaseOAuthRuntimeEnvironmentDefinition`     | yes      |             |
-| secretFields       | property | `readonly SupabaseOAuthSecretFieldDefinition[]` | yes      |             |
+| Name | Kind | Type | Required | Description |
+| --- | --- | --- | --- | --- |
+| defaultScopes | property | `readonly string[]` | yes |  |
+| id | property | `"google" \| "apple"` | yes |  |
+| label | property | `string` | yes |  |
+| runtimeEnvironment | property | `SupabaseOAuthRuntimeEnvironmentDefinition` | yes |  |
+| secretFields | property | `readonly SupabaseOAuthSecretFieldDefinition[]` | yes |  |
 
 ## SupabaseOAuthProviderId
 
@@ -259,12 +259,12 @@ Source: `src/oauthProviderDefinitions.ts:18:1`
 
 ### Members
 
-| Name         | Kind     | Type     | Required | Description |
-| ------------ | -------- | -------- | -------- | ----------- |
-| clientId     | property | `string` | yes      |             |
-| clientSecret | property | `string` | yes      |             |
-| enabled      | property | `string` | yes      |             |
-| redirectUri  | property | `string` | yes      |             |
+| Name | Kind | Type | Required | Description |
+| --- | --- | --- | --- | --- |
+| clientId | property | `string` | yes |  |
+| clientSecret | property | `string` | yes |  |
+| enabled | property | `string` | yes |  |
+| redirectUri | property | `string` | yes |  |
 
 ## SupabaseOAuthSecretFieldDefinition
 
@@ -274,11 +274,11 @@ Source: `src/oauthProviderDefinitions.ts:12:1`
 
 ### Members
 
-| Name   | Kind     | Type                           | Required | Description |
-| ------ | -------- | ------------------------------ | -------- | ----------- |
-| label  | property | `string`                       | yes      |             |
-| name   | property | `"clientId" \| "clientSecret"` | yes      |             |
-| secret | property | `boolean`                      | yes      |             |
+| Name | Kind | Type | Required | Description |
+| --- | --- | --- | --- | --- |
+| label | property | `string` | yes |  |
+| name | property | `"clientId" \| "clientSecret"` | yes |  |
+| secret | property | `boolean` | yes |  |
 
 ## SupabaseOAuthSecretPayload
 
@@ -294,10 +294,10 @@ Source: `src/types.ts:94:1`
 
 ### Members
 
-| Name   | Kind     | Type                  | Required | Description |
-| ------ | -------- | --------------------- | -------- | ----------- |
-| body   | property | `unknown`             | no       |             |
-| status | property | `number \| undefined` | no       |             |
+| Name | Kind | Type | Required | Description |
+| --- | --- | --- | --- | --- |
+| body | property | `unknown` | no |  |
+| status | property | `number \| undefined` | no |  |
 
 ## validateSupabaseOAuthSecretPayload
 

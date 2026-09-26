@@ -60,7 +60,7 @@
     "@ankhorage/devtools": "^1.21.3",
     "@ankhorage/paradox": "^0.2.6",
     "@types/bun": "^1.4.1",
-    "@types/node": "^25.6.0",
+    "@types/node": "^26.6.3",
     "typescript": "^5.9.3"
   },
   "dependencies": {

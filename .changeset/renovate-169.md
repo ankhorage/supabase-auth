@@ -2,4 +2,4 @@
 '@ankhorage/supabase-auth': patch
 ---
 
-Update dependencies from Renovate pull request #169.
+Support TypeScript 6 with a standard Fetch transport and matching lint type configuration.

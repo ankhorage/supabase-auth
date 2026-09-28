@@ -61,7 +61,7 @@
     "@ankhorage/paradox": "^0.2.6",
     "@types/bun": "^1.4.1",
     "@types/node": "^25.6.0",
-    "typescript": "^5.9.3"
+    "typescript": "^7.0.2"
   },
   "dependencies": {
     "@ankhorage/contracts": "^22.8.2",

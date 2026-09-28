@@ -5,7 +5,7 @@ import type {
   AuthSession,
 } from '@ankhorage/contracts/auth';
 
-export type SupabaseAuthFetch = typeof fetch;
+export type SupabaseAuthFetch = (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
 
 /** Returns cryptographically secure random bytes for OAuth PKCE verifier generation. */
 export type SupabaseAuthRandomBytes = (length: number) => Uint8Array;

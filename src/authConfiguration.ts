@@ -97,16 +97,5 @@ function requireFetch(fetchImplementation = createDefaultFetch()): SupabaseAuthF
 }
 
 function createDefaultFetch(): SupabaseAuthFetch {
-  return Object.assign(
-    (input: Parameters<SupabaseAuthFetch>[0], init?: Parameters<SupabaseAuthFetch>[1]) =>
-      globalThis.fetch(input, init),
-    {
-      preconnect(
-        url: Parameters<SupabaseAuthFetch['preconnect']>[0],
-        options?: Parameters<SupabaseAuthFetch['preconnect']>[1],
-      ): ReturnType<SupabaseAuthFetch['preconnect']> {
-        return globalThis.fetch.preconnect(url, options);
-      },
-    },
-  );
+  return (input, init) => globalThis.fetch(input, init);
 }

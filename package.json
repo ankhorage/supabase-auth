@@ -58,13 +58,13 @@
   },
   "devDependencies": {
     "@ankhorage/devtools": "^2.0.41",
-    "@ankhorage/paradox": "^0.2.8",
+    "@ankhorage/paradox": "^0.2.9",
     "@types/bun": "^1.4.2",
     "@types/node": "^26.6.3",
     "typescript": "^6.0.3"
   },
   "dependencies": {
-    "@ankhorage/contracts": "^22.8.29",
+    "@ankhorage/contracts": "^22.8.30",
     "@noble/hashes": "2.4.0"
   },
   "packageManager": "bun@1.4.2"

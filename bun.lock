@@ -9,7 +9,7 @@
         "@noble/hashes": "2.4.0",
       },
       "devDependencies": {
-        "@ankhorage/devtools": "^2.0.62",
+        "@ankhorage/devtools": "^2.0.63",
         "@ankhorage/paradox": "^0.2.15",
         "@types/bun": "^1.4.2",
         "@types/node": "^26.6.4",

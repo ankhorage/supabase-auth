@@ -1,5 +1,173 @@
 # @ankhorage/supabase-auth
 
+## 1.2.28
+
+### Patch Changes
+
+- 6696e91: Keep repository-only Renovate configuration out of published documentation.
+- 773fd97: Support TypeScript 6 with a standard Fetch transport and matching lint type configuration.
+- f2510b1: Update dependencies from Renovate pull request #188.
+- eb62303: Update Ankhorage dependencies: `@ankhorage/contracts`.
+- b28b697: Update Renovate-managed workflows.
+- 0113933: Update dependencies: `@ankhorage/contracts`.
+- 07f3490: Update dependencies: `@ankhorage/devtools`.
+- 27cf09b: Update Renovate-managed workflows.
+- 6a6394c: Update dependencies: `@ankhorage/contracts`.
+- db4cb04: Update Renovate-managed workflows.
+- d71cc9d: Update dependencies: `@ankhorage/contracts`.
+- 7ed5659: Update dependencies: `@ankhorage/devtools`.
+- 1693f0f: Update Renovate-managed workflows.
+- 7c0c087: Update dependencies: `@ankhorage/devtools`.
+- 1c87e9d: Update Renovate-managed workflows.
+- d09865c: Update dependencies: `@ankhorage/contracts`.
+- 0fd7bf3: Update dependencies: `@ankhorage/devtools`.
+- 376037f: Update Renovate-managed workflows.
+- 3003cb9: Update dependencies: `@ankhorage/contracts`.
+- ce0a824: Update dependencies: `@ankhorage/contracts`.
+- 4a0e4de: Update dependencies: `@ankhorage/devtools`.
+- ab7b387: Update Renovate-managed workflows.
+- e4cb972: Update dependencies: `@ankhorage/contracts`.
+- a599414: Update dependencies: `@ankhorage/devtools`.
+- 278a7a6: Update dependencies: `@ankhorage/contracts`.
+- 9c998fe: Update dependencies: `@ankhorage/devtools`.
+- 80d000a: Update Renovate-managed workflows.
+- 27221c7: Update dependencies: `@ankhorage/contracts`.
+- 0c1ccb9: Update Renovate-managed workflows.
+- 6a23aa1: Update dependencies: `@ankhorage/contracts`.
+- b475529: Update dependencies: `@ankhorage/devtools`.
+- 3b79d67: Update Renovate-managed workflows.
+- e9cf463: Update dependencies: `@ankhorage/contracts`.
+- 038c169: Update dependencies: `@ankhorage/devtools`.
+- 36804c6: Update Renovate-managed workflows.
+- 2acc13e: Update dependencies: `@ankhorage/contracts`, `@ankhorage/devtools`.
+- bc566fb: Update Renovate-managed workflows.
+- 66a8d74: Update dependencies: `@ankhorage/contracts`.
+- 077a802: Update dependencies: `@ankhorage/devtools`.
+- 9b65653: Update Renovate-managed workflows.
+- a252a5e: Update dependencies: `@ankhorage/contracts`.
+- 3c941e5: Update Renovate-managed workflows.
+- 0d4632f: Update dependencies: `@ankhorage/contracts`.
+- ccd32e1: Update dependencies: `@ankhorage/contracts`.
+- 177d89f: Update dependencies: `@ankhorage/devtools`.
+- 1b358b9: Update dependencies: `@ankhorage/contracts`.
+- e958796: Update Renovate-managed workflows.
+- 295018a: Update dependencies: `@ankhorage/contracts`.
+- f0bb479: Update dependencies: `@ankhorage/contracts`, `@ankhorage/paradox`.
+- 5dc0c39: Update dependencies: `@ankhorage/devtools`.
+- 23c4ab5: Update Renovate-managed workflows.
+- 954d461: Update dependencies: `@ankhorage/contracts`.
+- 7e97b77: Update Renovate-managed workflows.
+- 7e9baac: Update dependencies: `@ankhorage/contracts`, `@ankhorage/paradox`.
+- 0a3be58: Update dependencies: `@ankhorage/devtools`.
+- 162a30a: Update Renovate-managed workflows.
+- 83a6376: Update Renovate-managed workflows.
+- c1ca764: Update dependencies: `@ankhorage/contracts`.
+- 03640b6: Update Renovate-managed workflows.
+- 5a3cac7: Update dependencies: `@ankhorage/devtools`.
+- 91d6b0b: Update dependencies: `@ankhorage/contracts`, `@ankhorage/paradox`.
+- bf6f570: Update dependencies: `@ankhorage/devtools`.
+- c43872a: Update dependencies: `@ankhorage/contracts`.
+- bccf0db: Update Renovate-managed workflows.
+- 3dd4e3c: Update dependencies: `@ankhorage/contracts`, `@ankhorage/paradox`.
+- 29025fe: Update Renovate-managed workflows.
+- e9a819c: Update dependencies: `@ankhorage/devtools`.
+- 85ef044: Update dependencies: `@types/node`.
+- ab34443: Update dependencies: `@ankhorage/contracts`, `@ankhorage/paradox`.
+- 25de629: Update Renovate-managed workflows.
+- cf9f955: Update Renovate-managed workflows.
+- 0fc59ed: Update dependencies: `@ankhorage/contracts`, `@ankhorage/paradox`.
+- 0e34a78: Update dependencies: `@ankhorage/devtools`.
+- 2a1cb28: Update dependencies: `@ankhorage/contracts`, `@ankhorage/paradox`.
+- ee14870: Update dependencies: `@ankhorage/devtools`.
+- e0b69ef: Update Renovate-managed workflows.
+- 8da394e: Update dependencies: `@ankhorage/devtools`.
+- 84c88fa: Update Renovate-managed workflows.
+- eb113f8: Update Renovate-managed workflows.
+- 4b9af1c: Update dependencies: `@ankhorage/contracts`.
+- 5979644: Update dependencies: `@ankhorage/devtools`.
+- 1af8ea7: Update Renovate-managed workflows.
+- 8d77894: Update dependencies: `@ankhorage/contracts`, `@ankhorage/paradox`.
+- ab602a9: Update dependencies: `@ankhorage/devtools`.
+- 941f2d5: Update Renovate-managed workflows.
+- 0a3bae6: Update dependencies: `@ankhorage/contracts`, `@ankhorage/paradox`.
+- b7c6306: Update dependencies: `@ankhorage/contracts`, `@ankhorage/paradox`.
+- 080fd66: Update Renovate-managed workflows.
+- a19c252: Update dependencies: `@ankhorage/devtools`.
+- f0e8000: Update Renovate-managed workflows.
+- fe8e50b: Update dependencies: `@ankhorage/contracts`.
+- f4f450f: Update Renovate-managed workflows.
+- 08f7d51: Update dependencies: `@ankhorage/contracts`, `@ankhorage/paradox`.
+- b40830d: Update dependencies: `@ankhorage/devtools`.
+- 9875dfb: Update dependencies: `@ankhorage/contracts`.
+- e1e0fc0: Update Renovate-managed workflows.
+- 81dc3e2: Update dependencies: `@ankhorage/contracts`.
+- a717696: Update Renovate-managed workflows.
+- 74c5d0b: Update dependencies: `@ankhorage/contracts`.
+- 6c6b857: Update dependencies: `@ankhorage/devtools`.
+- 688863a: Update Renovate-managed workflows.
+- e6004b4: Update dependencies: `@ankhorage/contracts`.
+- cfdda15: Update dependencies: `@ankhorage/devtools`.
+- ab6782a: Update Renovate-managed workflows.
+- 4c963b1: Update dependencies: `@ankhorage/contracts`.
+- 75427d2: Update dependencies: `@ankhorage/devtools`.
+- 03061f7: Update dependencies: `@ankhorage/contracts`.
+- a57f286: Update dependencies: `@ankhorage/devtools`.
+- 0ef5e51: Update Renovate-managed workflows.
+- 3fd8f59: Update dependencies: `@ankhorage/contracts`, `@ankhorage/paradox`.
+- fec7357: Update dependencies: `@ankhorage/devtools`.
+- bfab464: Update Renovate-managed workflows.
+- 1e95722: Update dependencies: `@ankhorage/contracts`.
+- e91a572: Update Renovate-managed workflows.
+- 4ec6e52: Update dependencies: `@ankhorage/contracts`.
+- 64a9c93: Update dependencies: `@ankhorage/devtools`.
+- 6fd4d49: Update Renovate-managed workflows.
+- b2ef80f: Update dependencies: `@ankhorage/devtools`.
+- a002a0b: Update Renovate-managed workflows.
+- 5b75d55: Update dependencies: `@ankhorage/contracts`.
+- 26dfee1: Update dependencies: `@ankhorage/devtools`.
+- fb7bf31: Update dependencies: `@ankhorage/devtools`.
+- 951619f: Update dependencies: `@ankhorage/contracts`, `@ankhorage/paradox`.
+- 5c6da9f: Update Renovate-managed workflows.
+- 46a2d07: Update dependencies: `@ankhorage/devtools`.
+- fa876c7: Update Renovate-managed workflows.
+- c16f39f: Update dependencies: `@ankhorage/contracts`.
+- a9cb3bf: Update Renovate-managed workflows.
+- 5cf5f5e: Update dependencies: `@ankhorage/contracts`.
+- dfa71cf: Update dependencies: `@ankhorage/devtools`.
+- f4b9d8a: Update dependencies: `@ankhorage/contracts`.
+- 327d13d: Update dependencies: `@ankhorage/contracts`.
+- 5c807bc: Update dependencies: `@ankhorage/devtools`.
+- da352d1: Update Renovate-managed workflows.
+- 2f37a58: Update dependencies: `@ankhorage/contracts`.
+- 800e0c4: Update dependencies: `@ankhorage/devtools`.
+- 148c23a: Update dependencies: `@ankhorage/contracts`.
+- 4608e48: Update dependencies: `@ankhorage/devtools`.
+- 78f2359: Update Renovate-managed workflows.
+- 3466183: Update dependencies: `@ankhorage/devtools`.
+- 9791009: Update Renovate-managed workflows.
+- 19d6a99: Update dependencies: `@ankhorage/contracts`.
+- 23bee78: Update dependencies: `@ankhorage/devtools`.
+- 12f6986: Update Renovate-managed workflows.
+- 3460c40: Update dependencies: `@ankhorage/contracts`.
+- 75cb62d: Update dependencies: `@ankhorage/devtools`.
+- 274f6c7: Update Renovate-managed workflows.
+- bdc5b5d: Update dependencies: `@ankhorage/contracts`.
+- 108239e: Update dependencies: `@ankhorage/devtools`.
+- 976120d: Update Renovate-managed workflows.
+- f233c89: Update dependencies: `@ankhorage/contracts`.
+- 85e5976: Update dependencies: `@ankhorage/devtools`.
+- bea225b: Update Renovate-managed workflows.
+- 1a240a6: Update dependencies: `@ankhorage/contracts`.
+- 3a7d3d7: Update dependencies: `@ankhorage/devtools`.
+- 2d1ddc8: Update Renovate-managed workflows.
+- 333a549: Update dependencies: `@ankhorage/contracts`.
+- 56e79fb: Update dependencies: `@ankhorage/devtools`.
+- b2ee20d: Update Renovate-managed workflows.
+- 84435d6: Update dependencies: `@ankhorage/contracts`.
+- c052648: Update dependencies: `@ankhorage/devtools`.
+- 7cb11ac: Update Renovate-managed workflows.
+- aeb79e6: Update dependencies: `@ankhorage/contracts`.
+
 ## 1.2.27
 
 ### Patch Changes

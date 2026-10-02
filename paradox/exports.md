@@ -119,7 +119,7 @@ Source: `src/types.ts:70:1`
 | Name | Kind | Type | Required | Description |
 | --- | --- | --- | --- | --- |
 | anonKey | property | `string` | yes |  |
-| fetch | property | `typeof fetch \| undefined` | no |  |
+| fetch | property | `SupabaseAuthFetch \| undefined` | no |  |
 | oauthProviders | property | `readonly AuthOAuthProviderId[] \| undefined` | no |  |
 | oauthRandomBytes | property | `SupabaseAuthRandomBytes \| undefined` | no |  |
 | onOAuthLifecycleEvent | property | `SupabaseOAuthLifecycleObserver \| undefined` | no |  |

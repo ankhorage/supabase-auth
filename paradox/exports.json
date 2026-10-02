@@ -1,9 +1,11 @@
 [
   {
     "name": "createSupabaseAuthAdapter",
+    "title": null,
     "description": null,
     "isReadme": false,
-    "examples": [],
+    "see": [],
+    "security": [],
     "kind": "function",
     "modulePath": "src/createSupabaseAuthAdapter.ts",
     "sourceLocation": {
@@ -37,9 +39,11 @@
   },
   {
     "name": "createSupabaseOAuthProfileVerifier",
+    "title": null,
     "description": null,
     "isReadme": false,
-    "examples": [],
+    "see": [],
+    "security": [],
     "kind": "function",
     "modulePath": "src/profileVerification.ts",
     "sourceLocation": {
@@ -74,9 +78,11 @@
   },
   {
     "name": "getSupabaseOAuthProviderDefinition",
+    "title": null,
     "description": null,
     "isReadme": false,
-    "examples": [],
+    "see": [],
+    "security": [],
     "kind": "function",
     "modulePath": "src/oauthProviderDefinitions.ts",
     "sourceLocation": {
@@ -110,9 +116,11 @@
   },
   {
     "name": "isSupabaseOAuthProviderId",
+    "title": null,
     "description": null,
     "isReadme": false,
-    "examples": [],
+    "see": [],
+    "security": [],
     "kind": "function",
     "modulePath": "src/oauthProviderDefinitions.ts",
     "sourceLocation": {
@@ -144,9 +152,11 @@
   },
   {
     "name": "materializeSupabaseOAuthEnvironment",
+    "title": null,
     "description": null,
     "isReadme": false,
-    "examples": [],
+    "see": [],
+    "security": [],
     "kind": "function",
     "modulePath": "src/oauthProviderDefinitions.ts",
     "sourceLocation": {
@@ -178,9 +188,11 @@
   },
   {
     "name": "normalizeSupabaseAuthProfileVerificationConfig",
+    "title": null,
     "description": null,
     "isReadme": false,
-    "examples": [],
+    "see": [],
+    "security": [],
     "kind": "function",
     "modulePath": "src/profileVerification.ts",
     "sourceLocation": {
@@ -214,9 +226,11 @@
   },
   {
     "name": "resolveSupabaseOAuthSetupPlan",
+    "title": null,
     "description": null,
     "isReadme": false,
-    "examples": [],
+    "see": [],
+    "security": [],
     "kind": "function",
     "modulePath": "src/oauthSetupRequirements.ts",
     "sourceLocation": {
@@ -248,9 +262,11 @@
   },
   {
     "name": "SUPABASE_AUTH_PROFILE_FIELDS",
+    "title": null,
     "description": null,
     "isReadme": false,
-    "examples": [],
+    "see": [],
+    "security": [],
     "kind": "value",
     "modulePath": "src/types.ts",
     "sourceLocation": {
@@ -268,9 +284,11 @@
   },
   {
     "name": "SUPABASE_OAUTH_PROVIDER_DEFINITIONS",
+    "title": null,
     "description": null,
     "isReadme": false,
-    "examples": [],
+    "see": [],
+    "security": [],
     "kind": "value",
     "modulePath": "src/oauthProviderDefinitions.ts",
     "sourceLocation": {
@@ -288,9 +306,11 @@
   },
   {
     "name": "SUPABASE_OAUTH_PROVIDER_IDS",
+    "title": null,
     "description": null,
     "isReadme": false,
-    "examples": [],
+    "see": [],
+    "security": [],
     "kind": "value",
     "modulePath": "src/oauthProviderDefinitions.ts",
     "sourceLocation": {
@@ -308,9 +328,11 @@
   },
   {
     "name": "SUPABASE_OAUTH_SETUP_CAPABILITIES",
+    "title": null,
     "description": null,
     "isReadme": false,
-    "examples": [],
+    "see": [],
+    "security": [],
     "kind": "value",
     "modulePath": "src/oauthSetupRequirements.ts",
     "sourceLocation": {
@@ -328,9 +350,11 @@
   },
   {
     "name": "SupabaseAuthConfig",
+    "title": null,
     "description": null,
     "isReadme": false,
-    "examples": [],
+    "see": [],
+    "security": [],
     "kind": "type",
     "modulePath": "src/types.ts",
     "sourceLocation": {
@@ -359,7 +383,7 @@
       {
         "name": "fetch",
         "kind": "property",
-        "type": "typeof fetch | undefined",
+        "type": "SupabaseAuthFetch | undefined",
         "required": false,
         "description": null
       },
@@ -417,9 +441,11 @@
   },
   {
     "name": "SupabaseAuthErrorCode",
+    "title": null,
     "description": null,
     "isReadme": false,
-    "examples": [],
+    "see": [],
+    "security": [],
     "kind": "unknown",
     "modulePath": "src/types.ts",
     "sourceLocation": {
@@ -437,9 +463,11 @@
   },
   {
     "name": "SupabaseAuthProfileField",
+    "title": null,
     "description": null,
     "isReadme": false,
-    "examples": [],
+    "see": [],
+    "security": [],
     "kind": "unknown",
     "modulePath": "src/types.ts",
     "sourceLocation": {
@@ -457,9 +485,11 @@
   },
   {
     "name": "SupabaseAuthProfileVerificationConfig",
+    "title": null,
     "description": null,
     "isReadme": false,
-    "examples": [],
+    "see": [],
+    "security": [],
     "kind": "type",
     "modulePath": "src/types.ts",
     "sourceLocation": {
@@ -506,9 +536,11 @@
   },
   {
     "name": "SupabaseAuthRandomBytes",
+    "title": null,
     "description": null,
     "isReadme": false,
-    "examples": [],
+    "see": [],
+    "security": [],
     "kind": "unknown",
     "modulePath": "src/types.ts",
     "sourceLocation": {
@@ -526,9 +558,11 @@
   },
   {
     "name": "SupabaseAuthStorage",
+    "title": null,
     "description": null,
     "isReadme": false,
-    "examples": [],
+    "see": [],
+    "security": [],
     "kind": "type",
     "modulePath": "src/types.ts",
     "sourceLocation": {
@@ -568,9 +602,11 @@
   },
   {
     "name": "SupabaseOAuthLifecycleEvent",
+    "title": null,
     "description": null,
     "isReadme": false,
-    "examples": [],
+    "see": [],
+    "security": [],
     "kind": "type",
     "modulePath": "src/types.ts",
     "sourceLocation": {
@@ -626,9 +662,11 @@
   },
   {
     "name": "SupabaseOAuthLifecycleObserver",
+    "title": null,
     "description": null,
     "isReadme": false,
-    "examples": [],
+    "see": [],
+    "security": [],
     "kind": "unknown",
     "modulePath": "src/types.ts",
     "sourceLocation": {
@@ -646,9 +684,11 @@
   },
   {
     "name": "SupabaseOAuthLifecycleStatus",
+    "title": null,
     "description": null,
     "isReadme": false,
-    "examples": [],
+    "see": [],
+    "security": [],
     "kind": "unknown",
     "modulePath": "src/types.ts",
     "sourceLocation": {
@@ -666,9 +706,11 @@
   },
   {
     "name": "SupabaseOAuthProfileVerificationInput",
+    "title": null,
     "description": null,
     "isReadme": false,
-    "examples": [],
+    "see": [],
+    "security": [],
     "kind": "type",
     "modulePath": "src/types.ts",
     "sourceLocation": {
@@ -708,9 +750,11 @@
   },
   {
     "name": "SupabaseOAuthProfileVerificationResult",
+    "title": null,
     "description": null,
     "isReadme": false,
-    "examples": [],
+    "see": [],
+    "security": [],
     "kind": "unknown",
     "modulePath": "src/types.ts",
     "sourceLocation": {
@@ -728,9 +772,11 @@
   },
   {
     "name": "SupabaseOAuthProfileVerifier",
+    "title": null,
     "description": null,
     "isReadme": false,
-    "examples": [],
+    "see": [],
+    "security": [],
     "kind": "unknown",
     "modulePath": "src/types.ts",
     "sourceLocation": {
@@ -748,9 +794,11 @@
   },
   {
     "name": "SupabaseOAuthProviderDefinition",
+    "title": null,
     "description": null,
     "isReadme": false,
-    "examples": [],
+    "see": [],
+    "security": [],
     "kind": "type",
     "modulePath": "src/oauthProviderDefinitions.ts",
     "sourceLocation": {
@@ -807,9 +855,11 @@
   },
   {
     "name": "SupabaseOAuthProviderId",
+    "title": null,
     "description": null,
     "isReadme": false,
-    "examples": [],
+    "see": [],
+    "security": [],
     "kind": "unknown",
     "modulePath": "src/oauthProviderDefinitions.ts",
     "sourceLocation": {
@@ -827,9 +877,11 @@
   },
   {
     "name": "SupabaseOAuthRuntimeEnvironmentDefinition",
+    "title": null,
     "description": null,
     "isReadme": false,
-    "examples": [],
+    "see": [],
+    "security": [],
     "kind": "type",
     "modulePath": "src/oauthProviderDefinitions.ts",
     "sourceLocation": {
@@ -876,9 +928,11 @@
   },
   {
     "name": "SupabaseOAuthSecretFieldDefinition",
+    "title": null,
     "description": null,
     "isReadme": false,
-    "examples": [],
+    "see": [],
+    "security": [],
     "kind": "type",
     "modulePath": "src/oauthProviderDefinitions.ts",
     "sourceLocation": {
@@ -918,9 +972,11 @@
   },
   {
     "name": "SupabaseOAuthSecretPayload",
+    "title": null,
     "description": null,
     "isReadme": false,
-    "examples": [],
+    "see": [],
+    "security": [],
     "kind": "unknown",
     "modulePath": "src/oauthProviderDefinitions.ts",
     "sourceLocation": {
@@ -938,9 +994,11 @@
   },
   {
     "name": "SupabaseProviderErrorCause",
+    "title": null,
     "description": null,
     "isReadme": false,
-    "examples": [],
+    "see": [],
+    "security": [],
     "kind": "type",
     "modulePath": "src/types.ts",
     "sourceLocation": {
@@ -973,9 +1031,11 @@
   },
   {
     "name": "validateSupabaseOAuthSecretPayload",
+    "title": null,
     "description": null,
     "isReadme": false,
-    "examples": [],
+    "see": [],
+    "security": [],
     "kind": "function",
     "modulePath": "src/oauthProviderDefinitions.ts",
     "sourceLocation": {
@@ -1015,9 +1075,11 @@
   },
   {
     "name": "verifySupabaseOAuthProfile",
+    "title": null,
     "description": null,
     "isReadme": false,
-    "examples": [],
+    "see": [],
+    "security": [],
     "kind": "function",
     "modulePath": "src/profileVerification.ts",
     "sourceLocation": {

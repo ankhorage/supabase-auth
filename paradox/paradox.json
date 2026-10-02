@@ -14,7 +14,7 @@
     {
       "id": "npm",
       "label": "npm",
-      "value": "v1.2.27",
+      "value": "v1.2.28",
       "color": "cb3837"
     },
     {
@@ -55,16 +55,82 @@
     },
     {
       "id": "docs",
-      "label": "docs",
-      "value": "paradox",
-      "color": "0f766e"
+      "label": "paradox",
+      "value": "warnings",
+      "color": "ca8a04"
     }
   ],
-  "usage": null,
-  "readmeUsageDescription": null,
-  "readmeUsage": [],
-  "readmeCli": null,
-  "readmeConfig": null,
+  "usage": {
+    "packageName": "@ankhorage/supabase-auth",
+    "command": "ankh supabase-auth --help"
+  },
+  "usageEntries": [],
+  "exampleCount": 0,
+  "findings": [
+    {
+      "ruleId": "documentation.public-function.description",
+      "severity": "warning",
+      "message": "Public function createSupabaseAuthAdapter has no Paradox description.",
+      "sourcePath": "src/createSupabaseAuthAdapter.ts",
+      "line": 23
+    },
+    {
+      "ruleId": "documentation.public-function.description",
+      "severity": "warning",
+      "message": "Public function getSupabaseOAuthProviderDefinition has no Paradox description.",
+      "sourcePath": "src/oauthProviderDefinitions.ts",
+      "line": 81
+    },
+    {
+      "ruleId": "documentation.public-function.description",
+      "severity": "warning",
+      "message": "Public function isSupabaseOAuthProviderId has no Paradox description.",
+      "sourcePath": "src/oauthProviderDefinitions.ts",
+      "line": 75
+    },
+    {
+      "ruleId": "documentation.public-function.description",
+      "severity": "warning",
+      "message": "Public function materializeSupabaseOAuthEnvironment has no Paradox description.",
+      "sourcePath": "src/oauthProviderDefinitions.ts",
+      "line": 137
+    },
+    {
+      "ruleId": "documentation.public-function.description",
+      "severity": "warning",
+      "message": "Public function validateSupabaseOAuthSecretPayload has no Paradox description.",
+      "sourcePath": "src/oauthProviderDefinitions.ts",
+      "line": 89
+    },
+    {
+      "ruleId": "documentation.public-function.description",
+      "severity": "warning",
+      "message": "Public function resolveSupabaseOAuthSetupPlan has no Paradox description.",
+      "sourcePath": "src/oauthSetupRequirements.ts",
+      "line": 21
+    },
+    {
+      "ruleId": "documentation.public-function.description",
+      "severity": "warning",
+      "message": "Public function createSupabaseOAuthProfileVerifier has no Paradox description.",
+      "sourcePath": "src/profileVerification.ts",
+      "line": 33
+    },
+    {
+      "ruleId": "documentation.public-function.description",
+      "severity": "warning",
+      "message": "Public function normalizeSupabaseAuthProfileVerificationConfig has no Paradox description.",
+      "sourcePath": "src/profileVerification.ts",
+      "line": 130
+    },
+    {
+      "ruleId": "documentation.public-function.description",
+      "severity": "warning",
+      "message": "Public function verifySupabaseOAuthProfile has no Paradox description.",
+      "sourcePath": "src/profileVerification.ts",
+      "line": 52
+    }
+  ],
   "config": null,
   "entrypoints": [
     "src/index.ts"
@@ -469,9 +535,11 @@
   "exports": [
     {
       "name": "createSupabaseAuthAdapter",
+      "title": null,
       "description": null,
       "isReadme": false,
-      "examples": [],
+      "see": [],
+      "security": [],
       "kind": "function",
       "modulePath": "src/createSupabaseAuthAdapter.ts",
       "sourceLocation": {
@@ -505,9 +573,11 @@
     },
     {
       "name": "createSupabaseOAuthProfileVerifier",
+      "title": null,
       "description": null,
       "isReadme": false,
-      "examples": [],
+      "see": [],
+      "security": [],
       "kind": "function",
       "modulePath": "src/profileVerification.ts",
       "sourceLocation": {
@@ -542,9 +612,11 @@
     },
     {
       "name": "getSupabaseOAuthProviderDefinition",
+      "title": null,
       "description": null,
       "isReadme": false,
-      "examples": [],
+      "see": [],
+      "security": [],
       "kind": "function",
       "modulePath": "src/oauthProviderDefinitions.ts",
       "sourceLocation": {
@@ -578,9 +650,11 @@
     },
     {
       "name": "isSupabaseOAuthProviderId",
+      "title": null,
       "description": null,
       "isReadme": false,
-      "examples": [],
+      "see": [],
+      "security": [],
       "kind": "function",
       "modulePath": "src/oauthProviderDefinitions.ts",
       "sourceLocation": {
@@ -612,9 +686,11 @@
     },
     {
       "name": "materializeSupabaseOAuthEnvironment",
+      "title": null,
       "description": null,
       "isReadme": false,
-      "examples": [],
+      "see": [],
+      "security": [],
       "kind": "function",
       "modulePath": "src/oauthProviderDefinitions.ts",
       "sourceLocation": {
@@ -646,9 +722,11 @@
     },
     {
       "name": "normalizeSupabaseAuthProfileVerificationConfig",
+      "title": null,
       "description": null,
       "isReadme": false,
-      "examples": [],
+      "see": [],
+      "security": [],
       "kind": "function",
       "modulePath": "src/profileVerification.ts",
       "sourceLocation": {
@@ -682,9 +760,11 @@
     },
     {
       "name": "resolveSupabaseOAuthSetupPlan",
+      "title": null,
       "description": null,
       "isReadme": false,
-      "examples": [],
+      "see": [],
+      "security": [],
       "kind": "function",
       "modulePath": "src/oauthSetupRequirements.ts",
       "sourceLocation": {
@@ -716,9 +796,11 @@
     },
     {
       "name": "SUPABASE_AUTH_PROFILE_FIELDS",
+      "title": null,
       "description": null,
       "isReadme": false,
-      "examples": [],
+      "see": [],
+      "security": [],
       "kind": "value",
       "modulePath": "src/types.ts",
       "sourceLocation": {
@@ -736,9 +818,11 @@
     },
     {
       "name": "SUPABASE_OAUTH_PROVIDER_DEFINITIONS",
+      "title": null,
       "description": null,
       "isReadme": false,
-      "examples": [],
+      "see": [],
+      "security": [],
       "kind": "value",
       "modulePath": "src/oauthProviderDefinitions.ts",
       "sourceLocation": {
@@ -756,9 +840,11 @@
     },
     {
       "name": "SUPABASE_OAUTH_PROVIDER_IDS",
+      "title": null,
       "description": null,
       "isReadme": false,
-      "examples": [],
+      "see": [],
+      "security": [],
       "kind": "value",
       "modulePath": "src/oauthProviderDefinitions.ts",
       "sourceLocation": {
@@ -776,9 +862,11 @@
     },
     {
       "name": "SUPABASE_OAUTH_SETUP_CAPABILITIES",
+      "title": null,
       "description": null,
       "isReadme": false,
-      "examples": [],
+      "see": [],
+      "security": [],
       "kind": "value",
       "modulePath": "src/oauthSetupRequirements.ts",
       "sourceLocation": {
@@ -796,9 +884,11 @@
     },
     {
       "name": "SupabaseAuthConfig",
+      "title": null,
       "description": null,
       "isReadme": false,
-      "examples": [],
+      "see": [],
+      "security": [],
       "kind": "type",
       "modulePath": "src/types.ts",
       "sourceLocation": {
@@ -827,7 +917,7 @@
         {
           "name": "fetch",
           "kind": "property",
-          "type": "typeof fetch | undefined",
+          "type": "SupabaseAuthFetch | undefined",
           "required": false,
           "description": null
         },
@@ -885,9 +975,11 @@
     },
     {
       "name": "SupabaseAuthErrorCode",
+      "title": null,
       "description": null,
       "isReadme": false,
-      "examples": [],
+      "see": [],
+      "security": [],
       "kind": "unknown",
       "modulePath": "src/types.ts",
       "sourceLocation": {
@@ -905,9 +997,11 @@
     },
     {
       "name": "SupabaseAuthProfileField",
+      "title": null,
       "description": null,
       "isReadme": false,
-      "examples": [],
+      "see": [],
+      "security": [],
       "kind": "unknown",
       "modulePath": "src/types.ts",
       "sourceLocation": {
@@ -925,9 +1019,11 @@
     },
     {
       "name": "SupabaseAuthProfileVerificationConfig",
+      "title": null,
       "description": null,
       "isReadme": false,
-      "examples": [],
+      "see": [],
+      "security": [],
       "kind": "type",
       "modulePath": "src/types.ts",
       "sourceLocation": {
@@ -974,9 +1070,11 @@
     },
     {
       "name": "SupabaseAuthRandomBytes",
+      "title": null,
       "description": null,
       "isReadme": false,
-      "examples": [],
+      "see": [],
+      "security": [],
       "kind": "unknown",
       "modulePath": "src/types.ts",
       "sourceLocation": {
@@ -994,9 +1092,11 @@
     },
     {
       "name": "SupabaseAuthStorage",
+      "title": null,
       "description": null,
       "isReadme": false,
-      "examples": [],
+      "see": [],
+      "security": [],
       "kind": "type",
       "modulePath": "src/types.ts",
       "sourceLocation": {
@@ -1036,9 +1136,11 @@
     },
     {
       "name": "SupabaseOAuthLifecycleEvent",
+      "title": null,
       "description": null,
       "isReadme": false,
-      "examples": [],
+      "see": [],
+      "security": [],
       "kind": "type",
       "modulePath": "src/types.ts",
       "sourceLocation": {
@@ -1094,9 +1196,11 @@
     },
     {
       "name": "SupabaseOAuthLifecycleObserver",
+      "title": null,
       "description": null,
       "isReadme": false,
-      "examples": [],
+      "see": [],
+      "security": [],
       "kind": "unknown",
       "modulePath": "src/types.ts",
       "sourceLocation": {
@@ -1114,9 +1218,11 @@
     },
     {
       "name": "SupabaseOAuthLifecycleStatus",
+      "title": null,
       "description": null,
       "isReadme": false,
-      "examples": [],
+      "see": [],
+      "security": [],
       "kind": "unknown",
       "modulePath": "src/types.ts",
       "sourceLocation": {
@@ -1134,9 +1240,11 @@
     },
     {
       "name": "SupabaseOAuthProfileVerificationInput",
+      "title": null,
       "description": null,
       "isReadme": false,
-      "examples": [],
+      "see": [],
+      "security": [],
       "kind": "type",
       "modulePath": "src/types.ts",
       "sourceLocation": {
@@ -1176,9 +1284,11 @@
     },
     {
       "name": "SupabaseOAuthProfileVerificationResult",
+      "title": null,
       "description": null,
       "isReadme": false,
-      "examples": [],
+      "see": [],
+      "security": [],
       "kind": "unknown",
       "modulePath": "src/types.ts",
       "sourceLocation": {
@@ -1196,9 +1306,11 @@
     },
     {
       "name": "SupabaseOAuthProfileVerifier",
+      "title": null,
       "description": null,
       "isReadme": false,
-      "examples": [],
+      "see": [],
+      "security": [],
       "kind": "unknown",
       "modulePath": "src/types.ts",
       "sourceLocation": {
@@ -1216,9 +1328,11 @@
     },
     {
       "name": "SupabaseOAuthProviderDefinition",
+      "title": null,
       "description": null,
       "isReadme": false,
-      "examples": [],
+      "see": [],
+      "security": [],
       "kind": "type",
       "modulePath": "src/oauthProviderDefinitions.ts",
       "sourceLocation": {
@@ -1275,9 +1389,11 @@
     },
     {
       "name": "SupabaseOAuthProviderId",
+      "title": null,
       "description": null,
       "isReadme": false,
-      "examples": [],
+      "see": [],
+      "security": [],
       "kind": "unknown",
       "modulePath": "src/oauthProviderDefinitions.ts",
       "sourceLocation": {
@@ -1295,9 +1411,11 @@
     },
     {
       "name": "SupabaseOAuthRuntimeEnvironmentDefinition",
+      "title": null,
       "description": null,
       "isReadme": false,
-      "examples": [],
+      "see": [],
+      "security": [],
       "kind": "type",
       "modulePath": "src/oauthProviderDefinitions.ts",
       "sourceLocation": {
@@ -1344,9 +1462,11 @@
     },
     {
       "name": "SupabaseOAuthSecretFieldDefinition",
+      "title": null,
       "description": null,
       "isReadme": false,
-      "examples": [],
+      "see": [],
+      "security": [],
       "kind": "type",
       "modulePath": "src/oauthProviderDefinitions.ts",
       "sourceLocation": {
@@ -1386,9 +1506,11 @@
     },
     {
       "name": "SupabaseOAuthSecretPayload",
+      "title": null,
       "description": null,
       "isReadme": false,
-      "examples": [],
+      "see": [],
+      "security": [],
       "kind": "unknown",
       "modulePath": "src/oauthProviderDefinitions.ts",
       "sourceLocation": {
@@ -1406,9 +1528,11 @@
     },
     {
       "name": "SupabaseProviderErrorCause",
+      "title": null,
       "description": null,
       "isReadme": false,
-      "examples": [],
+      "see": [],
+      "security": [],
       "kind": "type",
       "modulePath": "src/types.ts",
       "sourceLocation": {
@@ -1441,9 +1565,11 @@
     },
     {
       "name": "validateSupabaseOAuthSecretPayload",
+      "title": null,
       "description": null,
       "isReadme": false,
-      "examples": [],
+      "see": [],
+      "security": [],
       "kind": "function",
       "modulePath": "src/oauthProviderDefinitions.ts",
       "sourceLocation": {
@@ -1483,9 +1609,11 @@
     },
     {
       "name": "verifySupabaseOAuthProfile",
+      "title": null,
       "description": null,
       "isReadme": false,
-      "examples": [],
+      "see": [],
+      "security": [],
       "kind": "function",
       "modulePath": "src/profileVerification.ts",
       "sourceLocation": {
@@ -1524,6 +1652,8 @@
     {
       "name": "validateSupabaseAuthConfig",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/authConfiguration.ts",
         "line": 31,
@@ -1533,6 +1663,8 @@
     {
       "name": "normalizeUrl",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/authConfiguration.ts",
         "line": 57,
@@ -1542,6 +1674,8 @@
     {
       "name": "normalizeOAuthProviders",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/authConfiguration.ts",
         "line": 68,
@@ -1551,6 +1685,8 @@
     {
       "name": "validateOAuthConfiguration",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/authConfiguration.ts",
         "line": 80,
@@ -1560,6 +1696,8 @@
     {
       "name": "requireFetch",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/authConfiguration.ts",
         "line": 92,
@@ -1569,6 +1707,8 @@
     {
       "name": "createDefaultFetch",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/authConfiguration.ts",
         "line": 99,
@@ -1578,6 +1718,8 @@
     {
       "name": "createSignInOperation",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/authPasswordOperations.ts",
         "line": 16,
@@ -1587,6 +1729,8 @@
     {
       "name": "createSignUpOperation",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/authPasswordOperations.ts",
         "line": 31,
@@ -1596,6 +1740,8 @@
     {
       "name": "createPasswordResetOperation",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/authPasswordOperations.ts",
         "line": 47,
@@ -1605,6 +1751,8 @@
     {
       "name": "createVerifyOtpOperation",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/authPasswordOperations.ts",
         "line": 66,
@@ -1614,6 +1762,8 @@
     {
       "name": "handleSignUpResponse",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/authPasswordOperations.ts",
         "line": 82,
@@ -1623,6 +1773,8 @@
     {
       "name": "passwordCredentials",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/authPasswordOperations.ts",
         "line": 102,
@@ -1632,6 +1784,8 @@
     {
       "name": "passwordResetEmail",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/authPasswordOperations.ts",
         "line": 109,
@@ -1641,6 +1795,8 @@
     {
       "name": "otpBody",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/authPasswordOperations.ts",
         "line": 125,
@@ -1650,6 +1806,8 @@
     {
       "name": "validatePassword",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/authPasswordOperations.ts",
         "line": 146,
@@ -1659,6 +1817,8 @@
     {
       "name": "identifierBody",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/authPasswordOperations.ts",
         "line": 152,
@@ -1668,6 +1828,8 @@
     {
       "name": "metadataBody",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/authPasswordOperations.ts",
         "line": 168,
@@ -1677,6 +1839,8 @@
     {
       "name": "isRecord",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/authPasswordOperations.ts",
         "line": 176,
@@ -1686,6 +1850,8 @@
     {
       "name": "createAuthOperationContext",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/authSessionContext.ts",
         "line": 24,
@@ -1695,6 +1861,8 @@
     {
       "name": "persistSession",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/authSessionContext.ts",
         "line": 29,
@@ -1704,6 +1872,8 @@
     {
       "name": "readStoredSession",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/authSessionContext.ts",
         "line": 38,
@@ -1713,6 +1883,8 @@
     {
       "name": "createAuthRequest",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/authSessionContext.ts",
         "line": 58,
@@ -1722,6 +1894,8 @@
     {
       "name": "createSafeSessionPersistence",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/authSessionContext.ts",
         "line": 70,
@@ -1731,6 +1905,8 @@
     {
       "name": "createSessionResponseHandler",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/authSessionContext.ts",
         "line": 88,
@@ -1740,6 +1916,8 @@
     {
       "name": "createHeaders",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/authSessionContext.ts",
         "line": 115,
@@ -1749,6 +1927,8 @@
     {
       "name": "createSignOutOperation",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/authSessionOperations.ts",
         "line": 11,
@@ -1758,6 +1938,8 @@
     {
       "name": "createGetSessionOperation",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/authSessionOperations.ts",
         "line": 20,
@@ -1767,6 +1949,8 @@
     {
       "name": "createRefreshSessionOperation",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/authSessionOperations.ts",
         "line": 38,
@@ -1776,6 +1960,8 @@
     {
       "name": "signOutProvider",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/authSessionOperations.ts",
         "line": 61,
@@ -1785,6 +1971,8 @@
     {
       "name": "readRefreshSession",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/authSessionOperations.ts",
         "line": 86,
@@ -1794,6 +1982,8 @@
     {
       "name": "createSupabaseAuthAdapter",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
         "line": 23,
@@ -1803,6 +1993,8 @@
     {
       "name": "createOAuthAdapter",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
         "line": 46,
@@ -1812,6 +2004,8 @@
     {
       "name": "createOAuthSessionPersistence",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
         "line": 66,
@@ -1821,6 +2015,8 @@
     {
       "name": "createProfileVerifier",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
         "line": 73,
@@ -1830,6 +2026,8 @@
     {
       "name": "requireOAuthStorage",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/createSupabaseAuthAdapter.ts",
         "line": 85,
@@ -1839,6 +2037,8 @@
     {
       "name": "createAuthError",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/errors.ts",
         "line": 5,
@@ -1848,6 +2048,8 @@
     {
       "name": "mapNetworkError",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/errors.ts",
         "line": 13,
@@ -1857,6 +2059,8 @@
     {
       "name": "mapSupabaseError",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/errors.ts",
         "line": 17,
@@ -1866,6 +2070,8 @@
     {
       "name": "isExpiredAccessSession",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/errors.ts",
         "line": 48,
@@ -1875,6 +2081,8 @@
     {
       "name": "isInvalidCredentialMessage",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/errors.ts",
         "line": 52,
@@ -1884,6 +2092,8 @@
     {
       "name": "isExpiredRefreshSession",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/errors.ts",
         "line": 62,
@@ -1893,6 +2103,8 @@
     {
       "name": "includesAny",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/errors.ts",
         "line": 69,
@@ -1902,6 +2114,8 @@
     {
       "name": "readResponseBody",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/errors.ts",
         "line": 73,
@@ -1911,6 +2125,8 @@
     {
       "name": "extractErrorMessage",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/errors.ts",
         "line": 97,
@@ -1920,6 +2136,8 @@
     {
       "name": "isRecord",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/errors.ts",
         "line": 124,
@@ -1929,6 +2147,8 @@
     {
       "name": "createSupabaseOAuthAdapter",
       "description": "Creates the Supabase OAuth adapter around isolated start and completion operations.",
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauth.ts",
         "line": 13,
@@ -1938,6 +2158,8 @@
     {
       "name": "createCompletionRunner",
       "description": "Serializes completion attempts so the same callback cannot be consumed concurrently.",
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauth.ts",
         "line": 27,
@@ -1947,6 +2169,8 @@
     {
       "name": "createOAuthAttemptId",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthAttemptId.ts",
         "line": 14,
@@ -1956,6 +2180,8 @@
     {
       "name": "resolveOAuthAttemptIdRuntime",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthAttemptId.ts",
         "line": 33,
@@ -1965,6 +2191,8 @@
     {
       "name": "createFallbackRandomChunk",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthAttemptId.ts",
         "line": 66,
@@ -1974,6 +2202,8 @@
     {
       "name": "completeOAuthReplay",
       "description": "Validates an OAuth replay against the callback fingerprint stored for its attempt.",
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthCallback.ts",
         "line": 19,
@@ -1983,6 +2213,8 @@
     {
       "name": "parseCallback",
       "description": "Parses and validates the provider callback against the stored redirect URI.",
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthCallback.ts",
         "line": 43,
@@ -1992,6 +2224,8 @@
     {
       "name": "invalidCallback",
       "description": "Creates a safe invalid-callback completion result.",
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthCallback.ts",
         "line": 65,
@@ -2001,6 +2235,8 @@
     {
       "name": "classifyCallback",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthCallback.ts",
         "line": 75,
@@ -2010,6 +2246,8 @@
     {
       "name": "classifyProviderError",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthCallback.ts",
         "line": 99,
@@ -2019,6 +2257,8 @@
     {
       "name": "parseCallbackLocations",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthCallback.ts",
         "line": 116,
@@ -2028,6 +2268,8 @@
     {
       "name": "sameCallbackLocation",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthCallback.ts",
         "line": 127,
@@ -2037,6 +2279,8 @@
     {
       "name": "replayMismatch",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthCallback.ts",
         "line": 137,
@@ -2046,6 +2290,8 @@
     {
       "name": "completeSupabaseOAuthAuthorization",
       "description": "Completes one Supabase OAuth authorization attempt.",
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthComplete.ts",
         "line": 44,
@@ -2055,6 +2301,8 @@
     {
       "name": "loadAttempt",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthComplete.ts",
         "line": 62,
@@ -2064,6 +2312,8 @@
     {
       "name": "parseCompletion",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthComplete.ts",
         "line": 95,
@@ -2073,6 +2323,8 @@
     {
       "name": "completeCancellation",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthComplete.ts",
         "line": 122,
@@ -2082,6 +2334,8 @@
     {
       "name": "reserveCallback",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthComplete.ts",
         "line": 141,
@@ -2091,6 +2345,8 @@
     {
       "name": "writeCallbackReservation",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthComplete.ts",
         "line": 184,
@@ -2100,6 +2356,8 @@
     {
       "name": "writeCallbackLedger",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthComplete.ts",
         "line": 206,
@@ -2109,6 +2367,8 @@
     {
       "name": "reservationFailure",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthComplete.ts",
         "line": 227,
@@ -2118,6 +2378,8 @@
     {
       "name": "completionFailure",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthComplete.ts",
         "line": 243,
@@ -2127,6 +2389,8 @@
     {
       "name": "failOAuthAttempt",
       "description": "Finalizes a failed OAuth attempt, emits safe lifecycle metadata, and returns its result.",
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthCompletionState.ts",
         "line": 9,
@@ -2136,6 +2400,8 @@
     {
       "name": "finalizeOAuthAttemptState",
       "description": "Marks an OAuth attempt completed and emits authentication success when applicable.",
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthCompletionState.ts",
         "line": 20,
@@ -2145,6 +2411,8 @@
     {
       "name": "clearOAuthAttempt",
       "description": "Clears the active attempt and its PKCE verifier.",
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthCompletionState.ts",
         "line": 42,
@@ -2154,6 +2422,8 @@
     {
       "name": "mapSupabaseOAuthError",
       "description": "Maps safe Supabase error metadata to the canonical OAuth error contract.",
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthErrors.ts",
         "line": 60,
@@ -2163,6 +2433,8 @@
     {
       "name": "oauthStartError",
       "description": "Creates a failed OAuth start result.",
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthErrors.ts",
         "line": 82,
@@ -2172,6 +2444,8 @@
     {
       "name": "oauthCompletionError",
       "description": "Creates a failed OAuth completion result.",
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthErrors.ts",
         "line": 92,
@@ -2181,6 +2455,8 @@
     {
       "name": "createOAuthError",
       "description": "Creates a canonical OAuth error without exposing provider secrets.",
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthErrors.ts",
         "line": 107,
@@ -2190,6 +2466,8 @@
     {
       "name": "normalizeOAuthErrorText",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthErrors.ts",
         "line": 119,
@@ -2199,6 +2477,8 @@
     {
       "name": "includesAny",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthErrors.ts",
         "line": 126,
@@ -2208,6 +2488,8 @@
     {
       "name": "readString",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthErrors.ts",
         "line": 130,
@@ -2217,6 +2499,8 @@
     {
       "name": "isRecord",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthErrors.ts",
         "line": 136,
@@ -2226,6 +2510,8 @@
     {
       "name": "exchangeAndPersistOAuthSession",
       "description": "Exchanges an OAuth code, persists its session, and verifies the generated profile.",
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthExchange.ts",
         "line": 16,
@@ -2235,6 +2521,8 @@
     {
       "name": "exchangeSession",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthExchange.ts",
         "line": 31,
@@ -2244,6 +2532,8 @@
     {
       "name": "normalizeExchangeResponse",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthExchange.ts",
         "line": 62,
@@ -2253,6 +2543,8 @@
     {
       "name": "readVerifier",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthExchange.ts",
         "line": 91,
@@ -2262,6 +2554,8 @@
     {
       "name": "persistSession",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthExchange.ts",
         "line": 126,
@@ -2271,6 +2565,8 @@
     {
       "name": "verifyProfile",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthExchange.ts",
         "line": 149,
@@ -2280,6 +2576,8 @@
     {
       "name": "emitOAuthError",
       "description": "Emits a redacted OAuth failure event for the supplied attempt.",
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthLifecycle.ts",
         "line": 7,
@@ -2289,6 +2587,8 @@
     {
       "name": "emitLifecycleEvent",
       "description": "Notifies the optional lifecycle observer without changing authentication behavior.",
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthLifecycle.ts",
         "line": 23,
@@ -2298,6 +2598,8 @@
     {
       "name": "isSupabaseOAuthProviderId",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthProviderDefinitions.ts",
         "line": 75,
@@ -2307,6 +2609,8 @@
     {
       "name": "getSupabaseOAuthProviderDefinition",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthProviderDefinitions.ts",
         "line": 81,
@@ -2316,6 +2620,8 @@
     {
       "name": "validateSupabaseOAuthSecretPayload",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthProviderDefinitions.ts",
         "line": 89,
@@ -2325,6 +2631,8 @@
     {
       "name": "materializeSupabaseOAuthEnvironment",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthProviderDefinitions.ts",
         "line": 137,
@@ -2334,6 +2642,8 @@
     {
       "name": "createOAuthRuntimeContext",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthRuntime.ts",
         "line": 17,
@@ -2343,6 +2653,8 @@
     {
       "name": "resolveSupabaseOAuthSetupPlan",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthSetupRequirements.ts",
         "line": 21,
@@ -2352,6 +2664,8 @@
     {
       "name": "startSupabaseOAuthAuthorization",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthStart.ts",
         "line": 28,
@@ -2361,6 +2675,8 @@
     {
       "name": "prepareStartInput",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthStart.ts",
         "line": 39,
@@ -2370,6 +2686,8 @@
     {
       "name": "clearPreviousAttempt",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthStart.ts",
         "line": 58,
@@ -2379,6 +2697,8 @@
     {
       "name": "createAuthorizationAttempt",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthStart.ts",
         "line": 90,
@@ -2388,6 +2708,8 @@
     {
       "name": "createAttempt",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthStart.ts",
         "line": 118,
@@ -2397,6 +2719,8 @@
     {
       "name": "createStartResult",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthStart.ts",
         "line": 134,
@@ -2406,6 +2730,8 @@
     {
       "name": "clearAttempt",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthStart.ts",
         "line": 161,
@@ -2415,6 +2741,8 @@
     {
       "name": "resolveEnabledProvider",
       "description": "Resolves an OAuth provider against the adapter's enabled provider set.",
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthStartSupport.ts",
         "line": 25,
@@ -2424,6 +2752,8 @@
     {
       "name": "normalizeRedirectUri",
       "description": "Normalizes and validates a canonical OAuth callback URI.",
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthStartSupport.ts",
         "line": 45,
@@ -2433,6 +2763,8 @@
     {
       "name": "normalizeQueryParams",
       "description": "Normalizes provider query parameters while rejecting reserved OAuth fields.",
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthStartSupport.ts",
         "line": 66,
@@ -2442,6 +2774,8 @@
     {
       "name": "normalizeScopes",
       "description": "Returns unique non-empty OAuth scopes in request order.",
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthStartSupport.ts",
         "line": 89,
@@ -2451,6 +2785,8 @@
     {
       "name": "createPkcePair",
       "description": "Creates a PKCE verifier and its S256 challenge from an injected secure byte source.",
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthStartSupport.ts",
         "line": 98,
@@ -2460,6 +2796,8 @@
     {
       "name": "createAuthorizationUrl",
       "description": "Creates the public Supabase PKCE authorization URL.",
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthStartSupport.ts",
         "line": 111,
@@ -2469,6 +2807,8 @@
     {
       "name": "exchangeAuthorizationCode",
       "description": "Exchanges a Supabase PKCE authorization code through the public HTTP contract.",
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthStartSupport.ts",
         "line": 133,
@@ -2478,6 +2818,8 @@
     {
       "name": "bytesToBase64Url",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthStartSupport.ts",
         "line": 151,
@@ -2487,6 +2829,8 @@
     {
       "name": "encodeBase64Triplet",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthStartSupport.ts",
         "line": 158,
@@ -2496,6 +2840,8 @@
     {
       "name": "parseAbsoluteUrl",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthStartSupport.ts",
         "line": 173,
@@ -2505,6 +2851,8 @@
     {
       "name": "isPermittedRedirect",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthStartSupport.ts",
         "line": 181,
@@ -2514,6 +2862,8 @@
     {
       "name": "invalidRedirect",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthStartSupport.ts",
         "line": 192,
@@ -2523,6 +2873,8 @@
     {
       "name": "isLocalhost",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthStartSupport.ts",
         "line": 199,
@@ -2532,6 +2884,8 @@
     {
       "name": "readAttempt",
       "description": "Reads and validates the persisted OAuth authorization attempt.",
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthStorage.ts",
         "line": 18,
@@ -2541,6 +2895,8 @@
     {
       "name": "writeAttempt",
       "description": "Persists the current OAuth authorization attempt.",
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthStorage.ts",
         "line": 33,
@@ -2550,6 +2906,8 @@
     {
       "name": "finalizeAttempt",
       "description": "Finalizes an OAuth attempt and removes its one-use PKCE verifier.",
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthStorage.ts",
         "line": 42,
@@ -2559,6 +2917,8 @@
     {
       "name": "clearOAuthAttemptState",
       "description": "Removes all persisted state for the active OAuth attempt.",
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthStorage.ts",
         "line": 62,
@@ -2568,6 +2928,8 @@
     {
       "name": "isAttemptExpired",
       "description": "Reports whether an OAuth attempt has reached its expiry time.",
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthStorage.ts",
         "line": 72,
@@ -2577,6 +2939,8 @@
     {
       "name": "fingerprintOAuthCallback",
       "description": "Fingerprints one callback for exact replay detection within its attempt.",
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthStorage.ts",
         "line": 77,
@@ -2586,6 +2950,8 @@
     {
       "name": "fingerprintConsumedOAuthCallback",
       "description": "Fingerprints one callback across attempts sharing the same redirect URI.",
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthStorage.ts",
         "line": 82,
@@ -2595,6 +2961,8 @@
     {
       "name": "readConsumedCallbacks",
       "description": "Reads valid, unexpired callback fingerprints from persistent storage.",
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthStorage.ts",
         "line": 87,
@@ -2604,6 +2972,8 @@
     {
       "name": "writeConsumedCallbacks",
       "description": "Persists the bounded callback replay-protection ledger.",
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthStorage.ts",
         "line": 102,
@@ -2613,6 +2983,8 @@
     {
       "name": "constantTimeEqual",
       "description": "Compares equal-length callback fingerprints without data-dependent early exit.",
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthStorage.ts",
         "line": 115,
@@ -2622,6 +2994,8 @@
     {
       "name": "normalizeAttemptLifetime",
       "description": "Normalizes the configured OAuth attempt lifetime.",
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthStorage.ts",
         "line": 125,
@@ -2631,6 +3005,8 @@
     {
       "name": "isStoredAttempt",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthStorage.ts",
         "line": 133,
@@ -2640,6 +3016,8 @@
     {
       "name": "hasAttemptIdentity",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthStorage.ts",
         "line": 140,
@@ -2649,6 +3027,8 @@
     {
       "name": "hasAttemptTimeline",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthStorage.ts",
         "line": 150,
@@ -2658,6 +3038,8 @@
     {
       "name": "hasValidCallbackFingerprint",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthStorage.ts",
         "line": 161,
@@ -2667,6 +3049,8 @@
     {
       "name": "isStoredConsumedOAuthCallbacks",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthStorage.ts",
         "line": 170,
@@ -2676,6 +3060,8 @@
     {
       "name": "isStoredConsumedOAuthCallback",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthStorage.ts",
         "line": 180,
@@ -2685,6 +3071,8 @@
     {
       "name": "safeRemove",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthStorage.ts",
         "line": 191,
@@ -2694,6 +3082,8 @@
     {
       "name": "digest",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthStorage.ts",
         "line": 199,
@@ -2703,6 +3093,8 @@
     {
       "name": "isRecord",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/oauthStorage.ts",
         "line": 203,
@@ -2712,6 +3104,8 @@
     {
       "name": "createSupabaseOAuthProfileVerifier",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/profileVerification.ts",
         "line": 33,
@@ -2721,6 +3115,8 @@
     {
       "name": "verifySupabaseOAuthProfile",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/profileVerification.ts",
         "line": 52,
@@ -2730,6 +3126,8 @@
     {
       "name": "fetchProfileRows",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/profileVerification.ts",
         "line": 79,
@@ -2739,6 +3137,8 @@
     {
       "name": "parseProfileRows",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/profileVerification.ts",
         "line": 109,
@@ -2748,6 +3148,8 @@
     {
       "name": "profileFailure",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/profileVerification.ts",
         "line": 126,
@@ -2757,6 +3159,8 @@
     {
       "name": "normalizeSupabaseAuthProfileVerificationConfig",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/profileVerification.ts",
         "line": 130,
@@ -2766,6 +3170,8 @@
     {
       "name": "createProfileEndpoint",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/profileVerification.ts",
         "line": 164,
@@ -2775,6 +3181,8 @@
     {
       "name": "validateProfileRow",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/profileVerification.ts",
         "line": 177,
@@ -2784,6 +3192,8 @@
     {
       "name": "validateProfileRows",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/profileVerification.ts",
         "line": 204,
@@ -2793,6 +3203,8 @@
     {
       "name": "getExpectedProfileValue",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/profileVerification.ts",
         "line": 218,
@@ -2802,6 +3214,8 @@
     {
       "name": "uniqueProfileFields",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/profileVerification.ts",
         "line": 236,
@@ -2811,6 +3225,8 @@
     {
       "name": "normalizeIntegerOption",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/profileVerification.ts",
         "line": 252,
@@ -2820,6 +3236,8 @@
     {
       "name": "delay",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/profileVerification.ts",
         "line": 268,
@@ -2829,6 +3247,8 @@
     {
       "name": "isRecord",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/profileVerification.ts",
         "line": 275,
@@ -2838,6 +3258,8 @@
     {
       "name": "normalizeSupabaseSession",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/session.ts",
         "line": 3,
@@ -2847,6 +3269,8 @@
     {
       "name": "normalizeSupabaseUser",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/session.ts",
         "line": 18,
@@ -2856,6 +3280,8 @@
     {
       "name": "parseStoredSession",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/session.ts",
         "line": 50,
@@ -2865,6 +3291,8 @@
     {
       "name": "isAuthSessionExpired",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/session.ts",
         "line": 66,
@@ -2874,6 +3302,8 @@
     {
       "name": "normalizeStoredExpiresAt",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/session.ts",
         "line": 74,
@@ -2883,6 +3313,8 @@
     {
       "name": "normalizeExpiresAt",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/session.ts",
         "line": 78,
@@ -2892,6 +3324,8 @@
     {
       "name": "mergeMetadata",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/session.ts",
         "line": 90,
@@ -2901,6 +3335,8 @@
     {
       "name": "metadataString",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/session.ts",
         "line": 96,
@@ -2910,6 +3346,8 @@
     {
       "name": "isAuthSession",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/session.ts",
         "line": 108,
@@ -2919,6 +3357,8 @@
     {
       "name": "stringValue",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/session.ts",
         "line": 117,
@@ -2928,6 +3368,8 @@
     {
       "name": "numberValue",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/session.ts",
         "line": 121,
@@ -2937,6 +3379,8 @@
     {
       "name": "isRecord",
       "description": null,
+      "see": [],
+      "security": [],
       "sourceLocation": {
         "filePath": "src/session.ts",
         "line": 130,
@@ -5270,6 +5714,11 @@
       {
         "fromSymbol": "SupabaseAuthConfig",
         "toType": "AuthOAuthProviderId",
+        "sourcePath": "src/types.ts"
+      },
+      {
+        "fromSymbol": "SupabaseAuthConfig",
+        "toType": "SupabaseAuthFetch",
         "sourcePath": "src/types.ts"
       },
       {

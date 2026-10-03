@@ -1,5 +1,12 @@
 # @ankhorage/supabase-auth
 
+## 1.2.29
+
+### Patch Changes
+
+- e43ff43: Update Renovate-managed workflows.
+- fc6ed2a: Update dependencies: `@ankhorage/contracts`, `@ankhorage/paradox`.
+
 ## 1.2.28
 
 ### Patch Changes

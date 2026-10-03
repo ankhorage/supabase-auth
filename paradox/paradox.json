@@ -14,7 +14,7 @@
     {
       "id": "npm",
       "label": "npm",
-      "value": "v1.2.28",
+      "value": "v1.2.29",
       "color": "cb3837"
     },
     {
@@ -70,63 +70,63 @@
     {
       "ruleId": "documentation.public-function.description",
       "severity": "warning",
-      "message": "Public function createSupabaseAuthAdapter has no Paradox description.",
+      "message": "Exported function createSupabaseAuthAdapter has no documentation description.",
       "sourcePath": "src/createSupabaseAuthAdapter.ts",
       "line": 23
     },
     {
       "ruleId": "documentation.public-function.description",
       "severity": "warning",
-      "message": "Public function getSupabaseOAuthProviderDefinition has no Paradox description.",
+      "message": "Exported function getSupabaseOAuthProviderDefinition has no documentation description.",
       "sourcePath": "src/oauthProviderDefinitions.ts",
       "line": 81
     },
     {
       "ruleId": "documentation.public-function.description",
       "severity": "warning",
-      "message": "Public function isSupabaseOAuthProviderId has no Paradox description.",
+      "message": "Exported function isSupabaseOAuthProviderId has no documentation description.",
       "sourcePath": "src/oauthProviderDefinitions.ts",
       "line": 75
     },
     {
       "ruleId": "documentation.public-function.description",
       "severity": "warning",
-      "message": "Public function materializeSupabaseOAuthEnvironment has no Paradox description.",
+      "message": "Exported function materializeSupabaseOAuthEnvironment has no documentation description.",
       "sourcePath": "src/oauthProviderDefinitions.ts",
       "line": 137
     },
     {
       "ruleId": "documentation.public-function.description",
       "severity": "warning",
-      "message": "Public function validateSupabaseOAuthSecretPayload has no Paradox description.",
+      "message": "Exported function validateSupabaseOAuthSecretPayload has no documentation description.",
       "sourcePath": "src/oauthProviderDefinitions.ts",
       "line": 89
     },
     {
       "ruleId": "documentation.public-function.description",
       "severity": "warning",
-      "message": "Public function resolveSupabaseOAuthSetupPlan has no Paradox description.",
+      "message": "Exported function resolveSupabaseOAuthSetupPlan has no documentation description.",
       "sourcePath": "src/oauthSetupRequirements.ts",
       "line": 21
     },
     {
       "ruleId": "documentation.public-function.description",
       "severity": "warning",
-      "message": "Public function createSupabaseOAuthProfileVerifier has no Paradox description.",
+      "message": "Exported function createSupabaseOAuthProfileVerifier has no documentation description.",
       "sourcePath": "src/profileVerification.ts",
       "line": 33
     },
     {
       "ruleId": "documentation.public-function.description",
       "severity": "warning",
-      "message": "Public function normalizeSupabaseAuthProfileVerificationConfig has no Paradox description.",
+      "message": "Exported function normalizeSupabaseAuthProfileVerificationConfig has no documentation description.",
       "sourcePath": "src/profileVerification.ts",
       "line": 130
     },
     {
       "ruleId": "documentation.public-function.description",
       "severity": "warning",
-      "message": "Public function verifySupabaseOAuthProfile has no Paradox description.",
+      "message": "Exported function verifySupabaseOAuthProfile has no documentation description.",
       "sourcePath": "src/profileVerification.ts",
       "line": 52
     }

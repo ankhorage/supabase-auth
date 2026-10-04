@@ -3,7 +3,7 @@
 
 # SUPABASE AUTH
 
-![license: MIT](./paradox/badges/license.svg) ![npm: v1.2.35](./paradox/badges/npm.svg) ![runtime: bun](./paradox/badges/runtime.svg) ![typescript: strict](./paradox/badges/typescript.svg) ![eslint: checked](./paradox/badges/eslint.svg) ![prettier: checked](./paradox/badges/prettier.svg) ![build: checked](./paradox/badges/build.svg) ![tests: checked](./paradox/badges/tests.svg) ![paradox: warnings](./paradox/badges/docs.svg)
+![license: MIT](./paradox/badges/license.svg) ![npm: v1.2.36](./paradox/badges/npm.svg) ![runtime: bun](./paradox/badges/runtime.svg) ![typescript: strict](./paradox/badges/typescript.svg) ![eslint: checked](./paradox/badges/eslint.svg) ![prettier: checked](./paradox/badges/prettier.svg) ![build: checked](./paradox/badges/build.svg) ![tests: checked](./paradox/badges/tests.svg) ![paradox: warnings](./paradox/badges/docs.svg)
 
 Supabase auth adapter implementing shared TypeScript auth contracts.
 

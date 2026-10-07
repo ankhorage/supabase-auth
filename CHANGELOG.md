@@ -1,5 +1,11 @@
 # @ankhorage/supabase-auth
 
+## 1.2.37
+
+### Patch Changes
+
+- 8238054: Update dependencies: `@ankhorage/contracts`.
+
 ## 1.2.36
 
 ### Patch Changes
